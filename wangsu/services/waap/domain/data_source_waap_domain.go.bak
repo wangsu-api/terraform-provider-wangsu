@@ -1,0 +1,569 @@
+package domain
+
+import (
+	"context"
+	"fmt"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	wangsuCommon "github.com/wangsu/terraform-provider-wangsu/wangsu/common"
+	waapDomain "github.com/wangsu/wangsu-sdk-go/wangsu/waap/domain"
+	"log"
+	"time"
+)
+
+func DataSourceWaapDomain() *schema.Resource {
+	return &schema.Resource{
+		ReadContext: dataSourceWaapDomainRead,
+
+		Schema: map[string]*schema.Schema{
+			"domain_list": {
+				Type:        schema.TypeList,
+				Required:    true,
+				Description: "Hostnames",
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+			"data": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: "Data.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"domain": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "Hostname.",
+						},
+						"dms_defend_config": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "DDoS Protection.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"config_switch": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "DDoS protection switch.\nON: Enabled\nOFF: Disabled",
+									},
+									"protection_mode": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "DDoS protection mode.\nAI_DEPOSIT: Managed Auto-Protect\nUNDER_ATTACK: I'm Under Attack",
+									},
+									"ai_switch": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "DDoS AI intelligent protection switch.\nON: Enabled\nOFF: Disabled",
+									},
+								},
+							},
+						},
+						"waf_defend_config": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "WAF Protection.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"rule_update_mode": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "Ruleset pattern. \nMANUAL: Manual\nAUTO: Automatic",
+									},
+									"config_switch": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "WAF protection switch.\nON: Enabled\nOFF: Disabled",
+									},
+									"defend_mode": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "WAF protection Mode.\nBLOCK: Interception\nLOG: Observation",
+									},
+									"punishment_action": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "Attack IP punishment action.\nBLOCK: Block\nNO_USE: Not used",
+									},
+									"rule_version": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "Rule version number.",
+									},
+								},
+							},
+						},
+						"bot_manage_config": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "Bot management.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"config_switch": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "Bot management switch.\nON:Enabled\nOFF:Disabled",
+									},
+									"known_type_bots": {
+										Type:        schema.TypeList,
+										Computed:    true,
+										Description: "Known type bots.",
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"public_bot_act_list": {
+													Type:        schema.TypeList,
+													Computed:    true,
+													Description: "Known Bot action count.",
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"act": {
+																Type:        schema.TypeString,
+																Computed:    true,
+																Description: "Action.",
+															},
+															"count": {
+																Type:        schema.TypeInt,
+																Computed:    true,
+																Description: "Count.",
+															},
+														},
+													},
+												},
+												"ua_bot_act_list": {
+													Type:        schema.TypeList,
+													Computed:    true,
+													Description: "User-Agent feature detection action count.",
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"act": {
+																Type:        schema.TypeString,
+																Computed:    true,
+																Description: "Action.",
+															},
+															"count": {
+																Type:        schema.TypeInt,
+																Computed:    true,
+																Description: "Count.",
+															},
+														},
+													},
+												},
+												"customize_bot_act_list": {
+													Type:        schema.TypeList,
+													Computed:    true,
+													Description: "Custom Bot action count.",
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"act": {
+																Type:        schema.TypeString,
+																Computed:    true,
+																Description: "Action.",
+															},
+															"count": {
+																Type:        schema.TypeInt,
+																Computed:    true,
+																Description: "Count.",
+															},
+														},
+													},
+												},
+											},
+										},
+									},
+									"unknown_type_bots": {
+										Type:        schema.TypeList,
+										Computed:    true,
+										Description: "Unknown type bots.",
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"scene_analyse_switch": {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "Scene detection switch.\nON: On\nOFF: Off",
+												},
+												"web_risk_check_act": {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "Web risk detection action.\nNO_USE: Not used\nBLOCK: Block\nLOG: Monitor",
+												},
+												"app_risk_check_act": {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "App risk detection action.\nNO_USE: Not used\nBLOCK: Block\nLOG: Monitor",
+												},
+												"app_whitelist_count": {
+													Type:        schema.TypeInt,
+													Computed:    true,
+													Description: "Application request whitelist count.",
+												},
+												"behavior_analyse_switch": {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "Business flow detection switch.\nON: On\nOFF: Off",
+												},
+												"behavior_analyse_act_list": {
+													Type:        schema.TypeList,
+													Computed:    true,
+													Description: "Business flow detection action count.",
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"act": {
+																Type:        schema.TypeString,
+																Computed:    true,
+																Description: "Action.",
+															},
+															"count": {
+																Type:        schema.TypeInt,
+																Computed:    true,
+																Description: "Count.",
+															},
+														},
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+						"api_defend_config": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "API Protection.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"config_switch": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "API security switch.\nON: Enabled\nOFF: Disabled",
+									},
+								},
+							},
+						},
+						"intelligence_config": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "Threat intelligence.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"config_switch": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "Threat intelligence switch.\nON: Enabled\nOFF: Disabled",
+									},
+									"spec_attack": {
+										Type:        schema.TypeList,
+										Computed:    true,
+										Description: "Specific attack risk action count",
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"act": {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "Action.",
+												},
+												"count": {
+													Type:        schema.TypeInt,
+													Computed:    true,
+													Description: "Count.",
+												},
+											},
+										},
+									},
+									"attack_source": {
+										Type:        schema.TypeList,
+										Computed:    true,
+										Description: "Attack resource risk action count.",
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"act": {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "Action.",
+												},
+												"count": {
+													Type:        schema.TypeInt,
+													Computed:    true,
+													Description: "Count.",
+												},
+											},
+										},
+									},
+									"industry": {
+										Type:        schema.TypeList,
+										Computed:    true,
+										Description: "Key industry risk action count.",
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"act": {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "Action.",
+												},
+												"count": {
+													Type:        schema.TypeInt,
+													Computed:    true,
+													Description: "Count.",
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+						"block_config": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "IP/Region blocking.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"config_switch": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "IP/Geo switch.\nON: Enabled\nOFF: Disabled",
+									},
+									"block_ip_count": {
+										Type:        schema.TypeInt,
+										Computed:    true,
+										Description: "Blocked IP count.",
+									},
+									"block_area_count": {
+										Type:        schema.TypeInt,
+										Computed:    true,
+										Description: "Blocked area count.",
+									},
+								},
+							},
+						},
+						"rate_limit_config": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "Rate limit.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"config_switch": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "Rate limiting switch.\nON: Enabled\nOFF: Disabled",
+									},
+									"act_list": {
+										Type:        schema.TypeList,
+										Computed:    true,
+										Description: "Action count.",
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"act": {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "Action.",
+												},
+												"count": {
+													Type:        schema.TypeInt,
+													Computed:    true,
+													Description: "Count.",
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+						"customize_rule_config": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "Custom rules.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"config_switch": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "Custom rules switch.\nON: Enabled\nOFF: Disabled",
+									},
+									"act_list": {
+										Type:        schema.TypeList,
+										Computed:    true,
+										Description: "Action count.",
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"act": {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "Action.",
+												},
+												"count": {
+													Type:        schema.TypeInt,
+													Computed:    true,
+													Description: "Count.",
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+						"whitelist_config": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "Whitelist.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"config_switch": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "Whitelist switch.\nON: Enabled\nOFF: Disabled",
+									},
+									"rule_count": {
+										Type:        schema.TypeInt,
+										Computed:    true,
+										Description: "Rule count.",
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
+func dataSourceWaapDomainRead(context context.Context, data *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	log.Printf("data_source.wangsu_waap_domain.read")
+
+	var response *waapDomain.ListDomainCommonConfResponse
+	var err error
+	var diags diag.Diagnostics
+	request := &waapDomain.ListDomainCommonConfRequest{}
+	if v, ok := data.GetOk("domain_list"); ok {
+		domainsList := v.([]interface{})
+		domainsListStr := make([]*string, len(domainsList))
+		for i, v := range domainsList {
+			str := v.(string)
+			domainsListStr[i] = &str
+		}
+		request.SetDomainList(domainsListStr)
+	}
+	err = resource.RetryContext(context, time.Duration(2)*time.Minute, func() *resource.RetryError {
+		_, response, err = meta.(wangsuCommon.ProviderMeta).GetAPIV3Conn().UseWaapDomainClient().GetDomainList(request)
+		if err != nil {
+			return resource.NonRetryableError(err)
+		}
+		return nil
+	})
+
+	if err != nil {
+		diags = append(diags, diag.FromErr(err)...)
+		return diags
+	}
+
+	if response == nil {
+		return nil
+	}
+	if len(response.Data) == 0 {
+		return nil
+	}
+	dataList := make([]interface{}, len(response.Data))
+	if response.Data != nil {
+		for i, domainConfig := range response.Data {
+			dataList[i] = map[string]interface{}{
+				"domain": domainConfig.Domain,
+				"dms_defend_config": []interface{}{
+					map[string]interface{}{
+						"config_switch":   domainConfig.DmsDefendConfig.ConfigSwitch,
+						"protection_mode": domainConfig.DmsDefendConfig.ProtectionMode,
+						"ai_switch":       domainConfig.DmsDefendConfig.AiSwitch,
+					},
+				},
+				"waf_defend_config": []interface{}{
+					map[string]interface{}{
+						"rule_update_mode":  domainConfig.WafDefendConfig.RuleUpdateMode,
+						"config_switch":     domainConfig.WafDefendConfig.ConfigSwitch,
+						"defend_mode":       domainConfig.WafDefendConfig.DefendMode,
+						"punishment_action": domainConfig.WafDefendConfig.PunishmentAction,
+						"rule_version":      domainConfig.WafDefendConfig.RuleVersion,
+					},
+				},
+				"bot_manage_config": []interface{}{
+					map[string]interface{}{
+						"config_switch": domainConfig.BotManageConfig.ConfigSwitch,
+						"known_type_bots": []interface{}{
+							map[string]interface{}{
+								"public_bot_act_list":    convertActList(domainConfig.BotManageConfig.KnownTypeBots.PublicBotActList),
+								"ua_bot_act_list":        convertActList(domainConfig.BotManageConfig.KnownTypeBots.UaBotActList),
+								"customize_bot_act_list": convertActList(domainConfig.BotManageConfig.KnownTypeBots.CustomizeBotActList),
+							},
+						},
+						"unknown_type_bots": []interface{}{
+							map[string]interface{}{
+								"scene_analyse_switch":      domainConfig.BotManageConfig.UnknownTypeBots.SceneAnalyseSwitch,
+								"web_risk_check_act":        domainConfig.BotManageConfig.UnknownTypeBots.WebRiskCheckAct,
+								"app_risk_check_act":        domainConfig.BotManageConfig.UnknownTypeBots.AppRiskCheckAct,
+								"app_whitelist_count":       domainConfig.BotManageConfig.UnknownTypeBots.AppWhitelistCount,
+								"behavior_analyse_switch":   domainConfig.BotManageConfig.UnknownTypeBots.BehaviorAnalyseSwitch,
+								"behavior_analyse_act_list": convertActList(domainConfig.BotManageConfig.UnknownTypeBots.BehaviorAnalyseActList),
+							},
+						},
+					},
+				},
+				"api_defend_config": []interface{}{
+					map[string]interface{}{
+						"config_switch": domainConfig.ApiDefendConfig.ConfigSwitch,
+					},
+				},
+				"intelligence_config": []interface{}{
+					map[string]interface{}{
+						"config_switch": domainConfig.IntelligenceConfig.ConfigSwitch,
+						"spec_attack":   convertActList(domainConfig.IntelligenceConfig.SpecAttack),
+						"attack_source": convertActList(domainConfig.IntelligenceConfig.AttackSource),
+						"industry":      convertActList(domainConfig.IntelligenceConfig.Industry),
+					},
+				},
+				"block_config": []interface{}{
+					map[string]interface{}{
+						"config_switch":    domainConfig.BlockConfig.ConfigSwitch,
+						"block_ip_count":   domainConfig.BlockConfig.BlockIpCount,
+						"block_area_count": domainConfig.BlockConfig.BlockAreaCount,
+					},
+				},
+				"rate_limit_config": []interface{}{
+					map[string]interface{}{
+						"config_switch": domainConfig.RateLimitConfig.ConfigSwitch,
+						"act_list":      convertActList(domainConfig.RateLimitConfig.ActList),
+					},
+				},
+				"customize_rule_config": []interface{}{
+					map[string]interface{}{
+						"config_switch": domainConfig.CustomizeRuleConfig.ConfigSwitch,
+						"act_list":      convertActList(domainConfig.CustomizeRuleConfig.ActList),
+					},
+				},
+				"whitelist_config": []interface{}{
+					map[string]interface{}{
+						"config_switch": domainConfig.WhitelistConfig.ConfigSwitch,
+						"rule_count":    domainConfig.WhitelistConfig.RuleCount,
+					},
+				},
+			}
+		}
+		if err := data.Set("data", dataList); err != nil {
+			return diag.FromErr(fmt.Errorf("error setting data for resource: %s", err))
+		}
+		var ids = request.DomainList
+		idsStr := make([]string, len(ids))
+		for i, v := range ids {
+			idsStr[i] = *v
+		}
+		data.SetId(wangsuCommon.DataResourceIdsHash(idsStr))
+	}
+	return nil
+}
+
+func convertActList(actList []*waapDomain.ActCount) []interface{} {
+	var result []interface{}
+	for _, act := range actList {
+		result = append(result, map[string]interface{}{
+			"act":   act.Act,
+			"count": act.Count,
+		})
+	}
+	return result
+}
