@@ -1,7 +1,7 @@
 package common
 
 import (
-	"github.com/wangsu/terraform-provider-wangsu/wangsu/connectivity"
+	"github.com/wangsu-api/terraform-provider-wangsu/wangsu/connectivity"
 )
 
 // ProviderMeta Provider 元信息

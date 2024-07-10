@@ -1,16 +1,16 @@
-module github.com/wangsu/terraform-provider-wangsu
+module github.com/wangsu-api/terraform-provider-wangsu
 
 go 1.17
 
 require (
+	github.com/alibabacloud-go/tea v1.2.0
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.20.0
-	github.com/wangsu/wangsu-sdk-go v0.0.0
+	github.com/wangsu-api/wangsu-sdk-go v1.0.2
 )
 
 require (
 	github.com/agext/levenshtein v1.2.2 // indirect
 	github.com/alibabacloud-go/debug v0.0.0-20190504072949-9472017b5c68 // indirect
-	github.com/alibabacloud-go/tea v1.2.0 // indirect
 	github.com/apparentlymart/go-textseg/v13 v13.0.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/fatih/color v1.13.0 // indirect
@@ -59,6 +59,3 @@ require (
 	google.golang.org/grpc v1.48.0 // indirect
 	google.golang.org/protobuf v1.28.0 // indirect
 )
-
-//local package
-replace github.com/wangsu/wangsu-sdk-go => ../wangsu-sdk-go

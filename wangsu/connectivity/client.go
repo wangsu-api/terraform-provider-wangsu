@@ -1,12 +1,12 @@
 package connectivity
 
 import (
-	"github.com/wangsu/wangsu-sdk-go/common"
-	cdn "github.com/wangsu/wangsu-sdk-go/wangsu/cdn/domain"
-	waapCustomizerule "github.com/wangsu/wangsu-sdk-go/wangsu/waap/customizerule"
-	waapDomain "github.com/wangsu/wangsu-sdk-go/wangsu/waap/domain"
-	waapRatelimit "github.com/wangsu/wangsu-sdk-go/wangsu/waap/ratelimit"
-	waapWhitelist "github.com/wangsu/wangsu-sdk-go/wangsu/waap/whitelist"
+	"github.com/wangsu-api/wangsu-sdk-go/common"
+	cdn "github.com/wangsu-api/wangsu-sdk-go/wangsu/cdn/domain"
+	waapCustomizerule "github.com/wangsu-api/wangsu-sdk-go/wangsu/waap/customizerule"
+	waapDomain "github.com/wangsu-api/wangsu-sdk-go/wangsu/waap/domain"
+	waapRatelimit "github.com/wangsu-api/wangsu-sdk-go/wangsu/waap/ratelimit"
+	waapWhitelist "github.com/wangsu-api/wangsu-sdk-go/wangsu/waap/whitelist"
 )
 
 type WangSuClient struct {

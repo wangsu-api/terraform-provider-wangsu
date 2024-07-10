@@ -2,14 +2,14 @@ package wangsu
 
 import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	wangsuCommon "github.com/wangsu/terraform-provider-wangsu/wangsu/common"
-	"github.com/wangsu/terraform-provider-wangsu/wangsu/connectivity"
-	"github.com/wangsu/terraform-provider-wangsu/wangsu/services/cdn/domain"
-	waapCustomizerule "github.com/wangsu/terraform-provider-wangsu/wangsu/services/waap/customizerule"
-	waapDomain "github.com/wangsu/terraform-provider-wangsu/wangsu/services/waap/domain"
-	waapRatelimit "github.com/wangsu/terraform-provider-wangsu/wangsu/services/waap/ratelimit"
-	waapWhitelist "github.com/wangsu/terraform-provider-wangsu/wangsu/services/waap/whitelist"
-	sdkCommon "github.com/wangsu/wangsu-sdk-go/common"
+	wangsuCommon "github.com/wangsu-api/terraform-provider-wangsu/wangsu/common"
+	"github.com/wangsu-api/terraform-provider-wangsu/wangsu/connectivity"
+	"github.com/wangsu-api/terraform-provider-wangsu/wangsu/services/cdn/domain"
+	waapCustomizerule "github.com/wangsu-api/terraform-provider-wangsu/wangsu/services/waap/customizerule"
+	waapDomain "github.com/wangsu-api/terraform-provider-wangsu/wangsu/services/waap/domain"
+	waapRatelimit "github.com/wangsu-api/terraform-provider-wangsu/wangsu/services/waap/ratelimit"
+	waapWhitelist "github.com/wangsu-api/terraform-provider-wangsu/wangsu/services/waap/whitelist"
+	sdkCommon "github.com/wangsu-api/wangsu-sdk-go/common"
 )
 
 const (

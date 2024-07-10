@@ -2,7 +2,7 @@ terraform {
   required_providers {
     wangsu = {
       source  = "wangsu-api/wangsu"
-      version = "1.0.2"
+      version = "1.0.3"
     }
   }
 }

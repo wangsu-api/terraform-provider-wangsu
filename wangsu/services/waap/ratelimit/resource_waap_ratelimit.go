@@ -6,8 +6,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	wangsuCommon "github.com/wangsu/terraform-provider-wangsu/wangsu/common"
-	waapRatelimit "github.com/wangsu/wangsu-sdk-go/wangsu/waap/ratelimit"
+	wangsuCommon "github.com/wangsu-api/terraform-provider-wangsu/wangsu/common"
+	waapRatelimit "github.com/wangsu-api/wangsu-sdk-go/wangsu/waap/ratelimit"
 	"log"
 	"time"
 )

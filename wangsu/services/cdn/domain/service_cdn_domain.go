@@ -1,6 +1,6 @@
 package domain
 
-import "github.com/wangsu/terraform-provider-wangsu/wangsu/connectivity"
+import "github.com/wangsu-api/terraform-provider-wangsu/wangsu/connectivity"
 
 func NewCdnService(client *connectivity.WangSuClient) CdnService {
 	return CdnService{client: client}
