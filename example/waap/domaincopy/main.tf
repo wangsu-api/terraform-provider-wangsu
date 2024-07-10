@@ -1,8 +1,8 @@
 terraform {
   required_providers {
     wangsu = {
-      source = "registry.terraform.io/wangsustack/wangsu"
-      version = "1.0.0"
+      source  = "wangsu-api/wangsu"
+      version = "1.0.2"
     }
   }
 }
@@ -13,6 +13,6 @@ provider "wangsu" {
 }
 
 resource "wangsu_waap_domain_copy" "demo" {
-    source_domain = "waap.test30.com"
-    target_domains = ["waap.czp", "waap.czp2"]
+  source_domain  = "waap.test30.com"
+  target_domains = ["waap.czp", "waap.czp2"]
 }

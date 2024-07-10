@@ -1,8 +1,8 @@
 terraform {
   required_providers {
     wangsu = {
-      source  = "registry.terraform.io/wangsustack/wangsu"
-      version = "1.0.0"
+      source  = "wangsu-api/wangsu"
+      version = "1.0.2"
     }
   }
 }
@@ -13,18 +13,18 @@ provider "wangsu" {
 }
 
 resource "wangsu_waap_ratelimit" "demo" {
-  domain             = "waap.test30.com"
-  rule_name          = "test_muti_condition11"
+  domain      = "waap.test30.com"
+  rule_name   = "test_muti_condition11"
   description = "your_description11"
   #   scene = "WEB" // or "API"
   scene              = "API"
   asset_api_id       = "1800805524845170689"
-  statistical_item = "IP_UA" // or other options
+  statistical_item   = "IP_UA" // or other options
   statistical_period = 601
   trigger_threshold  = 1001
-  intercept_time = 601
+  intercept_time     = 601
   #   effective_status = "PERMANENT" // or other options
-  effective_status   = "WITHIN" // or other options
+  effective_status = "WITHIN" // or other options
   rate_limit_effective {
     effective = ["MON", "FRI"]
     start     = "07:00"
@@ -87,8 +87,8 @@ resource "wangsu_waap_ratelimit" "demo" {
     }*/
 
     scheme_conditions {
-      match_type  = "EQUAL"
-      scheme = ["HTTPS"]
+      match_type = "EQUAL"
+      scheme     = ["HTTPS"]
     }
   }
 }

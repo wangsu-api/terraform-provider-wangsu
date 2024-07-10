@@ -1,8 +1,8 @@
 terraform {
   required_providers {
     wangsu = {
-      source = "registry.terraform.io/wangsustack/wangsu"
-      version = "1.0.0"
+      source  = "wangsu-api/wangsu"
+      version = "1.0.2"
     }
   }
 }
@@ -13,36 +13,36 @@ provider "wangsu" {
 }
 
 resource "wangsu_waap_customizerule" "demo" {
-  rule_name = "tf_test_u"
-  domain = "waap.test30.com"
+  rule_name   = "tf_test_u"
+  domain      = "waap.test30.com"
   description = "terraform test update"
-#   scene = "WEB"
-  scene = "API"
+  #   scene = "WEB"
+  scene  = "API"
   api_id = "1800805524845170689"
-  act = "BLOCK"
+  act    = "BLOCK"
 
   condition {
     path_conditions {
       match_type = "EQUAL"
-      paths = ["/p11", "/p21"]
+      paths      = ["/p11", "/p21"]
     }
     uri_param_conditions {
-      match_type = "NOT_EQUAL"
-      param_name = "p1"
+      match_type  = "NOT_EQUAL"
+      param_name  = "p1"
       param_value = ["pv1", "pv2"]
 
     }
     area_conditions {
       match_type = "NOT_EQUAL"
-      areas = ["AI", "AU"]
+      areas      = ["AI", "AU"]
     }
     method_conditions {
-      match_type = "NOT_EQUAL"
+      match_type     = "NOT_EQUAL"
       request_method = ["GET", "POST"]
     }
     header_conditions {
       match_type = "NOT_EQUAL"
-      key = "hk1"
+      key        = "hk1"
       value_list = ["h1", "h2"]
     }
   }
@@ -50,7 +50,7 @@ resource "wangsu_waap_customizerule" "demo" {
 
 
 data "wangsu_waap_customizerule" "demo" {
-  rule_name = wangsu_waap_customizerule.demo.rule_name
+  rule_name   = wangsu_waap_customizerule.demo.rule_name
   domain_list = [wangsu_waap_customizerule.demo.domain]
 }
 

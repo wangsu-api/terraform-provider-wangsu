@@ -1,8 +1,8 @@
 terraform {
   required_providers {
     wangsu = {
-      source = "registry.terraform.io/wangsustack/wangsu"
-      version = "1.0.0"
+      source  = "wangsu-api/wangsu"
+      version = "1.0.2"
     }
   }
 }
@@ -17,8 +17,8 @@ resource "wangsu_waap_domain" "example" {
 
   waf_defend_config {
     rule_update_mode = "AUTO"
-    config_switch = "OFF"
-    defend_mode = "BLOCK"
+    config_switch    = "OFF"
+    defend_mode      = "BLOCK"
   }
 
   customize_rule_config {
@@ -38,24 +38,24 @@ resource "wangsu_waap_domain" "example" {
   }
 
   dms_defend_config {
-    config_switch = "OFF"
+    config_switch   = "OFF"
     protection_mode = "UNDER_ATTACK"
-    ai_switch = "ON"
+    ai_switch       = "ON"
   }
 
   intelligence_config {
     config_switch = "OFF"
     info_cate_act {
       attack_source = "BLOCK"
-      spec_attack = "LOG"
-      industry = "LOG"
+      spec_attack   = "LOG"
+      industry      = "LOG"
     }
   }
 
   bot_manage_config {
     public_bots_act = "NO_USE"
-    config_switch = "OFF"
-    ua_bots_act = "LOG"
+    config_switch   = "OFF"
+    ua_bots_act     = "LOG"
     web_risk_config {
       act = "LOG"
     }
@@ -69,7 +69,7 @@ resource "wangsu_waap_domain" "example" {
 
 data "wangsu_waap_domain" "demo" {
   domain_list = wangsu_waap_domain.example.target_domains
-#   domain_list = []
+  #   domain_list = []
 }
 
 # output "domain_list" {
