@@ -1,11 +1,9 @@
 package main
 
 import (
-	"context"
 	"flag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/plugin"
 	"github.com/wangsu-api/terraform-provider-wangsu/wangsu"
-	"log"
 )
 
 // Run "go generate" to format example terraform files and generate the docs for the registry/website
@@ -24,16 +22,9 @@ func main() {
 	flag.BoolVar(&debugMode, "debuggable", true, "set to true to run the provider with support for debuggers like delve")
 	flag.Parse()
 
-	if debugMode {
-		err := plugin.Debug(context.Background(), "registry.terraform.io/providers/wangsu-api/wangsu",
-			&plugin.ServeOpts{
-				ProviderFunc: wangsu.Provider,
-				Debug:        debugMode,
-			})
-		if err != nil {
-			log.Println(err.Error())
-		}
-	} else {
-		plugin.Serve(&plugin.ServeOpts{ProviderFunc: wangsu.Provider})
-	}
+	plugin.Serve(&plugin.ServeOpts{
+		ProviderFunc: wangsu.Provider,
+		ProviderAddr: "registry.terraform.io/wangsu-api/wangsu",
+		Debug:        debugMode,
+	})
 }
