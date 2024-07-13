@@ -22,7 +22,7 @@
 
 * Tutorials: https://www.terraform.io
 
-* [![Documentation](https://img.shields.io/badge/documentation-blue)](https://registry.terraform.io/providers/tencentcloudstack/tencentcloud/latest/docs)
+* [![Documentation](https://img.shields.io/badge/documentation-blue)](https://registry.terraform.io/providers/wangsu-api/wangsu/latest/docs)
 
 * [![Gitter chat](https://badges.gitter.im/hashicorp-terraform/Lobby.png)](https://gitter.im/hashicorp-terraform/Lobby)
 
@@ -99,4 +99,4 @@ log.Println("[DEBUG] the message and some import values: %v", importantValues)
 
 ### License
 
-Terraform-Provider-TencentCloud is under the Mozilla Public License 2.0. See the [LICENSE](LICENSE) file for details.
+Terraform-Provider-Wangsu is under the Mozilla Public License 2.0. See the [LICENSE](LICENSE) file for details.
