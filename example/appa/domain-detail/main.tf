@@ -11,7 +11,10 @@ provider "wangsu" {
   secret_key = "my-secret-key"
 }
 
-resource "wangsu_waap_domain_copy" "demo" {
-  source_domain  = "waap.test30.com"
-  target_domains = ["waap.czp", "waap.czp2"]
+data "wangsu_appa_domain_detail" "appa1-data" {
+  domain_name = "20240710001.conftest.com"
+}
+
+output "show-appa1" {
+  value = data.wangsu_appa_domain_detail.appa1-data
 }

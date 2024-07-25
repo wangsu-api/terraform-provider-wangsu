@@ -1,15 +1,14 @@
 terraform {
   required_providers {
     wangsu = {
-      source  = "wangsu-api/wangsu"
-      version = "1.0.3"
+      source = "registry.terraform.io/wangsu-api/wangsu"
     }
   }
 }
 
 provider "wangsu" {
-  secret_id  = ""
-  secret_key = ""
+  secret_id  = "my-secret-id"
+  secret_key = "my-secret-key"
 }
 
 resource "wangsu_waap_whitelist" "demo" {

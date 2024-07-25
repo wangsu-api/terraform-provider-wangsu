@@ -4,6 +4,9 @@ package waap
 除了 exceptKey 之前的属性是否发生变化，暂不支持嵌套类型
 */
 func CheckChangeExcept(oldConfig []interface{}, newConfig []interface{}, exceptKey string) bool {
+	if (oldConfig == nil || len(oldConfig) == 0) || (newConfig == nil || len(newConfig) == 0) {
+		return false
+	}
 	// 遍历每个字段
 	oldConfigMap := oldConfig[0].(map[string]interface{})
 	newConfigMap := newConfig[0].(map[string]interface{})

@@ -11,7 +11,10 @@ provider "wangsu" {
   secret_key = "my-secret-key"
 }
 
-resource "wangsu_waap_domain_copy" "demo" {
-  source_domain  = "waap.test30.com"
-  target_domains = ["waap.czp", "waap.czp2"]
+data "wangsu_ssl_certificates" "myCertList" {
+  name = "test20240625"
+}
+
+output "certList" {
+  value = data.wangsu_ssl_certificates.myCertList
 }

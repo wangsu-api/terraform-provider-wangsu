@@ -346,7 +346,7 @@ func resourceWaapDomainRead(context context.Context, data *schema.ResourceData, 
 	if response == nil {
 		return nil
 	}
-	if len(response.Data) == 0 {
+	if len(response.Data) == 0 || nil == response.Data {
 		data.SetId("")
 		return nil
 	}
@@ -489,7 +489,9 @@ func resourceWaapDomainUpdate(context context.Context, data *schema.ResourceData
 	if data.HasChange("intelligence_config") {
 		oldConfig, newConfig := data.GetChange("intelligence_config")
 		changeUnExcept = changeUnExcept || waap.CheckChangeExcept(oldConfig.([]interface{}), newConfig.([]interface{}), "config_switch")
-		changeUnExcept = changeUnExcept || data.HasChange("intelligence_config.0.info_cate_act")
+		if oldConfig != nil && len(oldConfig.([]interface{})) != 0 && newConfig != nil && len(newConfig.([]interface{})) != 0 {
+			changeUnExcept = changeUnExcept || data.HasChange("intelligence_config.0.info_cate_act")
+		}
 		if changeUnExcept {
 			_ = data.Set("intelligence_config", oldConfig)
 		}
@@ -497,7 +499,9 @@ func resourceWaapDomainUpdate(context context.Context, data *schema.ResourceData
 	if data.HasChange("bot_manage_config") {
 		oldConfig, newConfig := data.GetChange("bot_manage_config")
 		changeUnExcept = changeUnExcept || waap.CheckChangeExcept(oldConfig.([]interface{}), newConfig.([]interface{}), "config_switch")
-		changeUnExcept = changeUnExcept || data.HasChange("bot_manage_config.0.web_risk_config")
+		if oldConfig != nil && len(oldConfig.([]interface{})) != 0 && newConfig != nil && len(newConfig.([]interface{})) != 0 {
+			changeUnExcept = changeUnExcept || data.HasChange("bot_manage_config.0.web_risk_config")
+		}
 		if changeUnExcept {
 			_ = data.Set("bot_manage_config", oldConfig)
 		}

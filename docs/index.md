@@ -17,7 +17,8 @@ description: |-
 
 ### Optional
 
-- `domain` (String) The root domain of the API request, e.g. `api.example.com`. It must be provided.
-- `protocol` (String) The protocol of the API request. Valid values: `HTTP` and `HTTPS`. Default is `HTTPS`.
+- `domain` (String) (Optional)The root domain of the API request.Default is `open.chinanetcenter.com`. It is optional
+- `protocol` (String) (Optional)The protocol of the API request. Valid values: `http` and `https`. Default is `https`.
 - `secret_id` (String) This is the wangsu access key. It must be provided, but it can also be sourced from the `WANGSU_SECRET_ID` environment variable.
 - `secret_key` (String, Sensitive) This is the wangsu secret key. It must be provided, but it can also be sourced from the `WANGSU_SECRET_KEY` environment variable.
+- `service_type` (String) (Optional)Security service type. Please enter a specific service type, if you purchase multiple security services.

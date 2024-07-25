@@ -447,27 +447,31 @@ func dataSourceRateLimitRead(context context.Context, data *schema.ResourceData,
 			}
 			conditionList[0] = condition
 			ids = append(ids, *item.Id)
-			itemList[i] = map[string]interface{}{
-				"id":                 item.Id,
-				"domain":             item.Domain,
-				"rule_name":          item.RuleName,
-				"description":        item.Description,
-				"scene":              item.Scene,
-				"statistical_stage":  item.StatisticalStage,
-				"statistical_item":   item.StatisticalItem,
-				"statistics_key":     item.StatisticsKey,
-				"statistical_period": item.StatisticalPeriod,
-				"trigger_threshold":  item.TriggerThreshold,
-				"intercept_time":     item.InterceptTime,
-				"effective_status":   item.EffectiveStatus,
-				"rate_limit_effective": []interface{}{
+			rate_limit_effective := []interface{}{map[string]interface{}{}}
+			if item.RateLimitEffective != nil {
+				rate_limit_effective = []interface{}{
 					map[string]interface{}{
 						"effective": item.RateLimitEffective.Effective,
 						"start":     item.RateLimitEffective.Start,
 						"end":       item.RateLimitEffective.End,
 						"timezone":  item.RateLimitEffective.Timezone,
 					},
-				},
+				}
+			}
+			itemList[i] = map[string]interface{}{
+				"id":                        item.Id,
+				"domain":                    item.Domain,
+				"rule_name":                 item.RuleName,
+				"description":               item.Description,
+				"scene":                     item.Scene,
+				"statistical_stage":         item.StatisticalStage,
+				"statistical_item":          item.StatisticalItem,
+				"statistics_key":            item.StatisticsKey,
+				"statistical_period":        item.StatisticalPeriod,
+				"trigger_threshold":         item.TriggerThreshold,
+				"intercept_time":            item.InterceptTime,
+				"effective_status":          item.EffectiveStatus,
+				"rate_limit_effective":      rate_limit_effective,
 				"asset_api_id":              item.AssetApiId,
 				"action":                    item.Action,
 				"rate_limit_rule_condition": conditionList,

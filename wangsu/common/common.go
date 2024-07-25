@@ -1,6 +1,7 @@
 package common
 
 import (
+	"strconv"
 	"strings"
 )
 
@@ -23,4 +24,9 @@ func IsContains(array interface{}, value interface{}) bool {
 		}
 	}
 	return false
+}
+
+func Int64ToStr(s int64) (i string) {
+	i = strconv.FormatInt(s, 10)
+	return
 }

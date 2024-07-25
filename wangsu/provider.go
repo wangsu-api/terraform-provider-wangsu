@@ -1,10 +1,14 @@
 package wangsu
 
 import (
+	"context"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	wangsuCommon "github.com/wangsu-api/terraform-provider-wangsu/wangsu/common"
 	"github.com/wangsu-api/terraform-provider-wangsu/wangsu/connectivity"
+	appadomain "github.com/wangsu-api/terraform-provider-wangsu/wangsu/services/appa/domain"
 	"github.com/wangsu-api/terraform-provider-wangsu/wangsu/services/cdn/domain"
+	"github.com/wangsu-api/terraform-provider-wangsu/wangsu/services/ssl/certificate"
 	waapCustomizerule "github.com/wangsu-api/terraform-provider-wangsu/wangsu/services/waap/customizerule"
 	waapDomain "github.com/wangsu-api/terraform-provider-wangsu/wangsu/services/waap/domain"
 	waapRatelimit "github.com/wangsu-api/terraform-provider-wangsu/wangsu/services/waap/ratelimit"
@@ -42,19 +46,26 @@ func Provider() *schema.Provider {
 			"protocol": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				DefaultFunc:  schema.EnvDefaultFunc(PROVIDER_PROTOCOL, "HTTPS"),
-				ValidateFunc: wangsuCommon.ValidateAllowedStringValue([]string{"HTTP", "HTTPS"}),
-				Description:  "The protocol of the API request. Valid values: `HTTP` and `HTTPS`. Default is `HTTPS`.",
+				DefaultFunc:  schema.EnvDefaultFunc(PROVIDER_PROTOCOL, "https"),
+				ValidateFunc: wangsuCommon.ValidateAllowedStringValue([]string{"http", "https"}),
+				Description:  "(Optional)The protocol of the API request. Valid values: `http` and `https`. Default is `https`.",
 			},
 			"domain": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc(PROVIDER_DOMAIN, nil),
-				Description: "The root domain of the API request, e.g. `api.example.com`. It must be provided.",
+				Description: "(Optional)The root domain of the API request.Default is `open.chinanetcenter.com`. It is optional",
+			},
+			"service_type": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "(Optional)Security service type. Please enter a specific service type, if you purchase multiple security services.",
 			},
 		},
 		ResourcesMap: map[string]*schema.Resource{
 			"wangsu_cdn_domain":         domain.ResourceCdnDomain(),
+			"wangsu_ssl_certificate":    certificate.ResourceSslCertificate(),
+			"wangsu_appa_domain":        appadomain.ResourceAppaDomain(),
 			"wangsu_waap_whitelist":     waapWhitelist.ResourceWaapWhitelist(),
 			"wangsu_waap_customizerule": waapCustomizerule.ResourceWaapCustomizeRule(),
 			"wangsu_waap_ratelimit":     waapRatelimit.ResourceWaapRateLimit(),
@@ -62,22 +73,27 @@ func Provider() *schema.Provider {
 			"wangsu_waap_domain":        waapDomain.ResourceWaapDomain(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
-			"wangsu_cdn_domains":        domain.DataSourceWangSuCdnDomains(),
-			"wangsu_waap_whitelist":     waapWhitelist.DataSourceWaapWhitelist(),
-			"wangsu_waap_customizerule": waapCustomizerule.DataSourceCustomizeRule(),
-			"wangsu_waap_ratelimit":     waapRatelimit.DataSourceRateLimit(),
-			"wangsu_waap_domain":        waapDomain.DataSourceWaapDomain(),
+			"wangsu_cdn_domains":            domain.DataSourceWangSuCdnDomains(),
+			"wangsu_cdn_domain_detail":      domain.DataSourceWangSuCdnDomainDetail(),
+			"wangsu_ssl_certificate_detail": certificate.DataSourceSslCertificateDetail(),
+			"wangsu_appa_domain_detail":     appadomain.DataSourceAppaDomainDetail(),
+			"wangsu_ssl_certificates":       certificate.DataSourceSslCertificates(),
+			"wangsu_waap_whitelist":         waapWhitelist.DataSourceWaapWhitelist(),
+			"wangsu_waap_customizerule":     waapCustomizerule.DataSourceCustomizeRule(),
+			"wangsu_waap_ratelimit":         waapRatelimit.DataSourceRateLimit(),
+			"wangsu_waap_domain":            waapDomain.DataSourceWaapDomain(),
 		},
-		ConfigureFunc: providerConfigure,
+		ConfigureContextFunc: providerConfigure,
 	}
 }
 
-func providerConfigure(d *schema.ResourceData) (interface{}, error) {
+func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
 	var (
-		secretId  string
-		secretKey string
-		protocol  string
-		domain    string
+		secretId    string
+		secretKey   string
+		protocol    string
+		domain      string
+		serviceType string
 	)
 	if v, ok := d.GetOk("secret_id"); ok {
 		secretId = v.(string)
@@ -94,17 +110,20 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 		domain = v.(string)
 	}
 
+	if v, ok := d.GetOk("service_type"); ok {
+		serviceType = v.(string)
+	}
+
 	var wangSuClient WangSuClient
 	wangSuClient.apiV3Conn = &connectivity.WangSuClient{
-		Credential: sdkCommon.NewCredential(secretId, secretKey),
-		Protocol:   protocol,
-		Domain:     domain,
+		Credential:  sdkCommon.NewCredential(secretId, secretKey),
+		HttpProfile: sdkCommon.NewHttpProfile(domain, protocol, serviceType),
 	}
 
 	return &wangSuClient, nil
 }
 
 // GetAPIV3Conn 返回访问云 API 的客户端连接对象
-func (meta *WangSuClient) GetAPIV3Conn() *connectivity.WangSuClient {
-	return meta.apiV3Conn
+func (client *WangSuClient) GetAPIV3Conn() *connectivity.WangSuClient {
+	return client.apiV3Conn
 }
