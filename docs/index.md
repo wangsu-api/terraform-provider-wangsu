@@ -87,4 +87,4 @@ In addition to generic provider arguments (e.g. alias and version), the followin
 
 * `secret_id` - (Optional) This is the wangsu secret id. It must be provided, but it can also be sourced from the `WANGSU_SECRET_KEY` environment variable.
 * `secret_key` - (Optional) This is the wangsu secret key. It must be provided, but it can also be sourced from the `WANGSU_SECRET_KEY` environment variable.* `protocol` - (Optional, Available in 1.37.0+) The protocol of the API request. Valid values: `HTTP` and `HTTPS`. Default is `HTTPS`.
-* `domain` - (Optional, Available in 1.37.0+) The root domain of the API request, Default is `open.chinanetcenter.com`.
+* `domain` - (Optional) The root domain of the API request, Default is `open.chinanetcenter.com`.
