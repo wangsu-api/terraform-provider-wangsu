@@ -8,7 +8,19 @@ description: |-
 
 # wangsu_ssl_certificate_detail (Data Source)
 
+Use this data source to query detailed information of SSL certificate.
 
+## Example Usage
+
+```hcl
+data "wangsu_ssl_certificate_detail" "myCert" {
+  certificate_id = "1464893"
+}
+
+output "data" {
+  value = data.wangsu_ssl_certificate_detail.myCert
+}
+```
 
 
 

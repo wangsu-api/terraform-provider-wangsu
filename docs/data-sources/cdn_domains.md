@@ -8,6 +8,25 @@ description: |-
 
 # wangsu_cdn_domains (Data Source)
 
+Use this data source to query detailed information of CDN domain names.
+
+## Example Usage
+
+```hcl
+data "wangsu_cdn_domains" "myDomainList" {
+  domain_names  = ["20240710001.conftest.com", "20240628003.conftest.com"]
+  service_types = ["appa", "web"]
+  page_size     = 1
+  page_number   = 1
+  status        = "enabled"
+  start_time    = "2024-07-10T17:30:05+08:00"
+  end_time      = "2024-07-10T18:31:05+08:00"
+}
+
+output "domain_list" {
+  value = data.wangsu_cdn_domains.myDomainList
+}
+```
 
 
 
