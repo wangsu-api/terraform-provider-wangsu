@@ -19,7 +19,7 @@ Use the navigation on the left to read about the available resources.
 terraform {
   required_providers {
     wangsu = {
-      source = "wangsu/wangsu"
+      source = "wangsu-api/wangsu"
     }
   }
 }
