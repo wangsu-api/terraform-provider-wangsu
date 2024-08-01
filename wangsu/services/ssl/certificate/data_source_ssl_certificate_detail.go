@@ -32,8 +32,9 @@ func DataSourceSslCertificateDetail() *schema.Resource {
 				Description: "Response error message if failed.",
 			},
 			"data": {
-				Type:     schema.TypeList,
-				Computed: true,
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: "SSL certificate details",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"certificate_id": {

@@ -1,6 +1,7 @@
 package appadomain
 
 import (
+	"errors"
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -124,6 +125,10 @@ func resourceAppaDomainCreate(context context.Context, data *schema.ResourceData
 	if httpPorts, ok := data.Get("http_ports").([]interface{}); ok && len(httpPorts) > 0 {
 		HttpPortList := make([]*string, 0, len(httpPorts))
 		for _, v := range httpPorts {
+			if v == nil {
+				diags = append(diags, diag.FromErr(errors.New("The http port could not be empty."))...)
+				return diags
+			}
 			port := v.(string)
 			HttpPortList = append(HttpPortList, &port)
 		}
@@ -132,6 +137,10 @@ func resourceAppaDomainCreate(context context.Context, data *schema.ResourceData
 	if httpsPorts, ok := data.Get("https_ports").([]interface{}); ok && len(httpsPorts) > 0 {
 		HttpsPortList := make([]*string, 0, len(httpsPorts))
 		for _, v := range httpsPorts {
+			if v == nil {
+				diags = append(diags, diag.FromErr(errors.New("The https port could not be empty."))...)
+				return diags
+			}
 			port := v.(string)
 			HttpsPortList = append(HttpsPortList, &port)
 		}
@@ -160,6 +169,7 @@ func resourceAppaDomainCreate(context context.Context, data *schema.ResourceData
 
 	data.SetId(*request.DomainName)
 
+	time.Sleep(3 * time.Second)
 	//query domain deployment status
 	var response *cdn.QueryDeployResultForTerraformResponse
 	err = resource.RetryContext(context, time.Duration(5)*time.Minute, func() *resource.RetryError {
@@ -173,7 +183,12 @@ func resourceAppaDomainCreate(context context.Context, data *schema.ResourceData
 		return nil
 	})
 
-	if response == nil {
+	if err != nil {
+		diags = append(diags, diag.FromErr(err)...)
+		return diags
+	}
+
+	if response == nil || response.Data == nil {
 		data.SetId("")
 		return nil
 	}
@@ -348,6 +363,7 @@ func resourceAppaDomainUpdate(context context.Context, data *schema.ResourceData
 		return nil
 	}
 
+	time.Sleep(3 * time.Second)
 	//query domain deployment status
 	var response *cdn.QueryDeployResultForTerraformResponse
 	err = resource.RetryContext(context, time.Duration(5)*time.Minute, func() *resource.RetryError {
@@ -360,6 +376,11 @@ func resourceAppaDomainUpdate(context context.Context, data *schema.ResourceData
 		}
 		return nil
 	})
+
+	if err != nil {
+		diags = append(diags, diag.FromErr(err)...)
+		return diags
+	}
 
 	log.Printf("resource.wangsu_appa_domain.update success")
 	return resourceAppaDomainRead(context, data, meta)
@@ -389,6 +410,7 @@ func resourceAppaDomainDelete(context context.Context, data *schema.ResourceData
 		return nil
 	}
 
+	time.Sleep(3 * time.Second)
 	//query domain deployment status
 	var deploymentResponse *cdn.QueryDeployResultForTerraformResponse
 	err = resource.RetryContext(context, time.Duration(5)*time.Minute, func() *resource.RetryError {
@@ -401,6 +423,11 @@ func resourceAppaDomainDelete(context context.Context, data *schema.ResourceData
 		}
 		return nil
 	})
+
+	if err != nil {
+		diags = append(diags, diag.FromErr(err)...)
+		return diags
+	}
 	log.Printf("resource.wangsu_appa_domain.delete success")
 	return nil
 }

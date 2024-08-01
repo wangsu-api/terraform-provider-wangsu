@@ -32,8 +32,9 @@ func DataSourceWangSuCdnDomainDetail() *schema.Resource {
 				Description: "Response error message if failed.",
 			},
 			"data": {
-				Type:     schema.TypeList,
-				Computed: true,
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: "Response data.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"domain_id": {

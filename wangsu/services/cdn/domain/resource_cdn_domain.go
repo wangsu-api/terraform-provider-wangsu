@@ -718,6 +718,7 @@ func resourceCdnDomainDelete(context context.Context, data *schema.ResourceData,
 		return nil
 	}
 
+	time.Sleep(3 * time.Second)
 	//query domain deployment status
 	var deploymentResponse *cdn.QueryDeployResultForTerraformResponse
 	err = resource.RetryContext(context, time.Duration(5)*time.Minute, func() *resource.RetryError {
@@ -730,6 +731,10 @@ func resourceCdnDomainDelete(context context.Context, data *schema.ResourceData,
 		}
 		return nil
 	})
+	if err != nil {
+		diags = append(diags, diag.FromErr(err)...)
+		return diags
+	}
 
 	return nil
 }
@@ -1352,6 +1357,7 @@ func resourceCdnDomainCreate(context context.Context, data *schema.ResourceData,
 
 	data.SetId(*request.DomainName)
 
+	time.Sleep(3 * time.Second)
 	//query domain deployment status
 	var response *cdn.QueryDeployResultForTerraformResponse
 	err = resource.RetryContext(context, time.Duration(5)*time.Minute, func() *resource.RetryError {
@@ -1365,7 +1371,12 @@ func resourceCdnDomainCreate(context context.Context, data *schema.ResourceData,
 		return nil
 	})
 
-	if response == nil {
+	if err != nil {
+		diags = append(diags, diag.FromErr(err)...)
+		return diags
+	}
+
+	if response == nil || response.Data == nil {
 		data.SetId("")
 		return nil
 	}
@@ -1797,6 +1808,8 @@ func resourceCdnDomainUpdate(context context.Context, data *schema.ResourceData,
 		return nil
 	}
 
+	time.Sleep(3 * time.Second)
+
 	//query domain deployment status
 	var response *cdn.QueryDeployResultForTerraformResponse
 	err = resource.RetryContext(context, time.Duration(5)*time.Minute, func() *resource.RetryError {
@@ -1809,6 +1822,10 @@ func resourceCdnDomainUpdate(context context.Context, data *schema.ResourceData,
 		}
 		return nil
 	})
+	if err != nil {
+		diags = append(diags, diag.FromErr(err)...)
+		return diags
+	}
 
 	log.Printf("resource.wangsu_cdn_domain.update success")
 	return resourceCdnDomainRead(context, data, meta)

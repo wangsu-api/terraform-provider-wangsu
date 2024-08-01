@@ -74,7 +74,7 @@ func resourceSslCertificateCreate(context context.Context, data *schema.Resource
 		diags = append(diags, diag.FromErr(err)...)
 		return diags
 	}
-	if response == nil {
+	if response == nil || response.Data == nil {
 		data.SetId("")
 		return nil
 	}
@@ -83,6 +83,7 @@ func resourceSslCertificateCreate(context context.Context, data *schema.Resource
 	data.SetId(certificateIdStr)
 	log.Printf("resource.wangsu_ssl_certificate.create success")
 	log.Printf("requestId: %s", requestId)
+	time.Sleep(2 * time.Second)
 	return resourceSslCertificateRead(context, data, meta)
 }
 
@@ -104,7 +105,7 @@ func resourceSslCertificateRead(context context.Context, data *schema.ResourceDa
 		diags = append(diags, diag.FromErr(err)...)
 		return diags
 	}
-	if response == nil {
+	if response == nil || response.Data == nil {
 		data.SetId("")
 		return nil
 	}
