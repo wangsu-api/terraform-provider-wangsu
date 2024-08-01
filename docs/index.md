@@ -8,7 +8,7 @@ description: |-
 
 # Wangsu Provider
 
-The Wangsu provider is used to interact with many resources supported by [Wangsu](https://www.wangsu.com).
+The wangsu provider is used to interact with many resources supported by [Wangsu](https://www.wangsu.com).
 The provider needs to be configured with the proper credentials before it can be used.
 
 Use the navigation on the left to read about the available resources.
