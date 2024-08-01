@@ -68,23 +68,23 @@ output "customizerule_list" {
 
 ### Required
 
-- `act` (String) Action.
-NO_USE:Not Used
-LOG:Log
-DELAY:Delay
-BLOCK:Deny
+- `act` (String) Action.<br/>
+NO_USE:Not Used<br/>
+LOG:Log<br/>
+DELAY:Delay<br/>
+BLOCK:Deny<br/>
 RESET:Reset Connection
 - `condition` (Block List, Min: 1) Match Conditions. (see [below for nested schema](#nestedblock--condition))
 - `domain` (String) Hostname.
-- `rule_name` (String) Rule Name, maximum 50 characters.
+- `rule_name` (String) Rule Name, maximum 50 characters.<br/>
 Does not support special characters and spaces.
-- `scene` (String) Protected target.
-WEB:Website
+- `scene` (String) Protected target.<br/>
+WEB:Website<br/>
 API:API
 
 ### Optional
 
-- `api_id` (String) API ID under API business, multiple separated by ; sign.
+- `api_id` (String) API ID under API business, multiple separated by ; sign.<br/>
 When the protected target is APIThis field is required.
 - `description` (String) Description, maximum 200 characters.
 
@@ -100,15 +100,15 @@ Optional:
 - `area_conditions` (Block List) Geo, match type cannot be repeated. (see [below for nested schema](#nestedblock--condition--area_conditions))
 - `header_conditions` (Block List) Request Header, match type can be repeated. (see [below for nested schema](#nestedblock--condition--header_conditions))
 - `ip_or_ips_conditions` (Block List) IP/CIDR, match type cannot be repeated. (see [below for nested schema](#nestedblock--condition--ip_or_ips_conditions))
-- `method_conditions` (Block List) Request Method.
+- `method_conditions` (Block List) Request Method.<br/>
 When the business scenario is API,this matching condition is not supported. (see [below for nested schema](#nestedblock--condition--method_conditions))
-- `path_conditions` (Block List) Path, match type cannot be repeated.
+- `path_conditions` (Block List) Path, match type cannot be repeated.<br/>
 When the business scenario is API, this matching condition is not supported. (see [below for nested schema](#nestedblock--condition--path_conditions))
 - `referer_conditions` (Block List) Referer, match type cannot be repeated. (see [below for nested schema](#nestedblock--condition--referer_conditions))
 - `ua_conditions` (Block List) User Agent, match type cannot be repeated. (see [below for nested schema](#nestedblock--condition--ua_conditions))
-- `uri_conditions` (Block List) URI, match type cannot be repeated.
+- `uri_conditions` (Block List) URI, match type cannot be repeated.<br/>
 When the business scenario is API, this matching condition is not supported. (see [below for nested schema](#nestedblock--condition--uri_conditions))
-- `uri_param_conditions` (Block List) URI Parameter, match type cannot be repeated.
+- `uri_param_conditions` (Block List) URI Parameter, match type cannot be repeated.<br/>
 When the business scenario is API, this matching condition is not supported. (see [below for nested schema](#nestedblock--condition--uri_param_conditions))
 
 <a id="nestedblock--condition--area_conditions"></a>
@@ -117,8 +117,8 @@ When the business scenario is API, this matching condition is not supported. (se
 Required:
 
 - `areas` (List of String) Geo.
-- `match_type` (String) Match type.
-EQUAL:Equal
+- `match_type` (String) Match type.<br/>
+EQUAL:Equal<br/>
 NOT_EQUAL:Does not equal
 
 
@@ -127,23 +127,9 @@ NOT_EQUAL:Does not equal
 
 Required:
 
-- `key` (String) Request header name.
-- `match_type` (String) Match type.
-EQUAL: equal to
-NOT_EQUAL: not equal to
-CONTAIN: contains
-NOT_CONTAIN: does not contain
-REGEX: regular
-NONE: empty or does not exist
-NOT_REGEX: regular does not match
-START_WITH: starts with
-END_WITH: ends with
-WILDCARD: wildcard matches
-NOT_WILDCARD: wildcard does not match
-
-Optional:
-
-- `value_list` (List of String) Header value.
+- `match_type` (String) Match type.<br/>EQUAL: Equals, user agent case sensitive<br/>NOT_EQUAL: Does not equal, user agent case sensitive<br/>CONTAIN: Contains, user agent case insensitive<br/>NOT_CONTAIN: Does not Contains, user agent case insensitive<br/>NONE:Empty or non-existent<br/>REGEX: Regex match, user agent case insensitive<br/>NOT_REGEX: Regular does not match, user agent case insensitive<br/>START_WITH: Starts with, user agent case insensitive<br/>END_WITH: Ends with, user agent case insensitive<br/>WILDCARD: Wildcard matches, user agent case insensitive, * represents zero or more arbitrary characters, ? represents any single character<br/>NOT_WILDCARD: Wildcard does not match, user agent case insensitive, * represents zero or more arbitrary characters, ? represents any single character
+- `key` (String) Header name,case insensitive,up to 100 characters.<br/>Example: Accept.
+- `value_list` (List of String) Header value.<br/>When the match type is REGEX/NOT_REGEX, only one value is allowed.
 
 
 <a id="nestedblock--condition--ip_or_ips_conditions"></a>
@@ -151,10 +137,8 @@ Optional:
 
 Required:
 
-- `ip_or_ips` (List of String) IP/CIDR.
-- `match_type` (String) Match type.
-EQUAL:Equal
-NOT_EQUAL:Does not equal
+- `match_type` (String) Match type.<br/>EQUAL:Equal<br/>NOT_EQUAL:Does not equal
+- `ip_or_ips` (List of String) IP/CIDR, maximum 300 IP/CIDR.
 
 
 <a id="nestedblock--condition--method_conditions"></a>
@@ -162,10 +146,10 @@ NOT_EQUAL:Does not equal
 
 Required:
 
-- `match_type` (String) Match type.
-EQUAL:Equal
+- `match_type` (String) Match type.<br/>
+EQUAL:Equal<br/>
 NOT_EQUAL:Does not equal
-- `request_method` (List of String) Request method.
+- `request_method` (List of String) Request method.<br/>
 Supported values: GET/POST/DELETE/PUT/HEAD/OPTIONS/COPY.
 
 
@@ -174,18 +158,8 @@ Supported values: GET/POST/DELETE/PUT/HEAD/OPTIONS/COPY.
 
 Required:
 
-- `match_type` (String) Match type.
-EQUAL: equal to
-NOT_EQUAL: not equal to
-CONTAIN: contains
-NOT_CONTAIN: does not contain
-REGEX: regular
-NOT_REGEX: regular does not match
-START_WITH: starts with
-END_WITH: ends with
-WILDCARD: wildcard matches
-NOT_WILDCARD: wildcard does not match
-- `paths` (List of String) Path.
+- `match_type` (String) Match type.<br/>EQUAL: Equals, user agent case sensitive<br/>NOT_EQUAL: Does not equal, user agent case sensitive<br/>CONTAIN: Contains, user agent case insensitive<br/>NOT_CONTAIN: Does not Contains, user agent case insensitive<br/>NONE:Empty or non-existent<br/>REGEX: Regex match, user agent case insensitive<br/>NOT_REGEX: Regular does not match, user agent case insensitive<br/>START_WITH: Starts with, user agent case insensitive<br/>END_WITH: Ends with, user agent case insensitive<br/>WILDCARD: Wildcard matches, user agent case insensitive, * represents zero or more arbitrary characters, ? represents any single character<br/>NOT_WILDCARD: Wildcard does not match, user agent case insensitive, * represents zero or more arbitrary characters, ? represents any single character
+- `paths` (List of String) Path.<br/>When match type is EQUAL/NOT_EQUAL/START_WITH/END_WITH, path needs to start with "/", and no parameters.<br/>When the match type is REGEX/NOT_REGEX, only one value is allowed. <br/>Example: /test.html.
 
 
 <a id="nestedblock--condition--referer_conditions"></a>
@@ -193,22 +167,8 @@ NOT_WILDCARD: wildcard does not match
 
 Required:
 
-- `match_type` (String) Match type.
-EQUAL: equal to
-NOT_EQUAL: not equal to
-CONTAIN: contains
-NOT_CONTAIN: does not contain
-REGEX: regular
-NONE: empty or does not exist
-NOT_REGEX: regular does not match
-START_WITH: starts with
-END_WITH: ends with
-WILDCARD: wildcard matches
-NOT_WILDCARD: wildcard does not match
-
-Optional:
-
-- `referer` (List of String) Referer.
+- `match_type` (String) Match type.<br/>EQUAL: Equals, user agent case sensitive<br/>NOT_EQUAL: Does not equal, user agent case sensitive<br/>CONTAIN: Contains, user agent case insensitive<br/>NOT_CONTAIN: Does not Contains, user agent case insensitive<br/>NONE:Empty or non-existent<br/>REGEX: Regex match, user agent case insensitive<br/>NOT_REGEX: Regular does not match, user agent case insensitive<br/>START_WITH: Starts with, user agent case insensitive<br/>END_WITH: Ends with, user agent case insensitive<br/>WILDCARD: Wildcard matches, user agent case insensitive, * represents zero or more arbitrary characters, ? represents any single character<br/>NOT_WILDCARD: Wildcard does not match, user agent case insensitive, * represents zero or more arbitrary characters, ? represents any single character
+- `referer` (List of String) Referer.<br/>When the match type is REGEX/NOT_REGEX, only one value is allowed. <br/>Example: http://test.com.
 
 
 <a id="nestedblock--condition--ua_conditions"></a>
@@ -216,22 +176,8 @@ Optional:
 
 Required:
 
-- `match_type` (String) Match type.
-EQUAL: equal to
-NOT_EQUAL: not equal to
-CONTAIN: contains
-NOT_CONTAIN: does not contain
-REGEX: regular
-NONE: empty or does not exist
-NOT_REGEX: regular does not match
-START_WITH: starts with
-END_WITH: ends with
-WILDCARD: wildcard matches
-NOT_WILDCARD: wildcard does not match
-
-Optional:
-
-- `ua` (List of String) User-Agent.
+- `match_type` (String) Match type.EQUAL: Equals, user agent Match type.<br/>EQUAL: Equals, user agent case sensitive<br/>NOT_EQUAL: Does not equal, user agent case sensitive<br/>CONTAIN: Contains, user agent case insensitive<br/>NOT_CONTAIN: Does not Contains, user agent case insensitive<br/>NONE:Empty or non-existent<br/>REGEX: Regex match, user agent case insensitive<br/>NOT_REGEX: Regular does not match, user agent case insensitive<br/>START_WITH: Starts with, user agent case insensitive<br/>END_WITH: Ends with, user agent case insensitive<br/>WILDCARD: Wildcard matches, user agent case insensitive, * represents zero or more arbitrary characters, ? represents any single character<br/>NOT_WILDCARD: Wildcard does not match, user agent case insensitive, * represents zero or more arbitrary characters, ? represents any single character
+- `ua` (List of String) User agent.<br/>When the match type is REGEX/NOT_REGEX, only one value is allowed. <br/>Example: go-Http-client/1.1.
 
 
 <a id="nestedblock--condition--uri_conditions"></a>
@@ -239,18 +185,8 @@ Optional:
 
 Required:
 
-- `match_type` (String) Match type.
-EQUAL: equal to
-NOT_EQUAL: not equal to
-CONTAIN: contains
-NOT_CONTAIN: does not contain
-REGEX: regular
-NOT_REGEX: regular does not match
-START_WITH: starts with
-END_WITH: ends with
-WILDCARD: wildcard matches
-NOT_WILDCARD: wildcard does not match
-- `uri` (List of String) URI.
+- `match_type` (String) Match type.EQUAL: Equals, user agent Match type.<br/>EQUAL: Equals, user agent case sensitive<br/>NOT_EQUAL: Does not equal, user agent case sensitive<br/>CONTAIN: Contains, user agent case insensitive<br/>NOT_CONTAIN: Does not Contains, user agent case insensitive<br/>NONE:Empty or non-existent<br/>REGEX: Regex match, user agent case insensitive<br/>NOT_REGEX: Regular does not match, user agent case insensitive<br/>START_WITH: Starts with, user agent case insensitive<br/>END_WITH: Ends with, user agent case insensitive<br/>WILDCARD: Wildcard matches, user agent case insensitive, * represents zero or more arbitrary characters, ? represents any single character<br/>NOT_WILDCARD: Wildcard does not match, user agent case insensitive, * represents zero or more arbitrary characters, ? represents any single character
+- `uri` (List of String) URI.<br/>When match type is EQUAL/NOT_EQUAL/START_WITH/END_WITH, uri needs to start with "/", and includes parameters.<br/>When the match type is REGEX/NOT_REGEX, only one value is allowed. <br/>Example: /test.html?id=1.
 
 
 <a id="nestedblock--condition--uri_param_conditions"></a>
@@ -258,15 +194,6 @@ NOT_WILDCARD: wildcard does not match
 
 Required:
 
-- `match_type` (String) Match type.
-EQUAL:Equals
-NOT_EQUAL:Does not equal
-CONTAIN:Contains
-NOT_CONTAIN:Does not contains
-REGEX:Regex match
-NONE:Empty or non-existent
-- `param_name` (String) Param name.
-
-Optional:
-
+- `match_type` (String) Match type.<br/>EQUAL:Equals<br/>NOT_EQUAL:Does not equal<br/>CONTAIN:Contains<br/>NOT_CONTAIN:Does not contains<br/>REGEX:Regex match<br/>NONE:Empty or non-existent
+- `param_name` (String) Param name,case sensitive,maximum 100 characters.<br/>Example: id.
 - `param_value` (List of String) Param value.

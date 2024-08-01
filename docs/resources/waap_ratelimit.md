@@ -103,48 +103,48 @@ output "waap_ratelimit" {
 
 ### Required
 
-- `action` (String) Action.
-NO_USE:Not Used
-ACCEPT:Skip
-LOG:Log
-COOKIE:Cookie verification
-JS_CHECK:Javascript verification
-DELAY:Delay
-BLOCK:Deny
-RESET:Reset Connection
-Custom response ID:Custom response ID
+- `action` (String) Action.<br/>
+NO_USE:Not Used<br/>
+ACCEPT:Skip<br/>
+LOG:Log<br/>
+COOKIE:Cookie verification<br/>
+JS_CHECK:Javascript verification<br/>
+DELAY:Delay<br/>
+BLOCK:Deny<br/>
+RESET:Reset Connection<br/>
+Custom response ID:Custom response ID<br/>
 When there is a status code in the matching condition, the supported actions are Log, Deny,Not Used, and Reset Connection.
 - `domain` (String) Hostname.
-- `effective_status` (String) Cycle effective status.
-PERMANENT:All time
-WITHOUT:Excluded time
+- `effective_status` (String) Cycle effective status.<br/>
+PERMANENT:All time<br/>
+WITHOUT:Excluded time<br/>
 WITHIN:Selected time
 - `intercept_time` (Number) Action duration, unit: seconds.
 - `rate_limit_rule_condition` (Block List, Min: 1) Matching conditions. (see [below for nested schema](#nestedblock--rate_limit_rule_condition))
-- `rule_name` (String) Rule Name, maximum 50 characters.
+- `rule_name` (String) Rule Name, maximum 50 characters.<br/>
 Does not support special characters and spaces.
-- `scene` (String) Protected target.
-WEB:Website
+- `scene` (String) Protected target.<br/>
+WEB:Website<br/>
 API:API
-- `statistical_item` (String) Client identifier.
-IP:Client IP
-IP_UA:Client IP and User-Agent
-COOKIE:Cookie
-IP_COOKIE:Client IP and Cookie
-HEADER:Request Header
-When there is a status code in the matching condition,this client identifier is not supported.
-IP_HEADER:Client IP and Request Header
+- `statistical_item` (String) Client identifier.<br/>
+IP:Client IP<br/>
+IP_UA:Client IP and User-Agent<br/>
+COOKIE:Cookie<br/>
+IP_COOKIE:Client IP and Cookie<br/>
+HEADER:Request Header<br/>
+When there is a status code in the matching condition,this client identifier is not supported.<br/>
+IP_HEADER:Client IP and Request Header<br/>
 When there is a status code in the matching condition,this client identifier is not supported .
 - `statistical_period` (Number) Statistics period, unit: seconds.
 - `trigger_threshold` (Number) Trigger threshold, unit: times.
 
 ### Optional
 
-- `asset_api_id` (String) API ID under API business, multiple separated by ; sign.
+- `asset_api_id` (String) API ID under API business, multiple separated by ; sign.<br/>
 When the protected target is APIThis field is required.
 - `description` (String) Description, maximum 200 characters.
 - `rate_limit_effective` (Block List) Effective time period.When the effective status is effective within the cycle or not effective within the cycle, this field must have a value. (see [below for nested schema](#nestedblock--rate_limit_effective))
-- `statistics_key` (String) Statistical key value.
+- `statistics_key` (String) Statistical key value.<br/>
 When the client identifier is cookie/header value, the corresponding key value needs to be entered.
 
 ### Read-Only
@@ -159,17 +159,17 @@ Optional:
 - `area_conditions` (Block List) Geo,match type cannot be repeated. (see [below for nested schema](#nestedblock--rate_limit_rule_condition--area_conditions))
 - `header_conditions` (Block List) Request Header, match type can be repeated. (see [below for nested schema](#nestedblock--rate_limit_rule_condition--header_conditions))
 - `ip_or_ips_conditions` (Block List) IP/CIDR, match type cannot be repeated. (see [below for nested schema](#nestedblock--rate_limit_rule_condition--ip_or_ips_conditions))
-- `method_conditions` (Block List) Request Method.
+- `method_conditions` (Block List) Request Method.<br/>
 When the business scenario is API,this matching condition is not supported. (see [below for nested schema](#nestedblock--rate_limit_rule_condition--method_conditions))
-- `path_conditions` (Block List) Path, match type cannot be repeated.
+- `path_conditions` (Block List) Path, match type cannot be repeated.<br/>
 When the business scenario is API, this matching condition is not supported. (see [below for nested schema](#nestedblock--rate_limit_rule_condition--path_conditions))
 - `referer_conditions` (Block List) Referer, match type cannot be repeated. (see [below for nested schema](#nestedblock--rate_limit_rule_condition--referer_conditions))
 - `scheme_conditions` (Block List) HTTP/S, match type cannot be repeated. (see [below for nested schema](#nestedblock--rate_limit_rule_condition--scheme_conditions))
 - `status_code_conditions` (Block List) Response Code, match type cannot be repeated. (see [below for nested schema](#nestedblock--rate_limit_rule_condition--status_code_conditions))
 - `ua_conditions` (Block List) User Agent, match type cannot be repeated. (see [below for nested schema](#nestedblock--rate_limit_rule_condition--ua_conditions))
-- `uri_conditions` (Block List) URI, match type cannot be repeated.
+- `uri_conditions` (Block List) URI, match type cannot be repeated.<br/>
 When the business scenario is API, this matching condition is not supported. (see [below for nested schema](#nestedblock--rate_limit_rule_condition--uri_conditions))
-- `uri_param_conditions` (Block List) URI ParameterI, match type cannot be repeated.
+- `uri_param_conditions` (Block List) URI ParameterI, match type cannot be repeated.<br/>
 When the business scenario is API, this matching condition is not supported. (see [below for nested schema](#nestedblock--rate_limit_rule_condition--uri_param_conditions))
 
 <a id="nestedblock--rate_limit_rule_condition--area_conditions"></a>
@@ -178,8 +178,8 @@ When the business scenario is API, this matching condition is not supported. (se
 Required:
 
 - `areas` (List of String) Geo.
-- `match_type` (String) Match type.
-EQUAL:Equal
+- `match_type` (String) Match type.<br/>
+EQUAL:Equal<br/>
 NOT_EQUAL:Does not equal
 
 
@@ -188,17 +188,9 @@ NOT_EQUAL:Does not equal
 
 Required:
 
-- `key` (String) Header name,case insensitive,maximum 100 characters.
-Example: Accept.
-- `match_type` (String) Match type.
-EQUAL:Equals,header value case sensitive
-NOT_EQUAL:Does not equal,header value case sensitive
-CONTAIN:Contains,header value case insensitive
-NOT_CONTAIN:Does not contains,header value case insensitive
-REGEX:Regex match,header value case insensitive
-NONE:Empty or non-existent
-- `value_list` (List of String) Header value.
-When the match type is regex match, only one value is allowed.
+- `match_type` (String) Match type.<br/>EQUAL: Equals, user agent case sensitive<br/>NOT_EQUAL: Does not equal, user agent case sensitive<br/>CONTAIN: Contains, user agent case insensitive<br/>NOT_CONTAIN: Does not Contains, user agent case insensitive<br/>NONE:Empty or non-existent<br/>REGEX: Regex match, user agent case insensitive<br/>NOT_REGEX: Regular does not match, user agent case insensitive<br/>START_WITH: Starts with, user agent case insensitive<br/>END_WITH: Ends with, user agent case insensitive<br/>WILDCARD: Wildcard matches, user agent case insensitive, * represents zero or more arbitrary characters, ? represents any single character<br/>NOT_WILDCARD: Wildcard does not match, user agent case insensitive, * represents zero or more arbitrary characters, ? represents any single character
+- `key` (String) Header name,case insensitive,up to 100 characters.<br/>Example: Accept.
+- `value_list` (List of String) Header value.<br/>When the match type is REGEX/NOT_REGEX, only one value is allowed.
 
 
 <a id="nestedblock--rate_limit_rule_condition--ip_or_ips_conditions"></a>
@@ -207,8 +199,8 @@ When the match type is regex match, only one value is allowed.
 Required:
 
 - `ip_or_ips` (List of String) IP/CIDR, maximum 300 IP/CIDR.
-- `match_type` (String) Match type.
-EQUAL:Equal
+- `match_type` (String) Match type.<br/>
+EQUAL:Equal<br/>
 NOT_EQUAL:Does not equal
 
 
@@ -217,10 +209,10 @@ NOT_EQUAL:Does not equal
 
 Required:
 
-- `match_type` (String) Match type.
-EQUAL:Equal
+- `match_type` (String) Match type.<br/>
+EQUAL:Equal<br/>
 NOT_EQUAL:Does not equal
-- `request_method` (List of String) Request method.
+- `request_method` (List of String) Request method.<br/>
 Supported values: GET/POST/DELETE/PUT/HEAD/OPTIONS/COPY.
 
 
@@ -229,16 +221,8 @@ Supported values: GET/POST/DELETE/PUT/HEAD/OPTIONS/COPY.
 
 Required:
 
-- `match_type` (String) Match type.
-EQUAL:Equals,path case sensitive
-NOT_EQUAL:Does not equal,path case sensitive
-CONTAIN:Contains,path case insensitive
-NOT_CONTAIN:Does not contains,path case insensitive
-REGEX:Regex match,path case insensitive
-- `paths` (List of String) Path.
-When match type is EQUAL/NOT_EQUAL, path needs to start with "/", and no parameters.
-When the match type is regex match, only one value is allowed. 
-Example: /test.html.
+- `match_type` (String) Match type.<br/>EQUAL: Equals, user agent case sensitive<br/>NOT_EQUAL: Does not equal, user agent case sensitive<br/>CONTAIN: Contains, user agent case insensitive<br/>NOT_CONTAIN: Does not Contains, user agent case insensitive<br/>NONE:Empty or non-existent<br/>REGEX: Regex match, user agent case insensitive<br/>NOT_REGEX: Regular does not match, user agent case insensitive<br/>START_WITH: Starts with, user agent case insensitive<br/>END_WITH: Ends with, user agent case insensitive<br/>WILDCARD: Wildcard matches, user agent case insensitive, * represents zero or more arbitrary characters, ? represents any single character<br/>NOT_WILDCARD: Wildcard does not match, user agent case insensitive, * represents zero or more arbitrary characters, ? represents any single character
+- `paths` (List of String) Path.<br/>When match type is EQUAL/NOT_EQUAL/START_WITH/END_WITH, path needs to start with "/", and no parameters.<br/>When the match type is REGEX/NOT_REGEX, only one value is allowed. <br/>Example: /test.html.
 
 
 <a id="nestedblock--rate_limit_rule_condition--referer_conditions"></a>
@@ -246,15 +230,8 @@ Example: /test.html.
 
 Required:
 
-- `match_type` (String) Match type.
-EQUAL:Equals,referer case sensitive
-NOT_EQUAL:Does not equal,referer case sensitive
-CONTAIN:Contains,referer case insensitive
-NOT_CONTAIN:Does not contains,referer case insensitive
-REGEX:Regex match,referer case insensitive
-NONE:Empty or non-existent
-- `referer` (List of String) Referer.
-When the match type is regex match, only one value is allowed. Example: http://test.com.
+- `match_type` (String) Match type.<br/>EQUAL: Equals, user agent case sensitive<br/>NOT_EQUAL: Does not equal, user agent case sensitive<br/>CONTAIN: Contains, user agent case insensitive<br/>NOT_CONTAIN: Does not Contains, user agent case insensitive<br/>NONE:Empty or non-existent<br/>REGEX: Regex match, user agent case insensitive<br/>NOT_REGEX: Regular does not match, user agent case insensitive<br/>START_WITH: Starts with, user agent case insensitive<br/>END_WITH: Ends with, user agent case insensitive<br/>WILDCARD: Wildcard matches, user agent case insensitive, * represents zero or more arbitrary characters, ? represents any single character<br/>NOT_WILDCARD: Wildcard does not match, user agent case insensitive, * represents zero or more arbitrary characters, ? represents any single character
+- `referer` (List of String) Referer.<br/>When the match type is REGEX/NOT_REGEX, only one value is allowed. <br/>Example: http://test.com.
 
 
 <a id="nestedblock--rate_limit_rule_condition--scheme_conditions"></a>
@@ -262,10 +239,10 @@ When the match type is regex match, only one value is allowed. Example: http://t
 
 Required:
 
-- `match_type` (String) Match type.
-EQUAL:Equal
+- `match_type` (String) Match type.<br/>
+EQUAL:Equal<br/>
 NOT_EQUAL:Does not equal
-- `scheme` (List of String) HTTP/S.
+- `scheme` (List of String) HTTP/S.<br/>
 Supported values: HTTP/HTTPS.
 
 
@@ -274,8 +251,8 @@ Supported values: HTTP/HTTPS.
 
 Required:
 
-- `match_type` (String) Match type.
-EQUAL:Equal
+- `match_type` (String) Match type.<br/>
+EQUAL:Equal<br/>
 NOT_EQUAL:Does not equal
 - `status_code` (List of String) Response Code.
 
@@ -285,16 +262,8 @@ NOT_EQUAL:Does not equal
 
 Required:
 
-- `match_type` (String) Match type.
-EQUAL:Equals,ua case sensitive
-NOT_EQUAL:Does not equal,ua case sensitive
-CONTAIN:Contains,ua case insensitive
-NOT_CONTAIN:Does not contains,ua case insensitive
-REGEX:Regex match,ua case insensitive
-NONE:Empty or non-existent
-- `ua` (List of String) User agent.
-When the match type is regex match, only one value is allowed. 
-Example: go-Http-client/1.1.
+- `match_type` (String) Match type.EQUAL: Equals, user agent Match type.<br/>EQUAL: Equals, user agent case sensitive<br/>NOT_EQUAL: Does not equal, user agent case sensitive<br/>CONTAIN: Contains, user agent case insensitive<br/>NOT_CONTAIN: Does not Contains, user agent case insensitive<br/>NONE:Empty or non-existent<br/>REGEX: Regex match, user agent case insensitive<br/>NOT_REGEX: Regular does not match, user agent case insensitive<br/>START_WITH: Starts with, user agent case insensitive<br/>END_WITH: Ends with, user agent case insensitive<br/>WILDCARD: Wildcard matches, user agent case insensitive, * represents zero or more arbitrary characters, ? represents any single character<br/>NOT_WILDCARD: Wildcard does not match, user agent case insensitive, * represents zero or more arbitrary characters, ? represents any single character
+- `ua` (List of String) User agent.<br/>When the match type is REGEX/NOT_REGEX, only one value is allowed. <br/>Example: go-Http-client/1.1.
 
 
 <a id="nestedblock--rate_limit_rule_condition--uri_conditions"></a>
@@ -302,16 +271,8 @@ Example: go-Http-client/1.1.
 
 Required:
 
-- `match_type` (String) Match type.
-EQUAL:Equals,uri case sensitive
-NOT_EQUAL:Does not equal,uri case sensitive
-CONTAIN:Contains,uri case insensitive
-NOT_CONTAIN:Does not contains,uri case insensitive
-REGEX:Regex match,uri case insensitive
-- `uri` (List of String) URI.
-When match type is EQUAL/NOT_EQUAL, uri needs to start with "/", and includes parameters.
-When the match type is regex match, only one value is allowed. 
-Example: /test.html?id=1.
+- `match_type` (String) Match type.EQUAL: Equals, user agent Match type.<br/>EQUAL: Equals, user agent case sensitive<br/>NOT_EQUAL: Does not equal, user agent case sensitive<br/>CONTAIN: Contains, user agent case insensitive<br/>NOT_CONTAIN: Does not Contains, user agent case insensitive<br/>NONE:Empty or non-existent<br/>REGEX: Regex match, user agent case insensitive<br/>NOT_REGEX: Regular does not match, user agent case insensitive<br/>START_WITH: Starts with, user agent case insensitive<br/>END_WITH: Ends with, user agent case insensitive<br/>WILDCARD: Wildcard matches, user agent case insensitive, * represents zero or more arbitrary characters, ? represents any single character<br/>NOT_WILDCARD: Wildcard does not match, user agent case insensitive, * represents zero or more arbitrary characters, ? represents any single character
+- `uri` (List of String) URI.<br/>When match type is EQUAL/NOT_EQUAL/START_WITH/END_WITH, uri needs to start with "/", and includes parameters.<br/>When the match type is REGEX/NOT_REGEX, only one value is allowed. <br/>Example: /test.html?id=1.
 
 
 <a id="nestedblock--rate_limit_rule_condition--uri_param_conditions"></a>
@@ -319,14 +280,14 @@ Example: /test.html?id=1.
 
 Required:
 
-- `match_type` (String) Match type.
-EQUAL:Equals,param value case sensitive
-NOT_EQUAL:Does not equal,param value case sensitive
-CONTAIN:Contains,param value case insensitive
-NOT_CONTAIN:Does not contains,param value case insensitive
-REGEX:Regex match,param value case insensitive
+- `match_type` (String) Match type.<br/>
+EQUAL:Equals,param value case sensitive<br/>
+NOT_EQUAL:Does not equal,param value case sensitive<br/>
+CONTAIN:Contains,param value case insensitive<br/>
+NOT_CONTAIN:Does not contains,param value case insensitive<br/>
+REGEX:Regex match,param value case insensitive<br/>
 NONE:Empty or non-existent
-- `param_name` (String) Param name,case sensitive,maximum 100 characters.
+- `param_name` (String) Param name,case sensitive,maximum 100 characters.<br/>
 Example: id.
 - `param_value` (List of String) Param value.
 
@@ -337,13 +298,13 @@ Example: id.
 
 Required:
 
-- `effective` (List of String) Effective.
-MON:Monday
-TUE:Tuesday
-WED:Wednesday
-THU:Thursday
-FRI:Friday
-SAT:Saturday
+- `effective` (List of String) Effective.<br/>
+MON:Monday<br/>
+TUE:Tuesday<br/>
+WED:Wednesday<br/>
+THU:Thursday<br/>
+FRI:Friday<br/>
+SAT:Saturday<br/>
 SUN:Sunday
 - `end` (String) End time, format: HH:mm.
 - `start` (String) Start time, format: HH:mm.

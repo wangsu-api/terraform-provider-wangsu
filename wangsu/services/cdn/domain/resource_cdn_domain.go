@@ -2,6 +2,7 @@ package domain
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -1030,6 +1031,10 @@ func resourceCdnDomainCreate(context context.Context, data *schema.ResourceData,
 					if masterIps != nil && len(masterIps) > 0 {
 						originConfigAdvSrcSetting.MasterIps = make([]*string, 0, len(masterIps))
 						for _, ip := range masterIps {
+							if ip == nil {
+								diags = append(diags, diag.FromErr(errors.New("The master ip could not be empty."))...)
+								return diags
+							}
 							masterIp := ip.(string)
 							originConfigAdvSrcSetting.MasterIps = append(originConfigAdvSrcSetting.MasterIps, &masterIp)
 						}
@@ -1037,6 +1042,10 @@ func resourceCdnDomainCreate(context context.Context, data *schema.ResourceData,
 					if backupIps != nil && len(backupIps) > 0 {
 						originConfigAdvSrcSetting.BackupIps = make([]*string, 0, len(backupIps))
 						for _, ip := range backupIps {
+							if ip == nil {
+								diags = append(diags, diag.FromErr(errors.New("The backup ip could not be empty."))...)
+								return diags
+							}
 							backupIp := ip.(string)
 							originConfigAdvSrcSetting.BackupIps = append(originConfigAdvSrcSetting.BackupIps, &backupIp)
 						}
@@ -1059,6 +1068,10 @@ func resourceCdnDomainCreate(context context.Context, data *schema.ResourceData,
 			if gmCertificateIds != nil {
 				gmCertIds = make([]*string, 0)
 				for _, certId := range gmCertificateIds {
+					if certId == nil {
+						diags = append(diags, diag.FromErr(errors.New("The gm certificate id could not be empty."))...)
+						return diags
+					}
 					certificateId := certId.(string)
 					gmCertIds = append(gmCertIds, &certificateId)
 				}
@@ -1214,6 +1227,10 @@ func resourceCdnDomainCreate(context context.Context, data *schema.ResourceData,
 			if httpCodes != nil {
 				codes = make([]*string, 0)
 				for _, code := range httpCodes {
+					if code == nil {
+						diags = append(diags, diag.FromErr(errors.New("The http code could not be empty."))...)
+						return diags
+					}
 					httpCode := code.(string)
 					codes = append(codes, &httpCode)
 				}
@@ -1390,7 +1407,7 @@ func resourceCdnDomainCreate(context context.Context, data *schema.ResourceData,
 func resourceCdnDomainUpdate(context context.Context, data *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Printf("resource.wangsu_cdn_domain.update")
 	request := &cdn.UpdateDomainForTerraformRequest{}
-
+	var diags diag.Diagnostics
 	if data.HasChanges("service_areas") {
 		serviceAreas := data.Get("service_areas").(string)
 		request.ServiceAreas = &serviceAreas
@@ -1436,6 +1453,10 @@ func resourceCdnDomainUpdate(context context.Context, data *schema.ResourceData,
 						if masterIps != nil && len(masterIps) > 0 {
 							originConfigAdvSrcSetting.MasterIps = make([]*string, 0, len(masterIps))
 							for _, ip := range masterIps {
+								if ip == nil {
+									diags = append(diags, diag.FromErr(errors.New("The master ip could not be empty."))...)
+									return diags
+								}
 								masterIp := ip.(string)
 								originConfigAdvSrcSetting.MasterIps = append(originConfigAdvSrcSetting.MasterIps, &masterIp)
 							}
@@ -1443,6 +1464,10 @@ func resourceCdnDomainUpdate(context context.Context, data *schema.ResourceData,
 						if backupIps != nil && len(backupIps) > 0 {
 							originConfigAdvSrcSetting.BackupIps = make([]*string, 0, len(backupIps))
 							for _, ip := range backupIps {
+								if ip == nil {
+									diags = append(diags, diag.FromErr(errors.New("The backup ip could not be empty."))...)
+									return diags
+								}
 								backupIp := ip.(string)
 								originConfigAdvSrcSetting.BackupIps = append(originConfigAdvSrcSetting.BackupIps, &backupIp)
 							}
@@ -1469,6 +1494,10 @@ func resourceCdnDomainUpdate(context context.Context, data *schema.ResourceData,
 				var gmCertIds = make([]*string, 0)
 				if gmCertificateIds != nil {
 					for _, certId := range gmCertificateIds {
+						if certId == nil {
+							diags = append(diags, diag.FromErr(errors.New("The gm certificate id could not be empty."))...)
+							return diags
+						}
 						certificateId := certId.(string)
 						gmCertIds = append(gmCertIds, &certificateId)
 					}
@@ -1644,6 +1673,10 @@ func resourceCdnDomainUpdate(context context.Context, data *schema.ResourceData,
 				if httpCodes != nil {
 					codes = make([]*string, 0)
 					for _, code := range httpCodes {
+						if code == nil {
+							diags = append(diags, diag.FromErr(errors.New("The http code could not be empty."))...)
+							return diags
+						}
 						httpCode := code.(string)
 						codes = append(codes, &httpCode)
 					}
@@ -1788,7 +1821,6 @@ func resourceCdnDomainUpdate(context context.Context, data *schema.ResourceData,
 
 	var editResponse *cdn.UpdateDomainForTerraformResponse
 	var requestId string
-	var diags diag.Diagnostics
 	var err error
 	err = resource.RetryContext(context, time.Duration(2)*time.Minute, func() *resource.RetryError {
 		requestId, editResponse, err = meta.(wangsuCommon.ProviderMeta).GetAPIV3Conn().UseCdnClient().UpdateCdnDomain(request, data.Id())

@@ -59,7 +59,7 @@ data "wangsu_waap_whitelist" "demo" {
 
 - `conditions` (Block List, Min: 1) Match conditions, at least one, at most five. (see [below for nested schema](#nestedblock--conditions))
 - `domain` (String) Hostname.
-- `rule_name` (String) Rule name, maximum 50 characters.
+- `rule_name` (String) Rule name, maximum 50 characters.<br/>
  Does not support special characters and spaces.
 
 ### Optional
@@ -87,16 +87,9 @@ Optional:
 
 Required:
 
-- `key` (String) Header name,case insensitive,up to 100 characters.
-Example: Accept.
-- `match_type` (String) Match type.
-EQUAL: Equals, request header values case sensitive
-NOT_EQUAL: Does not equal, request header values case sensitive
-CONTAIN: Contains, request header values case insensitive
-NOT_CONTAIN: Does not Contains, request header values case insensitive
-REGEX: Regex match, request header values case insensitive
-- `value_list` (List of String) Header value.
-When the match type is regex match, only one value is allowed.
+- `match_type` (String) Match type.<br/>EQUAL: Equals, user agent case sensitive<br/>NOT_EQUAL: Does not equal, user agent case sensitive<br/>CONTAIN: Contains, user agent case insensitive<br/>NOT_CONTAIN: Does not Contains, user agent case insensitive<br/>NONE:Empty or non-existent<br/>REGEX: Regex match, user agent case insensitive<br/>NOT_REGEX: Regular does not match, user agent case insensitive<br/>START_WITH: Starts with, user agent case insensitive<br/>END_WITH: Ends with, user agent case insensitive<br/>WILDCARD: Wildcard matches, user agent case insensitive, * represents zero or more arbitrary characters, ? represents any single character<br/>NOT_WILDCARD: Wildcard does not match, user agent case insensitive, * represents zero or more arbitrary characters, ? represents any single character
+- `key` (String) Header name,case insensitive,up to 100 characters.<br/>Example: Accept.
+- `value_list` (List of String) Header value.<br/>When the match type is REGEX/NOT_REGEX, only one value is allowed.
 
 
 <a id="nestedblock--conditions--ip_or_ips_conditions"></a>
@@ -105,8 +98,8 @@ When the match type is regex match, only one value is allowed.
 Required:
 
 - `ip_or_ips` (List of String) IP/CIDR, maximum 300 IP/CIDR.
-- `match_type` (String) Match type.
-EQUAL: Equals
+- `match_type` (String) Match type.<br/>
+EQUAL: Equals<br/>
 NOT_EQUAL: Does not equal
 
 
@@ -115,16 +108,8 @@ NOT_EQUAL: Does not equal
 
 Required:
 
-- `match_type` (String) Match type.
-EQUAL: Equals, path case sensitive
-NOT_EQUAL: Does not equal, path case sensitive
-CONTAIN: Contains, path case insensitive
-NOT_CONTAIN: Does not Contains, path case insensitive
-REGEX: Regex match, path case insensitive
-- `paths` (List of String) Path.
-When match type is EQUAL/NOT_EQUAL, path needs to start with "/", and no parameters.
-When the match type is regex match, only one value is allowed. 
-Example: /test.html.
+- `match_type` (String) Match type.<br/>EQUAL: Equals, user agent case sensitive<br/>NOT_EQUAL: Does not equal, user agent case sensitive<br/>CONTAIN: Contains, user agent case insensitive<br/>NOT_CONTAIN: Does not Contains, user agent case insensitive<br/>NONE:Empty or non-existent<br/>REGEX: Regex match, user agent case insensitive<br/>NOT_REGEX: Regular does not match, user agent case insensitive<br/>START_WITH: Starts with, user agent case insensitive<br/>END_WITH: Ends with, user agent case insensitive<br/>WILDCARD: Wildcard matches, user agent case insensitive, * represents zero or more arbitrary characters, ? represents any single character<br/>NOT_WILDCARD: Wildcard does not match, user agent case insensitive, * represents zero or more arbitrary characters, ? represents any single character
+- `paths` (List of String) Path.<br/>When match type is EQUAL/NOT_EQUAL/START_WITH/END_WITH, path needs to start with "/", and no parameters.<br/>When the match type is REGEX/NOT_REGEX, only one value is allowed. <br/>Example: /test.html.
 
 
 <a id="nestedblock--conditions--referer_conditions"></a>
@@ -132,15 +117,8 @@ Example: /test.html.
 
 Required:
 
-- `match_type` (String) Match type.
-EQUAL: Equals, referer case sensitive
-NOT_EQUAL: Does not equal, referer case sensitive
-CONTAIN: Contains, referer case insensitive
-NOT_CONTAIN: Does not Contains, referer case insensitive
-REGEX: Regex match, referer case insensitive
-- `referer` (List of String) Referer.
-When the match type is regex match, only one value is allowed. 
-Example: http://test.com.
+- `match_type` (String) Match type.<br/>EQUAL: Equals, user agent case sensitive<br/>NOT_EQUAL: Does not equal, user agent case sensitive<br/>CONTAIN: Contains, user agent case insensitive<br/>NOT_CONTAIN: Does not Contains, user agent case insensitive<br/>NONE:Empty or non-existent<br/>REGEX: Regex match, user agent case insensitive<br/>NOT_REGEX: Regular does not match, user agent case insensitive<br/>START_WITH: Starts with, user agent case insensitive<br/>END_WITH: Ends with, user agent case insensitive<br/>WILDCARD: Wildcard matches, user agent case insensitive, * represents zero or more arbitrary characters, ? represents any single character<br/>NOT_WILDCARD: Wildcard does not match, user agent case insensitive, * represents zero or more arbitrary characters, ? represents any single character
+- `referer` (List of String) Referer.<br/>When the match type is REGEX/NOT_REGEX, only one value is allowed. <br/>Example: http://test.com.
 
 
 <a id="nestedblock--conditions--ua_conditions"></a>
@@ -148,15 +126,8 @@ Example: http://test.com.
 
 Required:
 
-- `match_type` (String) Match type.
-EQUAL: Equals, user agent case sensitive
-NOT_EQUAL: Does not equal, user agent case sensitive
-CONTAIN: Contains, user agent case insensitive
-NOT_CONTAIN: Does not Contains, user agent case insensitive
-REGEX: Regex match, user agent case insensitive
-- `ua` (List of String) User agent.
-When the match type is regex match, only one value is allowed. 
-Example: go-Http-client/1.1.
+- `match_type` (String) Match type.EQUAL: Equals, user agent Match type.<br/>EQUAL: Equals, user agent case sensitive<br/>NOT_EQUAL: Does not equal, user agent case sensitive<br/>CONTAIN: Contains, user agent case insensitive<br/>NOT_CONTAIN: Does not Contains, user agent case insensitive<br/>NONE:Empty or non-existent<br/>REGEX: Regex match, user agent case insensitive<br/>NOT_REGEX: Regular does not match, user agent case insensitive<br/>START_WITH: Starts with, user agent case insensitive<br/>END_WITH: Ends with, user agent case insensitive<br/>WILDCARD: Wildcard matches, user agent case insensitive, * represents zero or more arbitrary characters, ? represents any single character<br/>NOT_WILDCARD: Wildcard does not match, user agent case insensitive, * represents zero or more arbitrary characters, ? represents any single character
+- `ua` (List of String) User agent.<br/>When the match type is REGEX/NOT_REGEX, only one value is allowed. <br/>Example: go-Http-client/1.1.
 
 
 <a id="nestedblock--conditions--uri_conditions"></a>
@@ -164,13 +135,5 @@ Example: go-Http-client/1.1.
 
 Required:
 
-- `match_type` (String) Match type.
-EQUAL: Equals, URI case sensitive
-NOT_EQUAL: Does not equal, URI case sensitive
-CONTAIN: Contains, URI case insensitive
-NOT_CONTAIN: Does not Contains, URI case insensitive
-REGEX: Regex match, URI case insensitive
-- `uri` (List of String) URI.
-When match type is EQUAL/NOT_EQUAL, uri needs to start with "/", and includes parameters.
-When the match type is regex match, only one value is allowed. 
-Example: /test.html?id=1.
+- `match_type` (String) Match type.EQUAL: Equals, user agent Match type.<br/>EQUAL: Equals, user agent case sensitive<br/>NOT_EQUAL: Does not equal, user agent case sensitive<br/>CONTAIN: Contains, user agent case insensitive<br/>NOT_CONTAIN: Does not Contains, user agent case insensitive<br/>NONE:Empty or non-existent<br/>REGEX: Regex match, user agent case insensitive<br/>NOT_REGEX: Regular does not match, user agent case insensitive<br/>START_WITH: Starts with, user agent case insensitive<br/>END_WITH: Ends with, user agent case insensitive<br/>WILDCARD: Wildcard matches, user agent case insensitive, * represents zero or more arbitrary characters, ? represents any single character<br/>NOT_WILDCARD: Wildcard does not match, user agent case insensitive, * represents zero or more arbitrary characters, ? represents any single character
+- `uri` (List of String) URI.<br/>When match type is EQUAL/NOT_EQUAL/START_WITH/END_WITH, uri needs to start with "/", and includes parameters.<br/>When the match type is REGEX/NOT_REGEX, only one value is allowed. <br/>Example: /test.html?id=1.

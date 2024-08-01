@@ -104,8 +104,8 @@ data "wangsu_waap_domain" "demo" {
 
 Required:
 
-- `config_switch` (String) API security switch.
-ON: Enabled
+- `config_switch` (String) API security switch.<br/>
+ON: Enabled<br/>
 OFF: Disabled
 
 
@@ -114,8 +114,8 @@ OFF: Disabled
 
 Required:
 
-- `config_switch` (String) IP/Geo switch.
-ON: Enabled
+- `config_switch` (String) IP/Geo switch.<br/>
+ON: Enabled<br/>
 OFF: Disabled
 
 
@@ -124,21 +124,21 @@ OFF: Disabled
 
 Required:
 
-- `config_switch` (String) Bot management switch.
-ON: Enabled
+- `config_switch` (String) Bot management switch.<br/>
+ON: Enabled<br/>
 OFF: Disabled
-- `public_bots_act` (String) Known Bots action.
-NO_USE: not used
-BLOCK: Deny
-LOG: Log
+- `public_bots_act` (String) Known Bots action.<br/>
+NO_USE: not used<br/>
+BLOCK: Deny<br/>
+LOG: Log<br/>
 ACCEPT: Skip
-- `scene_analyse_switch` (String) Client-based detection function switch.
-ON: Enabled
+- `scene_analyse_switch` (String) Client-based detection function switch.<br/>
+ON: Enabled<br/>
 OFF: Disabled
-- `ua_bots_act` (String) User-Agent based detection action.
-NO_USE: Not used
-BLOCK: Deny
-LOG: Log
+- `ua_bots_act` (String) User-Agent based detection action.<br/>
+NO_USE: Not used<br/>
+BLOCK: Deny<br/>
+LOG: Log<br/>
 ACCEPT: Skip
 - `web_risk_config` (Block List, Min: 1) Browser Bot defense. (see [below for nested schema](#nestedblock--bot_manage_config--web_risk_config))
 
@@ -147,9 +147,9 @@ ACCEPT: Skip
 
 Required:
 
-- `act` (String) Action.
-NO_USE: Not used
-BLOCK: Deny
+- `act` (String) Action.<br/>
+NO_USE: Not used<br/>
+BLOCK: Deny<br/>
 LOG: Log
 
 
@@ -159,8 +159,8 @@ LOG: Log
 
 Required:
 
-- `config_switch` (String) Custom rules switch.
-ON: Enabled
+- `config_switch` (String) Custom rules switch.<br/>
+ON: Enabled<br/>
 OFF: Disabled
 
 
@@ -169,14 +169,14 @@ OFF: Disabled
 
 Required:
 
-- `ai_switch` (String) DDoS AI intelligent protection switch.
-ON: Enabled
+- `ai_switch` (String) DDoS AI intelligent protection switch.<br/>
+ON: Enabled<br/>
 OFF: Disabled
-- `config_switch` (String) DDoS protection switch.
-ON: Enabled
+- `config_switch` (String) DDoS protection switch.<br/>
+ON: Enabled<br/>
 OFF: Disabled
-- `protection_mode` (String) DDoS protection mode.
-AI_DEPOSIT: Managed Auto-Protect
+- `protection_mode` (String) DDoS protection mode.<br/>
+AI_DEPOSIT: Managed Auto-Protect<br/>
 UNDER_ATTACK: I'm Under Attack
 
 
@@ -185,8 +185,8 @@ UNDER_ATTACK: I'm Under Attack
 
 Required:
 
-- `config_switch` (String) Threat intelligence switch.
-ON: Enabled
+- `config_switch` (String) Threat intelligence switch.<br/>
+ON: Enabled<br/>
 OFF: Disabled
 - `info_cate_act` (Block List, Min: 1) Attack risk type action. (see [below for nested schema](#nestedblock--intelligence_config--info_cate_act))
 
@@ -195,17 +195,17 @@ OFF: Disabled
 
 Required:
 
-- `attack_source` (String) Attack resource risk action.
-NO_USE: Not used
-BLOCK: Deny
+- `attack_source` (String) Attack resource risk action.<br/>
+NO_USE: Not used<br/>
+BLOCK: Deny<br/>
 LOG: Log
-- `industry` (String) Industry attack risk action.
-NO_USE: Not used
-BLOCK: Deny
+- `industry` (String) Industry attack risk action.<br/>
+NO_USE: Not used<br/>
+BLOCK: Deny<br/>
 LOG: Log
-- `spec_attack` (String) Specific attack risk action.
-NO_USE: Not used
-BLOCK: Deny
+- `spec_attack` (String) Specific attack risk action.<br/>
+NO_USE: Not used<br/>
+BLOCK: Deny<br/>
 LOG:Log
 
 
@@ -215,8 +215,8 @@ LOG:Log
 
 Required:
 
-- `config_switch` (String) Rate limiting switch.
-ON: Enabled
+- `config_switch` (String) Rate limiting switch.<br/>
+ON: Enabled<br/>
 OFF: Disabled
 
 
@@ -225,14 +225,14 @@ OFF: Disabled
 
 Required:
 
-- `config_switch` (String) WAF protection switch.
-ON: Enabled
+- `config_switch` (String) WAF protection switch.<br/>
+ON: Enabled<br/>
 OFF: Disabled
-- `defend_mode` (String) WAF protection Mode.
-BLOCK: Interception
+- `defend_mode` (String) WAF protection Mode.<br/>
+BLOCK: Interception<br/>
 LOG: Observation
-- `rule_update_mode` (String) Ruleset pattern. 
-MANUAL: Manual
+- `rule_update_mode` (String) Ruleset pattern.<br/>
+MANUAL: Manual<br/>
 AUTO: Automatic
 
 
@@ -241,6 +241,6 @@ AUTO: Automatic
 
 Required:
 
-- `config_switch` (String) Whitelist switch.
-ON: Enabled
+- `config_switch` (String) Whitelist switch.<br/>
+ON: Enabled<br/>
 OFF: Disabled

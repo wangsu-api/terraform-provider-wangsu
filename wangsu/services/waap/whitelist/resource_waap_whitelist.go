@@ -33,7 +33,7 @@ func ResourceWaapWhitelist() *schema.Resource {
 			"rule_name": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: "Rule name, maximum 50 characters.\n Does not support special characters and spaces.",
+				Description: "Rule name, maximum 50 characters.<br/> Does not support special characters and spaces.",
 			},
 			"description": {
 				Type:        schema.TypeString,
@@ -55,7 +55,7 @@ func ResourceWaapWhitelist() *schema.Resource {
 									"match_type": {
 										Type:        schema.TypeString,
 										Required:    true,
-										Description: "Match type.\nEQUAL: Equals\nNOT_EQUAL: Does not equal",
+										Description: "Match type.<br/>EQUAL: Equals<br/>NOT_EQUAL: Does not equal",
 									},
 									"ip_or_ips": {
 										Type:        schema.TypeList,
@@ -77,12 +77,12 @@ func ResourceWaapWhitelist() *schema.Resource {
 									"match_type": {
 										Type:        schema.TypeString,
 										Required:    true,
-										Description: "Match type.\nEQUAL: Equals, path case sensitive\nNOT_EQUAL: Does not equal, path case sensitive\nCONTAIN: Contains, path case insensitive\nNOT_CONTAIN: Does not Contains, path case insensitive\nREGEX: Regex match, path case insensitive",
+										Description: "Match type.<br/>EQUAL: Equals, path case sensitive<br/>NOT_EQUAL: Does not equal, path case sensitive<br/>CONTAIN: Contains, path case insensitive<br/>NOT_CONTAIN: Does not Contains, path case insensitive<br/>REGEX: Regex match, path case insensitive<br/>NOT_REGEX: Regular does not match, path case sensitive<br/>START_WITH: Starts with, path case sensitive<br/>END_WITH: Ends with, path case sensitive<br/>WILDCARD: Wildcard matches, path case sensitive, * represents zero or more arbitrary characters, ? represents any single character.<br/>NOT_WILDCARD: Wildcard does not match, path case sensitive, * represents zero or more arbitrary characters, ? represents any single character",
 									},
 									"paths": {
 										Type:        schema.TypeList,
 										Required:    true,
-										Description: "Path.\nWhen match type is EQUAL/NOT_EQUAL, path needs to start with \"/\", and no parameters.\nWhen the match type is regex match, only one value is allowed. \nExample: /test.html.",
+										Description: "Path.<br/>When match type is EQUAL/NOT_EQUAL/START_WITH/END_WITH, path needs to start with \"/\", and no parameters.<br/>When the match type is REGEX/NOT_REGEX, only one value is allowed. <br/>Example: /test.html.",
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
@@ -99,12 +99,12 @@ func ResourceWaapWhitelist() *schema.Resource {
 									"match_type": {
 										Type:        schema.TypeString,
 										Required:    true,
-										Description: "Match type.\nEQUAL: Equals, URI case sensitive\nNOT_EQUAL: Does not equal, URI case sensitive\nCONTAIN: Contains, URI case insensitive\nNOT_CONTAIN: Does not Contains, URI case insensitive\nREGEX: Regex match, URI case insensitive",
+										Description: "Match type.<br/>EQUAL: Equals, URI case sensitive<br/>NOT_EQUAL: Does not equal, URI case sensitive<br/>CONTAIN: Contains, URI case insensitive<br/>NOT_CONTAIN: Does not Contains, URI case insensitive<br/>REGEX: Regex match, URI case insensitive<br/>NOT_REGEX: Regular does not match, URI case insensitive<br/>START_WITH: Starts with, URI case insensitive<br/>END_WITH: Ends with, URI case insensitive<br/>WILDCARD: Wildcard matches, URI case insensitive, * represents zero or more arbitrary characters, ? represents any single character<br/>NOT_WILDCARD: Wildcard does not match, URI case insensitive, * represents zero or more arbitrary characters, ? represents any single character",
 									},
 									"uri": {
 										Type:        schema.TypeList,
 										Required:    true,
-										Description: "URI.\nWhen match type is EQUAL/NOT_EQUAL, uri needs to start with \"/\", and includes parameters.\nWhen the match type is regex match, only one value is allowed. \nExample: /test.html?id=1.",
+										Description: "URI.<br/>When match type is EQUAL/NOT_EQUAL/START_WITH/END_WITH, uri needs to start with \"/\", and includes parameters.<br/>When the match type is REGEX/NOT_REGEX, only one value is allowed. <br/>Example: /test.html?id=1.",
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
@@ -121,12 +121,12 @@ func ResourceWaapWhitelist() *schema.Resource {
 									"match_type": {
 										Type:        schema.TypeString,
 										Required:    true,
-										Description: "Match type.\nEQUAL: Equals, user agent case sensitive\nNOT_EQUAL: Does not equal, user agent case sensitive\nCONTAIN: Contains, user agent case insensitive\nNOT_CONTAIN: Does not Contains, user agent case insensitive\nREGEX: Regex match, user agent case insensitive",
+										Description: "Match type.<br/>EQUAL: Equals, user agent case sensitive<br/>NOT_EQUAL: Does not equal, user agent case sensitive<br/>CONTAIN: Contains, user agent case insensitive<br/>NOT_CONTAIN: Does not Contains, user agent case insensitive<br/>NONE:Empty or non-existent<br/>REGEX: Regex match, user agent case insensitive<br/>NOT_REGEX: Regular does not match, user agent case insensitive<br/>START_WITH: Starts with, user agent case insensitive<br/>END_WITH: Ends with, user agent case insensitive<br/>WILDCARD: Wildcard matches, user agent case insensitive, * represents zero or more arbitrary characters, ? represents any single character<br/>NOT_WILDCARD: Wildcard does not match, user agent case insensitive, * represents zero or more arbitrary characters, ? represents any single character",
 									},
 									"ua": {
 										Type:        schema.TypeList,
 										Required:    true,
-										Description: "User agent.\nWhen the match type is regex match, only one value is allowed. \nExample: go-Http-client/1.1.",
+										Description: "User agent.<br/>When the match type is REGEX/NOT_REGEX, only one value is allowed. <br/>Example: go-Http-client/1.1.",
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
@@ -143,12 +143,12 @@ func ResourceWaapWhitelist() *schema.Resource {
 									"match_type": {
 										Type:        schema.TypeString,
 										Required:    true,
-										Description: "Match type.\nEQUAL: Equals, referer case sensitive\nNOT_EQUAL: Does not equal, referer case sensitive\nCONTAIN: Contains, referer case insensitive\nNOT_CONTAIN: Does not Contains, referer case insensitive\nREGEX: Regex match, referer case insensitive",
+										Description: "Match type.<br/>EQUAL: Equals, referer case sensitive<br/>NOT_EQUAL: Does not equal, referer case sensitive<br/>CONTAIN: Contains, referer case insensitive<br/>NOT_CONTAIN: Does not Contains, referer case insensitive<br/>NONE:Empty or non-existent<br/>REGEX: Regex match, referer case insensitive<br/>NOT_REGEX: Regular does not match, referer case insensitive<br/>START_WITH: Starts with, referer case insensitive<br/>END_WITH: Ends with, referer case insensitive<br/>WILDCARD: Wildcard matches, referer case insensitive, * represents zero or more arbitrary characters, ? represents any single characte<br/>NOT_WILDCARD: Wildcard does not match, referer case insensitive, * represents zero or more arbitrary characters, ? represents any single character",
 									},
 									"referer": {
 										Type:        schema.TypeList,
 										Required:    true,
-										Description: "Referer.\nWhen the match type is regex match, only one value is allowed. \nExample: http://test.com.",
+										Description: "Referer.<br/>When the match type is REGEX/NOT_REGEX, only one value is allowed. <br/>Example: http://test.com.",
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
@@ -165,17 +165,17 @@ func ResourceWaapWhitelist() *schema.Resource {
 									"match_type": {
 										Type:        schema.TypeString,
 										Required:    true,
-										Description: "Match type.\nEQUAL: Equals, request header values case sensitive\nNOT_EQUAL: Does not equal, request header values case sensitive\nCONTAIN: Contains, request header values case insensitive\nNOT_CONTAIN: Does not Contains, request header values case insensitive\nREGEX: Regex match, request header values case insensitive",
+										Description: "Match type.<br/>EQUAL: Equals, request header values case sensitive<br/>NOT_EQUAL: Does not equal, request header values case sensitive<br/>CONTAIN: Contains, request header values case insensitive<br/>NOT_CONTAIN: Does not Contains, request header values case insensitive<br/>NONE: Empty or non-existent<br/>REGEX: Regex match, request header values case insensitive<br/>NOT_REGEX: Regular does not match, request header values case insensitive<br/>START_WITH: Starts with, request header values case insensitive<br/>END_WITH: Ends with, request header values case insensitive<br/>WILDCARD: Wildcard matches, request header values case insensitive, * represents zero or more arbitrary characters, ? represents any single character<br/>NOT_WILDCARD: Wildcard does not match, request header values case insensitive, * represents zero or more arbitrary characters, ? represents any single character",
 									},
 									"key": {
 										Type:        schema.TypeString,
 										Required:    true,
-										Description: "Header name,case insensitive,up to 100 characters.\nExample: Accept.",
+										Description: "Header name,case insensitive,up to 100 characters.<br/>Example: Accept.",
 									},
 									"value_list": {
 										Type:        schema.TypeList,
 										Required:    true,
-										Description: "Header value.\nWhen the match type is regex match, only one value is allowed.",
+										Description: "Header value.<br/>When the match type is REGEX/NOT_REGEX, only one value is allowed.",
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},

@@ -322,6 +322,10 @@ func resourceAppaDomainUpdate(context context.Context, data *schema.ResourceData
 		if httpPorts, ok := data.Get("http_ports").([]interface{}); ok && len(httpPorts) > 0 {
 			HttpPortList := make([]*string, 0, len(httpPorts))
 			for _, v := range httpPorts {
+				if v == nil {
+					diags = append(diags, diag.FromErr(errors.New("The http port could not be empty."))...)
+					return diags
+				}
 				port := v.(string)
 				HttpPortList = append(HttpPortList, &port)
 			}
@@ -335,6 +339,10 @@ func resourceAppaDomainUpdate(context context.Context, data *schema.ResourceData
 		if httpsPorts, ok := data.Get("https_ports").([]interface{}); ok && len(httpsPorts) > 0 {
 			HttpsPortList := make([]*string, 0, len(httpsPorts))
 			for _, v := range httpsPorts {
+				if v == nil {
+					diags = append(diags, diag.FromErr(errors.New("The https port could not be empty."))...)
+					return diags
+				}
 				port := v.(string)
 				HttpsPortList = append(HttpsPortList, &port)
 			}

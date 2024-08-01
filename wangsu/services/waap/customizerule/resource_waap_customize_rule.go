@@ -33,7 +33,7 @@ func ResourceWaapCustomizeRule() *schema.Resource {
 			"rule_name": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: "Rule Name, maximum 50 characters.\nDoes not support special characters and spaces.",
+				Description: "Rule Name, maximum 50 characters.<br/>Does not support special characters and spaces.",
 			},
 			"description": {
 				Type:        schema.TypeString,
@@ -43,17 +43,17 @@ func ResourceWaapCustomizeRule() *schema.Resource {
 			"scene": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: "Protected target.\nWEB:Website\nAPI:API",
+				Description: "Protected target.<br/>WEB:Website<br/>API:API",
 			},
 			"api_id": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: "API ID under API business, multiple separated by ; sign.\nWhen the protected target is APIThis field is required.",
+				Description: "API ID under API business, multiple separated by ; sign.<br/>When the protected target is APIThis field is required.",
 			},
 			"act": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: "Action.\nNO_USE:Not Used\nLOG:Log\nDELAY:Delay\nBLOCK:Deny\nRESET:Reset Connection",
+				Description: "Action.<br/>NO_USE:Not Used<br/>LOG:Log<br/>DELAY:Delay<br/>BLOCK:Deny<br/>RESET:Reset Connection",
 			},
 			"condition": {
 				Type:        schema.TypeList,
@@ -70,12 +70,12 @@ func ResourceWaapCustomizeRule() *schema.Resource {
 									"match_type": {
 										Type:        schema.TypeString,
 										Required:    true,
-										Description: "Match type.\nEQUAL:Equal\nNOT_EQUAL:Does not equal",
+										Description: "Match type.<br/>EQUAL:Equal<br/>NOT_EQUAL:Does not equal",
 									},
 									"ip_or_ips": {
 										Type:        schema.TypeList,
 										Required:    true,
-										Description: "IP/CIDR.",
+										Description: "IP/CIDR, maximum 300 IP/CIDR.",
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
@@ -86,18 +86,18 @@ func ResourceWaapCustomizeRule() *schema.Resource {
 						"path_conditions": {
 							Type:        schema.TypeList,
 							Optional:    true,
-							Description: "Path, match type cannot be repeated.\nWhen the business scenario is API, this matching condition is not supported.",
+							Description: "Path, match type cannot be repeated.<br/>When the business scenario is API, this matching condition is not supported.",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"match_type": {
 										Type:        schema.TypeString,
 										Required:    true,
-										Description: "Match type.\nEQUAL: equal to\nNOT_EQUAL: not equal to\nCONTAIN: contains\nNOT_CONTAIN: does not contain\nREGEX: regular\nNOT_REGEX: regular does not match\nSTART_WITH: starts with\nEND_WITH: ends with\nWILDCARD: wildcard matches\nNOT_WILDCARD: wildcard does not match",
+										Description: "Match type.<br/>EQUAL: Equals, user agent case sensitive<br/>NOT_EQUAL: Does not equal, user agent case sensitive<br/>CONTAIN: Contains, user agent case insensitive<br/>NOT_CONTAIN: Does not Contains, user agent case insensitive<br/>NONE:Empty or non-existent<br/>REGEX: Regex match, user agent case insensitive<br/>NOT_REGEX: Regular does not match, user agent case insensitive<br/>START_WITH: Starts with, user agent case insensitive<br/>END_WITH: Ends with, user agent case insensitive<br/>WILDCARD: Wildcard matches, user agent case insensitive, * represents zero or more arbitrary characters, ? represents any single character<br/>NOT_WILDCARD: Wildcard does not match, user agent case insensitive, * represents zero or more arbitrary characters, ? represents any single character",
 									},
 									"paths": {
 										Type:        schema.TypeList,
 										Required:    true,
-										Description: "Path.",
+										Description: "Path.<br/>When match type is EQUAL/NOT_EQUAL/START_WITH/END_WITH, path needs to start with \"/\", and no parameters.<br/>When the match type is REGEX/NOT_REGEX, only one value is allowed. <br/>Example: /test.html.",
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
@@ -108,18 +108,18 @@ func ResourceWaapCustomizeRule() *schema.Resource {
 						"uri_conditions": {
 							Type:        schema.TypeList,
 							Optional:    true,
-							Description: "URI, match type cannot be repeated.\nWhen the business scenario is API, this matching condition is not supported.",
+							Description: "URI, match type cannot be repeated.<br/>When the business scenario is API, this matching condition is not supported.",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"match_type": {
 										Type:        schema.TypeString,
 										Required:    true,
-										Description: "Match type.\nEQUAL: equal to\nNOT_EQUAL: not equal to\nCONTAIN: contains\nNOT_CONTAIN: does not contain\nREGEX: regular\nNOT_REGEX: regular does not match\nSTART_WITH: starts with\nEND_WITH: ends with\nWILDCARD: wildcard matches\nNOT_WILDCARD: wildcard does not match",
+										Description: "Match type.<br/>EQUAL: Equals, user agent case sensitive<br/>NOT_EQUAL: Does not equal, user agent case sensitive<br/>CONTAIN: Contains, user agent case insensitive<br/>NOT_CONTAIN: Does not Contains, user agent case insensitive<br/>NONE:Empty or non-existent<br/>REGEX: Regex match, user agent case insensitive<br/>NOT_REGEX: Regular does not match, user agent case insensitive<br/>START_WITH: Starts with, user agent case insensitive<br/>END_WITH: Ends with, user agent case insensitive<br/>WILDCARD: Wildcard matches, user agent case insensitive, * represents zero or more arbitrary characters, ? represents any single character<br/>NOT_WILDCARD: Wildcard does not match, user agent case insensitive, * represents zero or more arbitrary characters, ? represents any single character",
 									},
 									"uri": {
 										Type:        schema.TypeList,
 										Required:    true,
-										Description: "URI.",
+										Description: "URI.<br/>When match type is EQUAL/NOT_EQUAL/START_WITH/END_WITH, uri needs to start with \"/\", and includes parameters.<br/>When the match type is REGEX/NOT_REGEX, only one value is allowed. <br/>Example: /test.html?id=1.",
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
@@ -130,22 +130,22 @@ func ResourceWaapCustomizeRule() *schema.Resource {
 						"uri_param_conditions": {
 							Type:        schema.TypeList,
 							Optional:    true,
-							Description: "URI Parameter, match type cannot be repeated.\nWhen the business scenario is API, this matching condition is not supported.",
+							Description: "URI Parameter, match type cannot be repeated.<br/>When the business scenario is API, this matching condition is not supported.",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"match_type": {
 										Type:        schema.TypeString,
 										Required:    true,
-										Description: "Match type.\nEQUAL:Equals\nNOT_EQUAL:Does not equal\nCONTAIN:Contains\nNOT_CONTAIN:Does not contains\nREGEX:Regex match\nNONE:Empty or non-existent",
+										Description: "Match type.<br/>EQUAL:Equals<br/>NOT_EQUAL:Does not equal<br/>CONTAIN:Contains<br/>NOT_CONTAIN:Does not contains<br/>REGEX:Regex match<br/>NONE:Empty or non-existent",
 									},
 									"param_name": {
 										Type:        schema.TypeString,
 										Required:    true,
-										Description: "Param name.",
+										Description: "Param name,case sensitive,maximum 100 characters.<br/>Example: id.",
 									},
 									"param_value": {
 										Type:        schema.TypeList,
-										Optional:    true,
+										Required:    true,
 										Description: "Param value.",
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
@@ -163,12 +163,12 @@ func ResourceWaapCustomizeRule() *schema.Resource {
 									"match_type": {
 										Type:        schema.TypeString,
 										Required:    true,
-										Description: "Match type.\nEQUAL: equal to\nNOT_EQUAL: not equal to\nCONTAIN: contains\nNOT_CONTAIN: does not contain\nREGEX: regular\nNONE: empty or does not exist\nNOT_REGEX: regular does not match\nSTART_WITH: starts with\nEND_WITH: ends with\nWILDCARD: wildcard matches\nNOT_WILDCARD: wildcard does not match",
+										Description: "Match type.<br/>EQUAL: Equals, user agent case sensitive<br/>NOT_EQUAL: Does not equal, user agent case sensitive<br/>CONTAIN: Contains, user agent case insensitive<br/>NOT_CONTAIN: Does not Contains, user agent case insensitive<br/>NONE:Empty or non-existent<br/>REGEX: Regex match, user agent case insensitive<br/>NOT_REGEX: Regular does not match, user agent case insensitive<br/>START_WITH: Starts with, user agent case insensitive<br/>END_WITH: Ends with, user agent case insensitive<br/>WILDCARD: Wildcard matches, user agent case insensitive, * represents zero or more arbitrary characters, ? represents any single character<br/>NOT_WILDCARD: Wildcard does not match, user agent case insensitive, * represents zero or more arbitrary characters, ? represents any single character",
 									},
 									"ua": {
 										Type:        schema.TypeList,
-										Optional:    true,
-										Description: "User-Agent.",
+										Required:    true,
+										Description: "User agent.<br/>When the match type is REGEX/NOT_REGEX, only one value is allowed. <br/>Example: go-Http-client/1.1.",
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
@@ -185,12 +185,12 @@ func ResourceWaapCustomizeRule() *schema.Resource {
 									"match_type": {
 										Type:        schema.TypeString,
 										Required:    true,
-										Description: "Match type.\nEQUAL: equal to\nNOT_EQUAL: not equal to\nCONTAIN: contains\nNOT_CONTAIN: does not contain\nREGEX: regular\nNONE: empty or does not exist\nNOT_REGEX: regular does not match\nSTART_WITH: starts with\nEND_WITH: ends with\nWILDCARD: wildcard matches\nNOT_WILDCARD: wildcard does not match",
+										Description: "Match type.<br/>EQUAL: Equals, referer case sensitive<br/>NOT_EQUAL: Does not equal, referer case sensitive<br/>CONTAIN: Contains, referer case insensitive<br/>NOT_CONTAIN: Does not Contains, referer case insensitive<br/>NONE:Empty or non-existent<br/>REGEX: Regex match, referer case insensitive<br/>NOT_REGEX: Regular does not match, referer case insensitive<br/>START_WITH: Starts with, referer case insensitive<br/>END_WITH: Ends with, referer case insensitive<br/>WILDCARD: Wildcard matches, referer case insensitive, * represents zero or more arbitrary characters, ? represents any single characte<br/>NOT_WILDCARD: Wildcard does not match, referer case insensitive, * represents zero or more arbitrary characters, ? represents any single character",
 									},
 									"referer": {
 										Type:        schema.TypeList,
-										Optional:    true,
-										Description: "Referer.",
+										Required:    true,
+										Description: "Referer.<br/>When the match type is REGEX/NOT_REGEX, only one value is allowed. <br/>Example: http://test.com.",
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
@@ -207,17 +207,17 @@ func ResourceWaapCustomizeRule() *schema.Resource {
 									"match_type": {
 										Type:        schema.TypeString,
 										Required:    true,
-										Description: "Match type.\nEQUAL: equal to\nNOT_EQUAL: not equal to\nCONTAIN: contains\nNOT_CONTAIN: does not contain\nREGEX: regular\nNONE: empty or does not exist\nNOT_REGEX: regular does not match\nSTART_WITH: starts with\nEND_WITH: ends with\nWILDCARD: wildcard matches\nNOT_WILDCARD: wildcard does not match",
+										Description: "Match type.<br/>EQUAL: Equals, request header values case sensitive<br/>NOT_EQUAL: Does not equal, request header values case sensitive<br/>CONTAIN: Contains, request header values case insensitive<br/>NOT_CONTAIN: Does not Contains, request header values case insensitive<br/>NONE: Empty or non-existent<br/>REGEX: Regex match, request header values case insensitive<br/>NOT_REGEX: Regular does not match, request header values case insensitive<br/>START_WITH: Starts with, request header values case insensitive<br/>END_WITH: Ends with, request header values case insensitive<br/>WILDCARD: Wildcard matches, request header values case insensitive, * represents zero or more arbitrary characters, ? represents any single character<br/>NOT_WILDCARD: Wildcard does not match, request header values case insensitive, * represents zero or more arbitrary characters, ? represents any single character",
 									},
 									"key": {
 										Type:        schema.TypeString,
 										Required:    true,
-										Description: "Request header name.",
+										Description: "Header name,case insensitive,up to 100 characters.<br/>Example: Accept.",
 									},
 									"value_list": {
 										Type:        schema.TypeList,
-										Optional:    true,
-										Description: "Header value.",
+										Required:    true,
+										Description: "Header value.<br/>When the match type is REGEX/NOT_REGEX, only one value is allowed.",
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
@@ -234,7 +234,7 @@ func ResourceWaapCustomizeRule() *schema.Resource {
 									"match_type": {
 										Type:        schema.TypeString,
 										Required:    true,
-										Description: "Match type.\nEQUAL:Equal\nNOT_EQUAL:Does not equal",
+										Description: "Match type.<br/>EQUAL:Equal<br/>NOT_EQUAL:Does not equal",
 									},
 									"areas": {
 										Type:        schema.TypeList,
@@ -250,18 +250,18 @@ func ResourceWaapCustomizeRule() *schema.Resource {
 						"method_conditions": {
 							Type:        schema.TypeList,
 							Optional:    true,
-							Description: "Request Method.\nWhen the business scenario is API,this matching condition is not supported.",
+							Description: "Request Method.<br/>When the business scenario is API,this matching condition is not supported.",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"match_type": {
 										Type:        schema.TypeString,
 										Required:    true,
-										Description: "Match type.\nEQUAL:Equal\nNOT_EQUAL:Does not equal",
+										Description: "Match type.<br/>EQUAL:Equal<br/>NOT_EQUAL:Does not equal",
 									},
 									"request_method": {
 										Type:        schema.TypeList,
 										Required:    true,
-										Description: "Request method.\nSupported values: GET/POST/DELETE/PUT/HEAD/OPTIONS/COPY.",
+										Description: "Request method.<br/>Supported values: GET/POST/DELETE/PUT/HEAD/OPTIONS/COPY.",
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},

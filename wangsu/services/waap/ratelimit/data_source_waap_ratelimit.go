@@ -55,17 +55,17 @@ func DataSourceRateLimit() *schema.Resource {
 						"scene": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: "Protected target.\nWEB:Website\nAPI:API",
+							Description: "Protected target.<br/>WEB:Website<br/>API:API",
 						},
 						"statistical_stage": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: "Count on.\nREQUEST:Request\nRESPONSE:Response",
+							Description: "Count on.<br/>REQUEST:Request<br/>RESPONSE:Response",
 						},
 						"statistical_item": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: "Client identifier.\nIP:Client IP\nIP_UA:Client IP and User-Agent\nCOOKIE:Cookie\nIP_COOKIE:Client IP and Cookie\nHEADER:Request Header\nIP_HEADER:Client IP and Request Header",
+							Description: "Client identifier.<br/>IP:Client IP<br/>IP_UA:Client IP and User-Agent<br/>COOKIE:Cookie<br/>IP_COOKIE:Client IP and Cookie<br/>HEADER:Request Header<br/>IP_HEADER:Client IP and Request Header",
 						},
 						"statistics_key": {
 							Type:        schema.TypeString,
@@ -90,7 +90,7 @@ func DataSourceRateLimit() *schema.Resource {
 						"effective_status": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: "Cycle effective status.\nPERMANENT:All time\nWITHOUT:Excluded time\nWITHIN:Selected time",
+							Description: "Cycle effective status.<br/>PERMANENT:All time<br/>WITHOUT:Excluded time<br/>WITHIN:Selected time",
 						},
 						"rate_limit_effective": {
 							Type:     schema.TypeList,
@@ -101,7 +101,7 @@ func DataSourceRateLimit() *schema.Resource {
 										Type:        schema.TypeList,
 										Elem:        &schema.Schema{Type: schema.TypeString},
 										Computed:    true,
-										Description: "Effective.\nMON:Monday\nTUE:Tuesday\nWED:Wednesday\nTHU:Thursday\nFRI:Friday\nSAT:Saturday\nSUN:Sunday",
+										Description: "Effective.<br/>MON:Monday<br/>TUE:Tuesday<br/>WED:Wednesday<br/>THU:Thursday<br/>FRI:Friday<br/>SAT:Saturday<br/>SUN:Sunday",
 									},
 									"start": {
 										Type:        schema.TypeString,
@@ -129,7 +129,7 @@ func DataSourceRateLimit() *schema.Resource {
 						"action": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: "Action.\nNO_USE:Not Used\nACCEPT:Skip\nLOG:Log\nCOOKIE:Cookie verification\nJS_CHECK:Javascript verification\nDELAY:Delay\nBLOCK:Deny\nRESET:Reset Connection\nCustom response ID:Custom response ID",
+							Description: "Action.<br/>NO_USE:Not Used<br/>LOG:Log<br/>COOKIE:Cookie verification<br/>JS_CHECK:Javascript verification<br/>DELAY:Delay<br/>BLOCK:Deny<br/>RESET:Reset Connection<br/>Custom response ID:Custom response ID",
 						},
 						"rate_limit_rule_condition": {
 							Type:        schema.TypeList,
@@ -145,7 +145,7 @@ func DataSourceRateLimit() *schema.Resource {
 												"match_type": {
 													Type:        schema.TypeString,
 													Computed:    true,
-													Description: "Match type.\nEQUAL:Equal\nNOT_EQUAL:Does not equal",
+													Description: "Match type.<br/>EQUAL:Equal<br/>NOT_EQUAL:Does not equal",
 												},
 												"ip_or_ips": {
 													Type:        schema.TypeList,
@@ -164,7 +164,7 @@ func DataSourceRateLimit() *schema.Resource {
 												"match_type": {
 													Type:        schema.TypeString,
 													Computed:    true,
-													Description: "Match type.\nEQUAL:Equals\nNOT_EQUAL:Does not equal\nCONTAIN:Contains\nNOT_CONTAIN:Does not contains\nREGEX:Regex match\nNOT_REGEX: regular does not match\nSTART_WITH: starts with\nEND_WITH: ends with\nWILDCARD: wildcard matches\nNOT_WILDCARD: wildcard does not match",
+													Description: "Match type.<br/>EQUAL: Equals, user agent case sensitive<br/>NOT_EQUAL: Does not equal, user agent case sensitive<br/>CONTAIN: Contains, user agent case insensitive<br/>NOT_CONTAIN: Does not Contains, user agent case insensitive<br/>NONE:Empty or non-existent<br/>REGEX: Regex match, user agent case insensitive<br/>NOT_REGEX: Regular does not match, user agent case insensitive<br/>START_WITH: Starts with, user agent case insensitive<br/>END_WITH: Ends with, user agent case insensitive<br/>WILDCARD: Wildcard matches, user agent case insensitive, * represents zero or more arbitrary characters, ? represents any single character<br/>NOT_WILDCARD: Wildcard does not match, user agent case insensitive, * represents zero or more arbitrary characters, ? represents any single character",
 												},
 												"paths": {
 													Type:        schema.TypeList,
@@ -183,7 +183,7 @@ func DataSourceRateLimit() *schema.Resource {
 												"match_type": {
 													Type:        schema.TypeString,
 													Computed:    true,
-													Description: "Match type.\nEQUAL:Equals\nNOT_EQUAL:Does not equal\nCONTAIN:Contains\nNOT_CONTAIN:Does not contains\nREGEX:Regex match\nNOT_REGEX: regular does not match\nSTART_WITH: starts with\nEND_WITH: ends with\nWILDCARD: wildcard matches\nNOT_WILDCARD: wildcard does not match",
+													Description: "Match type.<br/>EQUAL: Equals, user agent case sensitive<br/>NOT_EQUAL: Does not equal, user agent case sensitive<br/>CONTAIN: Contains, user agent case insensitive<br/>NOT_CONTAIN: Does not Contains, user agent case insensitive<br/>NONE:Empty or non-existent<br/>REGEX: Regex match, user agent case insensitive<br/>NOT_REGEX: Regular does not match, user agent case insensitive<br/>START_WITH: Starts with, user agent case insensitive<br/>END_WITH: Ends with, user agent case insensitive<br/>WILDCARD: Wildcard matches, user agent case insensitive, * represents zero or more arbitrary characters, ? represents any single character<br/>NOT_WILDCARD: Wildcard does not match, user agent case insensitive, * represents zero or more arbitrary characters, ? represents any single character",
 												},
 												"uri": {
 													Type:        schema.TypeList,
@@ -202,7 +202,7 @@ func DataSourceRateLimit() *schema.Resource {
 												"match_type": {
 													Type:        schema.TypeString,
 													Computed:    true,
-													Description: "Match type.\nEQUAL:Equals\nNOT_EQUAL:Does not equal\nCONTAIN:Contains\nNOT_CONTAIN:Does not contains\nREGEX:Regex match\nNONE:Empty or non-existent",
+													Description: "Match type.<br/>EQUAL:Equals<br/>NOT_EQUAL:Does not equal<br/>CONTAIN:Contains<br/>NOT_CONTAIN:Does not contains<br/>REGEX:Regex match<br/>NONE:Empty or non-existent",
 												},
 												"param_name": {
 													Type:        schema.TypeString,
@@ -227,7 +227,7 @@ func DataSourceRateLimit() *schema.Resource {
 												"match_type": {
 													Type:        schema.TypeString,
 													Computed:    true,
-													Description: "Match type.\nEQUAL:Equals,ua case sensitive\nNOT_EQUAL:Does not equal,ua case sensitive\nCONTAIN:Contains,ua case insensitive\nNOT_CONTAIN:Does not contains,ua case insensitive\nREGEX:Regex match,ua case insensitive\nNONE:Empty or non-existent",
+													Description: "Match type.<br/>EQUAL: Equals, user agent case sensitive<br/>NOT_EQUAL: Does not equal, user agent case sensitive<br/>CONTAIN: Contains, user agent case insensitive<br/>NOT_CONTAIN: Does not Contains, user agent case insensitive<br/>NONE:Empty or non-existent<br/>REGEX: Regex match, user agent case insensitive<br/>NOT_REGEX: Regular does not match, user agent case insensitive<br/>START_WITH: Starts with, user agent case insensitive<br/>END_WITH: Ends with, user agent case insensitive<br/>WILDCARD: Wildcard matches, user agent case insensitive, * represents zero or more arbitrary characters, ? represents any single character<br/>NOT_WILDCARD: Wildcard does not match, user agent case insensitive, * represents zero or more arbitrary characters, ? represents any single character",
 												},
 												"ua": {
 													Type:        schema.TypeList,
@@ -249,7 +249,7 @@ func DataSourceRateLimit() *schema.Resource {
 												"match_type": {
 													Type:        schema.TypeString,
 													Computed:    true,
-													Description: "Match type.\nEQUAL:Equals,referer case sensitive\nNOT_EQUAL:Does not equal,referer case sensitive\nCONTAIN:Contains,referer case insensitive\nNOT_CONTAIN:Does not contains,referer case insensitive\nREGEX:Regex match,referer case insensitive\nNONE:Empty or non-existent",
+													Description: "Match type.<br/>EQUAL: Equals, user agent case sensitive<br/>NOT_EQUAL: Does not equal, user agent case sensitive<br/>CONTAIN: Contains, user agent case insensitive<br/>NOT_CONTAIN: Does not Contains, user agent case insensitive<br/>NONE:Empty or non-existent<br/>REGEX: Regex match, user agent case insensitive<br/>NOT_REGEX: Regular does not match, user agent case insensitive<br/>START_WITH: Starts with, user agent case insensitive<br/>END_WITH: Ends with, user agent case insensitive<br/>WILDCARD: Wildcard matches, user agent case insensitive, * represents zero or more arbitrary characters, ? represents any single character<br/>NOT_WILDCARD: Wildcard does not match, user agent case insensitive, * represents zero or more arbitrary characters, ? represents any single character",
 												},
 												"referer": {
 													Type:        schema.TypeList,
@@ -271,7 +271,7 @@ func DataSourceRateLimit() *schema.Resource {
 												"match_type": {
 													Type:        schema.TypeString,
 													Computed:    true,
-													Description: "Match type.\nEQUAL:Equals,header value case sensitive\nNOT_EQUAL:Does not equal,header value case sensitive\nCONTAIN:Contains,header value case insensitive\nNOT_CONTAIN:Does not contains,header value case insensitive\nREGEX:Regex match,header value case insensitive\nNONE:Empty or non-existent",
+													Description: "Match type.<br/>EQUAL: Equals, user agent case sensitive<br/>NOT_EQUAL: Does not equal, user agent case sensitive<br/>CONTAIN: Contains, user agent case insensitive<br/>NOT_CONTAIN: Does not Contains, user agent case insensitive<br/>NONE:Empty or non-existent<br/>REGEX: Regex match, user agent case insensitive<br/>NOT_REGEX: Regular does not match, user agent case insensitive<br/>START_WITH: Starts with, user agent case insensitive<br/>END_WITH: Ends with, user agent case insensitive<br/>WILDCARD: Wildcard matches, user agent case insensitive, * represents zero or more arbitrary characters, ? represents any single character<br/>NOT_WILDCARD: Wildcard does not match, user agent case insensitive, * represents zero or more arbitrary characters, ? represents any single character",
 												},
 												"key": {
 													Type:        schema.TypeString,
@@ -298,7 +298,7 @@ func DataSourceRateLimit() *schema.Resource {
 												"match_type": {
 													Type:        schema.TypeString,
 													Computed:    true,
-													Description: "Match type.\nEQUAL:Equal\nNOT_EQUAL:Does not equal",
+													Description: "Match type.<br/>EQUAL:Equal<br/>NOT_EQUAL:Does not equal",
 												},
 												"areas": {
 													Type:        schema.TypeList,
@@ -320,7 +320,7 @@ func DataSourceRateLimit() *schema.Resource {
 												"match_type": {
 													Type:        schema.TypeString,
 													Computed:    true,
-													Description: "Match type.\nEQUAL:Equal\nNOT_EQUAL:Does not equal",
+													Description: "Match type.<br/>EQUAL:Equal<br/>NOT_EQUAL:Does not equal",
 												},
 												"status_code": {
 													Type:        schema.TypeList,
@@ -342,12 +342,12 @@ func DataSourceRateLimit() *schema.Resource {
 												"match_type": {
 													Type:        schema.TypeString,
 													Computed:    true,
-													Description: "Match type.\nEQUAL:Equal\nNOT_EQUAL:Does not equal",
+													Description: "Match type.<br/>EQUAL:Equal<br/>NOT_EQUAL:Does not equal",
 												},
 												"request_method": {
 													Type:        schema.TypeList,
 													Computed:    true,
-													Description: "Request method.\nSupported values: GET/POST/DELETE/PUT/HEAD/OPTIONS/COPY.",
+													Description: "Request method.<br/>Supported values: GET/POST/DELETE/PUT/HEAD/OPTIONS/COPY.",
 													Elem: &schema.Schema{
 														Type: schema.TypeString,
 													},
@@ -364,12 +364,12 @@ func DataSourceRateLimit() *schema.Resource {
 												"match_type": {
 													Type:        schema.TypeString,
 													Computed:    true,
-													Description: "Match type.\nEQUAL:Equal\nNOT_EQUAL:Does not equal",
+													Description: "Match type.<br/>EQUAL:Equal<br/>NOT_EQUAL:Does not equal",
 												},
 												"scheme": {
 													Type:        schema.TypeList,
 													Computed:    true,
-													Description: "HTTP/S.\nSupported values: HTTP/HTTPS.",
+													Description: "HTTP/S.<br/>Supported values: HTTP/HTTPS.",
 													Elem: &schema.Schema{
 														Type: schema.TypeString,
 													},

@@ -55,7 +55,7 @@ func DataSourceCustomizeRule() *schema.Resource {
 						"scene": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: "Protected target.\nWEB:Website\nAPI:API",
+							Description: "Protected target.<br/>WEB:Website<br/>API:API",
 						},
 						"api_id": {
 							Type:        schema.TypeString,
@@ -65,7 +65,7 @@ func DataSourceCustomizeRule() *schema.Resource {
 						"act": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: "Action.\nNO_USE:Not Used\nLOG:Log\nDELAY:Delay\nBLOCK:Deny\nRESET:Reset Connection",
+							Description: "Action.<br/>NO_USE:Not Used<br/>LOG:Log<br/>DELAY:Delay<br/>BLOCK:Deny<br/>RESET:Reset Connection",
 						},
 						"condition_list": {
 							Type:     schema.TypeList,
@@ -80,7 +80,7 @@ func DataSourceCustomizeRule() *schema.Resource {
 												"match_type": {
 													Type:        schema.TypeString,
 													Computed:    true,
-													Description: "Match type.\nEQUAL:Equal\nNOT_EQUAL:Does not equal",
+													Description: "Match type.<br/>EQUAL:Equal<br/>NOT_EQUAL:Does not equal",
 												},
 												"ip_or_ips": {
 													Type:        schema.TypeList,
@@ -99,7 +99,7 @@ func DataSourceCustomizeRule() *schema.Resource {
 												"match_type": {
 													Type:        schema.TypeString,
 													Computed:    true,
-													Description: "Match type.\nEQUAL: equal to\nNOT_EQUAL: not equal to\nCONTAIN: contains\nNOT_CONTAIN: does not contain\nREGEX: regular\nNOT_REGEX: regular does not match\nSTART_WITH: starts with\nEND_WITH: ends with\nWILDCARD: wildcard matches\nNOT_WILDCARD: wildcard does not match",
+													Description: "Match type.<br/>EQUAL: Equals, user agent case sensitive<br/>NOT_EQUAL: Does not equal, user agent case sensitive<br/>CONTAIN: Contains, user agent case insensitive<br/>NOT_CONTAIN: Does not Contains, user agent case insensitive<br/>NONE:Empty or non-existent<br/>REGEX: Regex match, user agent case insensitive<br/>NOT_REGEX: Regular does not match, user agent case insensitive<br/>START_WITH: Starts with, user agent case insensitive<br/>END_WITH: Ends with, user agent case insensitive<br/>WILDCARD: Wildcard matches, user agent case insensitive, * represents zero or more arbitrary characters, ? represents any single character<br/>NOT_WILDCARD: Wildcard does not match, user agent case insensitive, * represents zero or more arbitrary characters, ? represents any single character",
 												},
 												"paths": {
 													Type:        schema.TypeList,
@@ -118,7 +118,7 @@ func DataSourceCustomizeRule() *schema.Resource {
 												"match_type": {
 													Type:        schema.TypeString,
 													Computed:    true,
-													Description: "Match type.\nEQUAL: equal to\nNOT_EQUAL: not equal to\nCONTAIN: contains\nNOT_CONTAIN: does not contain\nREGEX: regular\nNOT_REGEX: regular does not match\nSTART_WITH: starts with\nEND_WITH: ends with\nWILDCARD: wildcard matches\nNOT_WILDCARD: wildcard does not match",
+													Description: "Match type.<br/>EQUAL: Equals, user agent case sensitive<br/>NOT_EQUAL: Does not equal, user agent case sensitive<br/>CONTAIN: Contains, user agent case insensitive<br/>NOT_CONTAIN: Does not Contains, user agent case insensitive<br/>NONE:Empty or non-existent<br/>REGEX: Regex match, user agent case insensitive<br/>NOT_REGEX: Regular does not match, user agent case insensitive<br/>START_WITH: Starts with, user agent case insensitive<br/>END_WITH: Ends with, user agent case insensitive<br/>WILDCARD: Wildcard matches, user agent case insensitive, * represents zero or more arbitrary characters, ? represents any single character<br/>NOT_WILDCARD: Wildcard does not match, user agent case insensitive, * represents zero or more arbitrary characters, ? represents any single character",
 												},
 												"uri": {
 													Type:        schema.TypeList,
@@ -137,7 +137,7 @@ func DataSourceCustomizeRule() *schema.Resource {
 												"match_type": {
 													Type:        schema.TypeString,
 													Computed:    true,
-													Description: "Match type.\nEQUAL:Equals\nNOT_EQUAL:Does not equal\nCONTAIN:Contains\nNOT_CONTAIN:Does not contains\nREGEX:Regex match\nNONE:Empty or non-existent",
+													Description: "Match type.<br/>EQUAL:Equals<br/>NOT_EQUAL:Does not equal<br/>CONTAIN:Contains<br/>NOT_CONTAIN:Does not contains<br/>REGEX:Regex match<br/>NONE:Empty or non-existent",
 												},
 												"param_name": {
 													Type:        schema.TypeString,
@@ -161,7 +161,7 @@ func DataSourceCustomizeRule() *schema.Resource {
 												"match_type": {
 													Type:        schema.TypeString,
 													Computed:    true,
-													Description: "Match type.\nEQUAL: equal to\nNOT_EQUAL: not equal to\nCONTAIN: contains\nNOT_CONTAIN: does not contain\nREGEX: regular\nNONE: empty or does not exist\nNOT_REGEX: regular does not match\nSTART_WITH: starts with\nEND_WITH: ends with\nWILDCARD: wildcard matches\nNOT_WILDCARD: wildcard does not match",
+													Description: "Match type.<br/>EQUAL: Equals, user agent case sensitive<br/>NOT_EQUAL: Does not equal, user agent case sensitive<br/>CONTAIN: Contains, user agent case insensitive<br/>NOT_CONTAIN: Does not Contains, user agent case insensitive<br/>NONE:Empty or non-existent<br/>REGEX: Regex match, user agent case insensitive<br/>NOT_REGEX: Regular does not match, user agent case insensitive<br/>START_WITH: Starts with, user agent case insensitive<br/>END_WITH: Ends with, user agent case insensitive<br/>WILDCARD: Wildcard matches, user agent case insensitive, * represents zero or more arbitrary characters, ? represents any single character<br/>NOT_WILDCARD: Wildcard does not match, user agent case insensitive, * represents zero or more arbitrary characters, ? represents any single character",
 												},
 												"ua": {
 													Type:        schema.TypeList,
@@ -180,7 +180,7 @@ func DataSourceCustomizeRule() *schema.Resource {
 												"match_type": {
 													Type:        schema.TypeString,
 													Computed:    true,
-													Description: "Match type.\nEQUAL: equal to\nNOT_EQUAL: not equal to\nCONTAIN: contains\nNOT_CONTAIN: does not contain\nREGEX: regular\nNONE: empty or does not exist\nNOT_REGEX: regular does not match\nSTART_WITH: starts with\nEND_WITH: ends with\nWILDCARD: wildcard matches\nNOT_WILDCARD: wildcard does not match",
+													Description: "Match type.<br/>EQUAL: Equals, user agent case sensitive<br/>NOT_EQUAL: Does not equal, user agent case sensitive<br/>CONTAIN: Contains, user agent case insensitive<br/>NOT_CONTAIN: Does not Contains, user agent case insensitive<br/>NONE:Empty or non-existent<br/>REGEX: Regex match, user agent case insensitive<br/>NOT_REGEX: Regular does not match, user agent case insensitive<br/>START_WITH: Starts with, user agent case insensitive<br/>END_WITH: Ends with, user agent case insensitive<br/>WILDCARD: Wildcard matches, user agent case insensitive, * represents zero or more arbitrary characters, ? represents any single character<br/>NOT_WILDCARD: Wildcard does not match, user agent case insensitive, * represents zero or more arbitrary characters, ? represents any single character",
 												},
 												"referer": {
 													Type:        schema.TypeList,
@@ -199,7 +199,7 @@ func DataSourceCustomizeRule() *schema.Resource {
 												"match_type": {
 													Type:        schema.TypeString,
 													Computed:    true,
-													Description: "Match type.\nEQUAL: equal to\nNOT_EQUAL: not equal to\nCONTAIN: contains\nNOT_CONTAIN: does not contain\nREGEX: regular\nNONE: empty or does not exist\nNOT_REGEX: regular does not match\nSTART_WITH: starts with\nEND_WITH: ends with\nWILDCARD: wildcard matches\nNOT_WILDCARD: wildcard does not match",
+													Description: "Match type.<br/>EQUAL: Equals, user agent case sensitive<br/>NOT_EQUAL: Does not equal, user agent case sensitive<br/>CONTAIN: Contains, user agent case insensitive<br/>NOT_CONTAIN: Does not Contains, user agent case insensitive<br/>NONE:Empty or non-existent<br/>REGEX: Regex match, user agent case insensitive<br/>NOT_REGEX: Regular does not match, user agent case insensitive<br/>START_WITH: Starts with, user agent case insensitive<br/>END_WITH: Ends with, user agent case insensitive<br/>WILDCARD: Wildcard matches, user agent case insensitive, * represents zero or more arbitrary characters, ? represents any single character<br/>NOT_WILDCARD: Wildcard does not match, user agent case insensitive, * represents zero or more arbitrary characters, ? represents any single character",
 												},
 												"key": {
 													Type:        schema.TypeString,
@@ -223,7 +223,7 @@ func DataSourceCustomizeRule() *schema.Resource {
 												"match_type": {
 													Type:        schema.TypeString,
 													Computed:    true,
-													Description: "Match type.\nEQUAL:Equal\nNOT_EQUAL:Does not equal",
+													Description: "Match type.<br/>EQUAL:Equal<br/>NOT_EQUAL:Does not equal",
 												},
 												"areas": {
 													Type:        schema.TypeList,
@@ -242,13 +242,13 @@ func DataSourceCustomizeRule() *schema.Resource {
 												"match_type": {
 													Type:        schema.TypeString,
 													Computed:    true,
-													Description: "Match type.\nEQUAL:Equal\nNOT_EQUAL:Does not equal",
+													Description: "Match type.<br/>EQUAL:Equal<br/>NOT_EQUAL:Does not equal",
 												},
 												"request_method": {
 													Type:        schema.TypeList,
 													Computed:    true,
 													Elem:        &schema.Schema{Type: schema.TypeString},
-													Description: "Request method.\nSupported values: GET/POST/DELETE/PUT/HEAD/OPTIONS/COPY.",
+													Description: "Request method.<br/>Supported values: GET/POST/DELETE/PUT/HEAD/OPTIONS/COPY.",
 												},
 											},
 										},

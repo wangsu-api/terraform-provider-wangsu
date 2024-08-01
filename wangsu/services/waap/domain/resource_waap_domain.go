@@ -32,17 +32,17 @@ func ResourceWaapDomain() *schema.Resource {
 						"rule_update_mode": {
 							Type:        schema.TypeString,
 							Required:    true,
-							Description: "Ruleset pattern. \nMANUAL: Manual\nAUTO: Automatic",
+							Description: "Ruleset pattern. <br/>MANUAL: Manual<br/>AUTO: Automatic",
 						},
 						"config_switch": {
 							Type:        schema.TypeString,
 							Required:    true,
-							Description: "WAF protection switch.\nON: Enabled\nOFF: Disabled",
+							Description: "WAF protection switch.<br/>ON: Enabled<br/>OFF: Disabled",
 						},
 						"defend_mode": {
 							Type:        schema.TypeString,
 							Required:    true,
-							Description: "WAF protection Mode.\nBLOCK: Interception\nLOG: Observation",
+							Description: "WAF protection Mode.<br/>BLOCK: Interception<br/>LOG: Observation",
 						},
 					},
 				},
@@ -56,7 +56,7 @@ func ResourceWaapDomain() *schema.Resource {
 						"config_switch": {
 							Type:        schema.TypeString,
 							Required:    true,
-							Description: "Custom rules switch.\nON: Enabled\nOFF: Disabled",
+							Description: "Custom rules switch.<br/>ON: Enabled<br/>OFF: Disabled",
 						},
 					},
 				},
@@ -70,7 +70,7 @@ func ResourceWaapDomain() *schema.Resource {
 						"config_switch": {
 							Type:        schema.TypeString,
 							Required:    true,
-							Description: "API security switch.\nON: Enabled\nOFF: Disabled",
+							Description: "API security switch.<br/>ON: Enabled<br/>OFF: Disabled",
 						},
 					},
 				},
@@ -84,7 +84,7 @@ func ResourceWaapDomain() *schema.Resource {
 						"config_switch": {
 							Type:        schema.TypeString,
 							Required:    true,
-							Description: "Whitelist switch.\nON: Enabled\nOFF: Disabled",
+							Description: "Whitelist switch.<br/>ON: Enabled<br/>OFF: Disabled",
 						},
 					},
 				},
@@ -106,7 +106,7 @@ func ResourceWaapDomain() *schema.Resource {
 						"config_switch": {
 							Type:        schema.TypeString,
 							Required:    true,
-							Description: "IP/Geo switch.\nON: Enabled\nOFF: Disabled",
+							Description: "IP/Geo switch.<br/>ON: Enabled<br/>OFF: Disabled",
 						},
 					},
 				},
@@ -120,17 +120,17 @@ func ResourceWaapDomain() *schema.Resource {
 						"config_switch": {
 							Type:        schema.TypeString,
 							Required:    true,
-							Description: "DDoS protection switch.\nON: Enabled\nOFF: Disabled",
+							Description: "DDoS protection switch.<br/>ON: Enabled<br/>OFF: Disabled",
 						},
 						"protection_mode": {
 							Type:        schema.TypeString,
 							Required:    true,
-							Description: "DDoS protection mode.\nAI_DEPOSIT: Managed Auto-Protect\nUNDER_ATTACK: I'm Under Attack",
+							Description: "DDoS protection mode.<br/>AI_DEPOSIT: Managed Auto-Protect<br/>UNDER_ATTACK: I'm Under Attack",
 						},
 						"ai_switch": {
 							Type:        schema.TypeString,
 							Required:    true,
-							Description: "DDoS AI intelligent protection switch.\nON: Enabled\nOFF: Disabled",
+							Description: "DDoS AI intelligent protection switch.<br/>ON: Enabled<br/>OFF: Disabled",
 						},
 					},
 				},
@@ -150,17 +150,17 @@ func ResourceWaapDomain() *schema.Resource {
 									"attack_source": {
 										Type:        schema.TypeString,
 										Required:    true,
-										Description: "Attack resource risk action.\nNO_USE: Not used\nBLOCK: Deny\nLOG: Log",
+										Description: "Attack resource risk action.<br/>NO_USE: Not used<br/>BLOCK: Deny<br/>LOG: Log",
 									},
 									"spec_attack": {
 										Type:        schema.TypeString,
 										Required:    true,
-										Description: "Specific attack risk action.\nNO_USE: Not used\nBLOCK: Deny\nLOG:Log",
+										Description: "Specific attack risk action.<br/>NO_USE: Not used<br/>BLOCK: Deny<br/>LOG:Log",
 									},
 									"industry": {
 										Type:        schema.TypeString,
 										Required:    true,
-										Description: "Industry attack risk action.\nNO_USE: Not used\nBLOCK: Deny\nLOG: Log",
+										Description: "Industry attack risk action.<br/>NO_USE: Not used<br/>BLOCK: Deny<br/>LOG: Log",
 									},
 								},
 							},
@@ -168,7 +168,7 @@ func ResourceWaapDomain() *schema.Resource {
 						"config_switch": {
 							Type:        schema.TypeString,
 							Required:    true,
-							Description: "Threat intelligence switch.\nON: Enabled\nOFF: Disabled",
+							Description: "Threat intelligence switch.<br/>ON: Enabled<br/>OFF: Disabled",
 						},
 					},
 				},
@@ -182,17 +182,17 @@ func ResourceWaapDomain() *schema.Resource {
 						"public_bots_act": {
 							Type:        schema.TypeString,
 							Required:    true,
-							Description: "Known Bots action.\nNO_USE: not used\nBLOCK: Deny\nLOG: Log\nACCEPT: Skip",
+							Description: "Known Bots action.<br/>NO_USE: not used<br/>BLOCK: Deny<br/>LOG: Log<br/>ACCEPT: Skip",
 						},
 						"config_switch": {
 							Type:        schema.TypeString,
 							Required:    true,
-							Description: "Bot management switch.\nON: Enabled\nOFF: Disabled",
+							Description: "Bot management switch.<br/>ON: Enabled<br/>OFF: Disabled",
 						},
 						"ua_bots_act": {
 							Type:        schema.TypeString,
 							Required:    true,
-							Description: "User-Agent based detection action.\nNO_USE: Not used\nBLOCK: Deny\nLOG: Log\nACCEPT: Skip",
+							Description: "User-Agent based detection action.<br/>NO_USE: Not used<br/>BLOCK: Deny<br/>LOG: Log<br/>ACCEPT: Skip",
 						},
 						"web_risk_config": {
 							Type:        schema.TypeList,
@@ -203,7 +203,7 @@ func ResourceWaapDomain() *schema.Resource {
 									"act": {
 										Type:        schema.TypeString,
 										Required:    true,
-										Description: "Action.\nNO_USE: Not used\nBLOCK: Deny\nLOG: Log",
+										Description: "Action.<br/>NO_USE: Not used<br/>BLOCK: Deny<br/>LOG: Log",
 									},
 								},
 							},
@@ -211,7 +211,7 @@ func ResourceWaapDomain() *schema.Resource {
 						"scene_analyse_switch": {
 							Type:        schema.TypeString,
 							Required:    true,
-							Description: "Client-based detection function switch.\nON: Enabled\nOFF: Disabled",
+							Description: "Client-based detection function switch.<br/>ON: Enabled<br/>OFF: Disabled",
 						},
 					},
 				},
@@ -225,7 +225,7 @@ func ResourceWaapDomain() *schema.Resource {
 						"config_switch": {
 							Type:        schema.TypeString,
 							Required:    true,
-							Description: "Rate limiting switch.\nON: Enabled\nOFF: Disabled",
+							Description: "Rate limiting switch.<br/>ON: Enabled<br/>OFF: Disabled",
 						},
 					},
 				},
