@@ -1,13 +1,13 @@
 module github.com/wangsu-api/terraform-provider-wangsu
 
-go 1.21
+go 1.22
 
-toolchain go1.22.2
+toolchain go1.22.5
 
 require (
 	github.com/alibabacloud-go/tea v1.2.0
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.20.0
-	github.com/wangsu-api/wangsu-sdk-go v1.0.4
+	github.com/wangsu-api/wangsu-sdk-go v1.0.5
 	golang.org/x/net v0.23.0
 )
 
