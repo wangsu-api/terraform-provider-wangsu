@@ -89,4 +89,4 @@ In addition to generic provider arguments (e.g. alias and version), the followin
 * `secret_key` - (Optional) This is the wangsu secret key. It must be provided, but it can also be sourced from the `WANGSU_SECRET_KEY` environment variable.
 * `protocol` - (Optional) The protocol of the API request. Valid values: `HTTP` and `HTTPS`. Default is `HTTPS`.
 * `domain` - (Optional) The root domain of the API request, Default is `open.chinanetcenter.com`.
-* `service_type` (Optional) The service type of the accelerated domain name. The value can be: appa: Application Acceleration
+* `service_type` (Optional) The service type of the accelerated domain name. The value can be: appa: Application Acceleration; For security protection service types, please contact technical support.
