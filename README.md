@@ -10,7 +10,7 @@
 <div>
   <p>
     <a href="https://www.wangsu.com">
-        <img src="https://camo.githubusercontent.com/8c8645a123a22e35c822fac17bf5bd774be42a825653cd994bd2c530e606cf92/68747470733a2f2f7374617469632d7763732e77616e6773752e636f6d2f706f7274616c6e61762f6e61764c6f676f5f313732303631313235333439385f3135325fe7bd91e5aebf6c6f676f2d32335f3531322e706e67" alt="logo" title="Terraform" height="200">
+        <img src="https://static-wcs.wangsu.com/portalnav/icon_1725418458199_836_logo-23_6_0_200.png" alt="logo" title="Terraform" height="200">
     </a>
     <br>
     <i>Wangsu Infrastructure for Terraform.</i>
