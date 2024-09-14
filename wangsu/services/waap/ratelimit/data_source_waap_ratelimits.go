@@ -12,9 +12,9 @@ import (
 	"time"
 )
 
-func DataSourceRateLimit() *schema.Resource {
+func DataSourceRateLimits() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataSourceRateLimitRead,
+		ReadContext: dataSourceRateLimitsRead,
 		Schema: map[string]*schema.Schema{
 			"domain_list": {
 				Type:        schema.TypeList,
@@ -387,8 +387,8 @@ func DataSourceRateLimit() *schema.Resource {
 	}
 }
 
-func dataSourceRateLimitRead(context context.Context, data *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Printf("data_source.wangsu_waap_ratelimit.read")
+func dataSourceRateLimitsRead(context context.Context, data *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	log.Printf("data_source.wangsu_waap_ratelimits.read")
 
 	var response *waapRatelimit.ListRateLimitingRulesResponse
 	var err error
@@ -483,4 +483,127 @@ func dataSourceRateLimitRead(context context.Context, data *schema.ResourceData,
 		data.SetId(wangsuCommon.DataResourceIdsHash(ids))
 	}
 	return diags
+}
+
+func flattenIpOrIpsConditions(conditions []*waapRatelimit.IpOrIpsCondition) []interface{} {
+	result := make([]interface{}, 0)
+	for _, condition := range conditions {
+		result = append(result, map[string]interface{}{
+			"match_type": condition.MatchType,
+			"ip_or_ips":  condition.IpOrIps,
+		})
+	}
+	return result
+}
+
+func flattenPathConditions(conditions []*waapRatelimit.PathCondition) []interface{} {
+	result := make([]interface{}, 0)
+	for _, condition := range conditions {
+		result = append(result, map[string]interface{}{
+			"match_type": condition.MatchType,
+			"paths":      condition.Paths,
+		})
+	}
+	return result
+}
+
+func flattenUriConditions(conditions []*waapRatelimit.UriCondition) []interface{} {
+	result := make([]interface{}, 0)
+	for _, condition := range conditions {
+		result = append(result, map[string]interface{}{
+			"match_type": condition.MatchType,
+			"uri":        condition.Uri,
+		})
+	}
+	return result
+}
+
+func flattenUriParamConditions(conditions []*waapRatelimit.UriParamCondition) []interface{} {
+	result := make([]interface{}, 0)
+	for _, condition := range conditions {
+		result = append(result, map[string]interface{}{
+			"match_type":  condition.MatchType,
+			"param_name":  condition.ParamName,
+			"param_value": condition.ParamValue,
+		})
+	}
+	return result
+}
+
+func flattenUaConditions(conditions []*waapRatelimit.UaCondition) []interface{} {
+	result := make([]interface{}, 0)
+	for _, condition := range conditions {
+		result = append(result, map[string]interface{}{
+			"match_type": condition.MatchType,
+			"ua":         condition.Ua,
+		})
+	}
+	return result
+}
+
+func flattenRefererConditions(conditions []*waapRatelimit.RefererCondition) []interface{} {
+	result := make([]interface{}, 0)
+	for _, condition := range conditions {
+		result = append(result, map[string]interface{}{
+			"match_type": condition.MatchType,
+			"referer":    condition.Referer,
+		})
+	}
+	return result
+}
+
+func flattenHeaderConditions(conditions []*waapRatelimit.HeaderCondition) []interface{} {
+	result := make([]interface{}, 0)
+	for _, condition := range conditions {
+		result = append(result, map[string]interface{}{
+			"match_type": condition.MatchType,
+			"key":        condition.Key,
+			"value_list": condition.ValueList,
+		})
+	}
+	return result
+}
+
+func flattenAreaConditions(conditions []*waapRatelimit.AreaCondition) []interface{} {
+	result := make([]interface{}, 0)
+	for _, condition := range conditions {
+		result = append(result, map[string]interface{}{
+			"match_type": condition.MatchType,
+			"areas":      condition.Areas,
+		})
+	}
+	return result
+}
+
+func flattenMethodConditions(conditions []*waapRatelimit.RequestMethodCondition) []interface{} {
+	result := make([]interface{}, 0)
+	for _, condition := range conditions {
+		result = append(result, map[string]interface{}{
+			"match_type":     condition.MatchType,
+			"request_method": condition.RequestMethod,
+		})
+	}
+	return result
+}
+
+func flattenStatusCodeConditions(conditions []*waapRatelimit.StatusCodeCondition) []interface{} {
+	result := make([]interface{}, 0)
+	for _, condition := range conditions {
+		result = append(result, map[string]interface{}{
+			"match_type":  condition.MatchType,
+			"status_code": condition.StatusCode,
+		})
+	}
+	return result
+}
+
+func flattenSchemeConditions(conditions []*waapRatelimit.SchemeCondition) []interface{} {
+	result := make([]interface{}, 0)
+	for _, condition := range conditions {
+		result = append(result, map[string]interface{}{
+			"match_type": condition.MatchType,
+			"scheme":     condition.Scheme,
+		})
+	}
+	return result
 }

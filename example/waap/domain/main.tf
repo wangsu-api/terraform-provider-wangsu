@@ -66,7 +66,7 @@ resource "wangsu_waap_domain" "example" {
   }
 }
 
-data "wangsu_waap_domain" "demo" {
+data "wangsu_waap_domains" "demo" {
   domain_list = wangsu_waap_domain.example.target_domains
   #   domain_list = []
 }

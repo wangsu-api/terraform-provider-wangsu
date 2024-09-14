@@ -84,9 +84,9 @@ resource "wangsu_waap_ratelimit" "demo" {
   }
 }
 
-data "wangsu_waap_ratelimit" "demo" {
+data "wangsu_waap_ratelimits" "demo" {
   domain_list = [wangsu_waap_ratelimit.demo.domain]
 }
 output "waap_ratelimit" {
-  value = data.wangsu_waap_ratelimit.demo
+  value = data.wangsu_waap_ratelimits.demo
 }

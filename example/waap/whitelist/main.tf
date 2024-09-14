@@ -41,7 +41,7 @@ resource "wangsu_waap_whitelist" "demo" {
   }
 }
 
-data "wangsu_waap_whitelist" "demo" {
+data "wangsu_waap_whitelists" "demo" {
   rule_name   = wangsu_waap_whitelist.demo.rule_name
   domain_list = [wangsu_waap_whitelist.demo.domain]
 }

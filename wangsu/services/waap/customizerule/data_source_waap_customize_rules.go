@@ -1,4 +1,4 @@
-package ratelimit
+package customizerule
 
 import (
 	"context"
@@ -7,19 +7,19 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	wangsuCommon "github.com/wangsu-api/terraform-provider-wangsu/wangsu/common"
-	waapRatelimit "github.com/wangsu-api/wangsu-sdk-go/wangsu/waap/ratelimit"
+	waapCustomizerule "github.com/wangsu-api/wangsu-sdk-go/wangsu/waap/customizerule"
 	"log"
 	"time"
 )
 
-func DataSourceRateLimit() *schema.Resource {
+func DataSourceCustomizeRules() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataSourceRateLimitRead,
+		ReadContext: dataSourceCustomizeRulesRead,
 		Schema: map[string]*schema.Schema{
 			"domain_list": {
 				Type:        schema.TypeList,
-				Elem:        &schema.Schema{Type: schema.TypeString},
 				Required:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
 				Description: "Hostname list.",
 			},
 			"rule_name": {
@@ -45,7 +45,7 @@ func DataSourceRateLimit() *schema.Resource {
 						"rule_name": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: "Rule Name.",
+							Description: "Rule name.",
 						},
 						"description": {
 							Type:        schema.TypeString,
@@ -57,84 +57,19 @@ func DataSourceRateLimit() *schema.Resource {
 							Computed:    true,
 							Description: "Protected target.<br/>WEB:Website<br/>API:API",
 						},
-						"statistical_stage": {
+						"api_id": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: "Count on.<br/>REQUEST:Request<br/>RESPONSE:Response",
+							Description: "API ID, multiple separated by ; sign.",
 						},
-						"statistical_item": {
+						"act": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: "Client identifier.<br/>IP:Client IP<br/>IP_UA:Client IP and User-Agent<br/>COOKIE:Cookie<br/>IP_COOKIE:Client IP and Cookie<br/>HEADER:Request Header<br/>IP_HEADER:Client IP and Request Header",
+							Description: "Action.<br/>NO_USE:Not Used<br/>LOG:Log<br/>DELAY:Delay<br/>BLOCK:Deny<br/>RESET:Reset Connection",
 						},
-						"statistics_key": {
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: "Statistical key value .",
-						},
-						"statistical_period": {
-							Type:        schema.TypeInt,
-							Computed:    true,
-							Description: "Statistics period, unit: seconds.",
-						},
-						"trigger_threshold": {
-							Type:        schema.TypeInt,
-							Computed:    true,
-							Description: "Trigger threshold, unit: times.",
-						},
-						"intercept_time": {
-							Type:        schema.TypeInt,
-							Computed:    true,
-							Description: "Action duration, unit: seconds.",
-						},
-						"effective_status": {
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: "Cycle effective status.<br/>PERMANENT:All time<br/>WITHOUT:Excluded time<br/>WITHIN:Selected time",
-						},
-						"rate_limit_effective": {
+						"condition_list": {
 							Type:     schema.TypeList,
 							Computed: true,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"effective": {
-										Type:        schema.TypeList,
-										Elem:        &schema.Schema{Type: schema.TypeString},
-										Computed:    true,
-										Description: "Effective.<br/>MON:Monday<br/>TUE:Tuesday<br/>WED:Wednesday<br/>THU:Thursday<br/>FRI:Friday<br/>SAT:Saturday<br/>SUN:Sunday",
-									},
-									"start": {
-										Type:        schema.TypeString,
-										Computed:    true,
-										Description: "Start time, format: HH:mm.",
-									},
-									"end": {
-										Type:        schema.TypeString,
-										Computed:    true,
-										Description: "End time, format: HH:mm.",
-									},
-									"timezone": {
-										Type:        schema.TypeString,
-										Computed:    true,
-										Description: "Timezone,default value: GTM+8.",
-									},
-								},
-							},
-						},
-						"asset_api_id": {
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: "API ID under API business, multiple separated by ; sign.",
-						},
-						"action": {
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: "Action.<br/>NO_USE:Not Used<br/>LOG:Log<br/>COOKIE:Cookie verification<br/>JS_CHECK:Javascript verification<br/>DELAY:Delay<br/>BLOCK:Deny<br/>RESET:Reset Connection<br/>Custom response ID:Custom response ID",
-						},
-						"rate_limit_rule_condition": {
-							Type:        schema.TypeList,
-							Computed:    true,
-							Description: "Match conditions.",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"ip_or_ips_conditions": {
@@ -149,8 +84,8 @@ func DataSourceRateLimit() *schema.Resource {
 												},
 												"ip_or_ips": {
 													Type:        schema.TypeList,
-													Elem:        &schema.Schema{Type: schema.TypeString},
 													Computed:    true,
+													Elem:        &schema.Schema{Type: schema.TypeString},
 													Description: "IP/CIDR.",
 												},
 											},
@@ -168,8 +103,8 @@ func DataSourceRateLimit() *schema.Resource {
 												},
 												"paths": {
 													Type:        schema.TypeList,
-													Elem:        &schema.Schema{Type: schema.TypeString},
 													Computed:    true,
+													Elem:        &schema.Schema{Type: schema.TypeString},
 													Description: "Path.",
 												},
 											},
@@ -187,8 +122,8 @@ func DataSourceRateLimit() *schema.Resource {
 												},
 												"uri": {
 													Type:        schema.TypeList,
-													Elem:        &schema.Schema{Type: schema.TypeString},
 													Computed:    true,
+													Elem:        &schema.Schema{Type: schema.TypeString},
 													Description: "URI.",
 												},
 											},
@@ -211,17 +146,16 @@ func DataSourceRateLimit() *schema.Resource {
 												},
 												"param_value": {
 													Type:        schema.TypeList,
-													Elem:        &schema.Schema{Type: schema.TypeString},
 													Computed:    true,
+													Elem:        &schema.Schema{Type: schema.TypeString},
 													Description: "Param value.",
 												},
 											},
 										},
 									},
 									"ua_conditions": {
-										Type:        schema.TypeList,
-										Computed:    true,
-										Description: "User Agent, match type cannot be repeated.",
+										Type:     schema.TypeList,
+										Computed: true,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"match_type": {
@@ -232,18 +166,15 @@ func DataSourceRateLimit() *schema.Resource {
 												"ua": {
 													Type:        schema.TypeList,
 													Computed:    true,
-													Description: "User agent.",
-													Elem: &schema.Schema{
-														Type: schema.TypeString,
-													},
+													Elem:        &schema.Schema{Type: schema.TypeString},
+													Description: "User-Agent.",
 												},
 											},
 										},
 									},
 									"referer_conditions": {
-										Type:        schema.TypeList,
-										Computed:    true,
-										Description: "Referer, match type cannot be repeated.",
+										Type:     schema.TypeList,
+										Computed: true,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"match_type": {
@@ -254,18 +185,15 @@ func DataSourceRateLimit() *schema.Resource {
 												"referer": {
 													Type:        schema.TypeList,
 													Computed:    true,
+													Elem:        &schema.Schema{Type: schema.TypeString},
 													Description: "Referer.",
-													Elem: &schema.Schema{
-														Type: schema.TypeString,
-													},
 												},
 											},
 										},
 									},
 									"header_conditions": {
-										Type:        schema.TypeList,
-										Computed:    true,
-										Description: "Request Header, match type can be repeated.",
+										Type:     schema.TypeList,
+										Computed: true,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"match_type": {
@@ -276,23 +204,20 @@ func DataSourceRateLimit() *schema.Resource {
 												"key": {
 													Type:        schema.TypeString,
 													Computed:    true,
-													Description: "Header name.",
+													Description: "Request header name.",
 												},
 												"value_list": {
 													Type:        schema.TypeList,
 													Computed:    true,
+													Elem:        &schema.Schema{Type: schema.TypeString},
 													Description: "Header value.",
-													Elem: &schema.Schema{
-														Type: schema.TypeString,
-													},
 												},
 											},
 										},
 									},
 									"area_conditions": {
-										Type:        schema.TypeList,
-										Computed:    true,
-										Description: "Geo.",
+										Type:     schema.TypeList,
+										Computed: true,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"match_type": {
@@ -303,40 +228,15 @@ func DataSourceRateLimit() *schema.Resource {
 												"areas": {
 													Type:        schema.TypeList,
 													Computed:    true,
+													Elem:        &schema.Schema{Type: schema.TypeString},
 													Description: "Geo.",
-													Elem: &schema.Schema{
-														Type: schema.TypeString,
-													},
-												},
-											},
-										},
-									},
-									"status_code_conditions": {
-										Type:        schema.TypeList,
-										Computed:    true,
-										Description: "Response Code.",
-										Elem: &schema.Resource{
-											Schema: map[string]*schema.Schema{
-												"match_type": {
-													Type:        schema.TypeString,
-													Computed:    true,
-													Description: "Match type.<br/>EQUAL:Equal<br/>NOT_EQUAL:Does not equal",
-												},
-												"status_code": {
-													Type:        schema.TypeList,
-													Computed:    true,
-													Description: "Response Code.",
-													Elem: &schema.Schema{
-														Type: schema.TypeString,
-													},
 												},
 											},
 										},
 									},
 									"method_conditions": {
-										Type:        schema.TypeList,
-										Computed:    true,
-										Description: "Request Method.",
+										Type:     schema.TypeList,
+										Computed: true,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"match_type": {
@@ -347,32 +247,8 @@ func DataSourceRateLimit() *schema.Resource {
 												"request_method": {
 													Type:        schema.TypeList,
 													Computed:    true,
+													Elem:        &schema.Schema{Type: schema.TypeString},
 													Description: "Request method.<br/>Supported values: GET/POST/DELETE/PUT/HEAD/OPTIONS/COPY.",
-													Elem: &schema.Schema{
-														Type: schema.TypeString,
-													},
-												},
-											},
-										},
-									},
-									"scheme_conditions": {
-										Type:        schema.TypeList,
-										Computed:    true,
-										Description: "HTTP/S, match type cannot be repeated.",
-										Elem: &schema.Resource{
-											Schema: map[string]*schema.Schema{
-												"match_type": {
-													Type:        schema.TypeString,
-													Computed:    true,
-													Description: "Match type.<br/>EQUAL:Equal<br/>NOT_EQUAL:Does not equal",
-												},
-												"scheme": {
-													Type:        schema.TypeList,
-													Computed:    true,
-													Description: "HTTP/S.<br/>Supported values: HTTP/HTTPS.",
-													Elem: &schema.Schema{
-														Type: schema.TypeString,
-													},
 												},
 											},
 										},
@@ -387,27 +263,27 @@ func DataSourceRateLimit() *schema.Resource {
 	}
 }
 
-func dataSourceRateLimitRead(context context.Context, data *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Printf("data_source.wangsu_waap_ratelimit.read")
+func dataSourceCustomizeRulesRead(context context.Context, data *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	log.Printf("data_source.wangsu_waap_customizerule.read")
 
-	var response *waapRatelimit.ListRateLimitingRulesResponse
+	var response *waapCustomizerule.ListCustomRulesResponse
 	var err error
 	var diags diag.Diagnostics
-	request := &waapRatelimit.ListRateLimitingRulesRequest{}
+	request := &waapCustomizerule.ListCustomRulesRequest{}
 	if v, ok := data.GetOk("rule_name"); ok {
 		request.SetRuleName(v.(string))
 	}
 	if v, ok := data.GetOk("domain_list"); ok {
-		domainsList := v.([]interface{})
-		domainsStrList := make([]*string, len(domainsList))
-		for i, v := range domainsList {
+		targetDomainsList := v.([]interface{})
+		targetDomainsStr := make([]*string, len(targetDomainsList))
+		for i, v := range targetDomainsList {
 			str := v.(string)
-			domainsStrList[i] = &str
+			targetDomainsStr[i] = &str
 		}
-		request.SetDomainList(domainsStrList)
+		request.SetDomainList(targetDomainsStr)
 	}
 	err = resource.RetryContext(context, time.Duration(2)*time.Minute, func() *resource.RetryError {
-		_, response, err = meta.(wangsuCommon.ProviderMeta).GetAPIV3Conn().UseWaapRatelimitClient().GetRateLimitList(request)
+		_, response, err = meta.(wangsuCommon.ProviderMeta).GetAPIV3Conn().UseWaapCustomizeruleClient().GetCustomRuleList(request)
 		if err != nil {
 			return resource.NonRetryableError(err)
 		}
@@ -426,56 +302,35 @@ func dataSourceRateLimitRead(context context.Context, data *schema.ResourceData,
 		data.SetId("")
 		return nil
 	}
-	ids := make([]string, 0, len(response.Data))
 	if response.Data != nil {
-		itemList := make([]interface{}, len(response.Data))
-		for i, item := range response.Data {
+		ids := make([]string, 0, len(response.Data))
+		itemList := make([]interface{}, 0)
+		for _, item := range response.Data {
 			conditionList := make([]map[string]interface{}, 1)
 			condition := make(map[string]interface{})
-			if item.RateLimitRuleCondition != nil {
-				condition["ip_or_ips_conditions"] = flattenIpOrIpsConditions(item.RateLimitRuleCondition.IpOrIpsConditions)
-				condition["path_conditions"] = flattenPathConditions(item.RateLimitRuleCondition.PathConditions)
-				condition["uri_conditions"] = flattenUriConditions(item.RateLimitRuleCondition.UriConditions)
-				condition["uri_param_conditions"] = flattenUriParamConditions(item.RateLimitRuleCondition.UriParamConditions)
-				condition["ua_conditions"] = flattenUaConditions(item.RateLimitRuleCondition.UaConditions)
-				condition["method_conditions"] = flattenMethodConditions(item.RateLimitRuleCondition.MethodConditions)
-				condition["referer_conditions"] = flattenRefererConditions(item.RateLimitRuleCondition.RefererConditions)
-				condition["header_conditions"] = flattenHeaderConditions(item.RateLimitRuleCondition.HeaderConditions)
-				condition["area_conditions"] = flattenAreaConditions(item.RateLimitRuleCondition.AreaConditions)
-				condition["status_code_conditions"] = flattenStatusCodeConditions(item.RateLimitRuleCondition.StatusCodeConditions)
-				condition["scheme_conditions"] = flattenSchemeConditions(item.RateLimitRuleCondition.SchemeConditions)
+			if item.ConditionList != nil {
+				condition["ip_or_ips_conditions"] = flattenIpOrIpsConditions(item.ConditionList.IpOrIpsConditions)
+				condition["path_conditions"] = flattenPathConditions(item.ConditionList.PathConditions)
+				condition["uri_conditions"] = flattenUriConditions(item.ConditionList.UriConditions)
+				condition["uri_param_conditions"] = flattenUriParamConditions(item.ConditionList.UriParamConditions)
+				condition["ua_conditions"] = flattenUaConditions(item.ConditionList.UaConditions)
+				condition["referer_conditions"] = flattenRefererConditions(item.ConditionList.RefererConditions)
+				condition["header_conditions"] = flattenHeaderConditions(item.ConditionList.HeaderConditions)
+				condition["area_conditions"] = flattenAreaConditions(item.ConditionList.AreaConditions)
+				condition["method_conditions"] = flattenMethodConditions(item.ConditionList.MethodConditions)
 			}
 			conditionList[0] = condition
+			itemList = append(itemList, map[string]interface{}{
+				"id":             item.Id,
+				"domain":         item.Domain,
+				"rule_name":      item.RuleName,
+				"description":    item.Description,
+				"scene":          item.Scene,
+				"api_id":         item.ApiId,
+				"act":            item.Act,
+				"condition_list": conditionList,
+			})
 			ids = append(ids, *item.Id)
-			rate_limit_effective := []interface{}{map[string]interface{}{}}
-			if item.RateLimitEffective != nil {
-				rate_limit_effective = []interface{}{
-					map[string]interface{}{
-						"effective": item.RateLimitEffective.Effective,
-						"start":     item.RateLimitEffective.Start,
-						"end":       item.RateLimitEffective.End,
-						"timezone":  item.RateLimitEffective.Timezone,
-					},
-				}
-			}
-			itemList[i] = map[string]interface{}{
-				"id":                        item.Id,
-				"domain":                    item.Domain,
-				"rule_name":                 item.RuleName,
-				"description":               item.Description,
-				"scene":                     item.Scene,
-				"statistical_stage":         item.StatisticalStage,
-				"statistical_item":          item.StatisticalItem,
-				"statistics_key":            item.StatisticsKey,
-				"statistical_period":        item.StatisticalPeriod,
-				"trigger_threshold":         item.TriggerThreshold,
-				"intercept_time":            item.InterceptTime,
-				"effective_status":          item.EffectiveStatus,
-				"rate_limit_effective":      rate_limit_effective,
-				"asset_api_id":              item.AssetApiId,
-				"action":                    item.Action,
-				"rate_limit_rule_condition": conditionList,
-			}
 		}
 		if err := data.Set("data", itemList); err != nil {
 			return diag.FromErr(fmt.Errorf("error setting data for resource: %s", err))
@@ -483,4 +338,105 @@ func dataSourceRateLimitRead(context context.Context, data *schema.ResourceData,
 		data.SetId(wangsuCommon.DataResourceIdsHash(ids))
 	}
 	return diags
+}
+
+func flattenIpOrIpsConditions(conditions []*waapCustomizerule.IpOrIpsCondition) []interface{} {
+	result := make([]interface{}, 0)
+	for _, condition := range conditions {
+		result = append(result, map[string]interface{}{
+			"match_type": condition.MatchType,
+			"ip_or_ips":  condition.IpOrIps,
+		})
+	}
+	return result
+}
+
+func flattenPathConditions(conditions []*waapCustomizerule.PathCondition) []interface{} {
+	result := make([]interface{}, 0)
+	for _, condition := range conditions {
+		result = append(result, map[string]interface{}{
+			"match_type": condition.MatchType,
+			"paths":      condition.Paths,
+		})
+	}
+	return result
+}
+
+func flattenUriConditions(conditions []*waapCustomizerule.UriCondition) []interface{} {
+	result := make([]interface{}, 0)
+	for _, condition := range conditions {
+		result = append(result, map[string]interface{}{
+			"match_type": condition.MatchType,
+			"uri":        condition.Uri,
+		})
+	}
+	return result
+}
+
+func flattenUriParamConditions(conditions []*waapCustomizerule.UriParamCondition) []interface{} {
+	result := make([]interface{}, 0)
+	for _, condition := range conditions {
+		result = append(result, map[string]interface{}{
+			"match_type":  condition.MatchType,
+			"param_name":  condition.ParamName,
+			"param_value": condition.ParamValue,
+		})
+	}
+	return result
+}
+
+func flattenUaConditions(conditions []*waapCustomizerule.UaCondition) []interface{} {
+	result := make([]interface{}, 0)
+	for _, condition := range conditions {
+		result = append(result, map[string]interface{}{
+			"match_type": condition.MatchType,
+			"ua":         condition.Ua,
+		})
+	}
+	return result
+}
+
+func flattenRefererConditions(conditions []*waapCustomizerule.RefererCondition) []interface{} {
+	result := make([]interface{}, 0)
+	for _, condition := range conditions {
+		result = append(result, map[string]interface{}{
+			"match_type": condition.MatchType,
+			"referer":    condition.Referer,
+		})
+	}
+	return result
+}
+
+func flattenHeaderConditions(conditions []*waapCustomizerule.HeaderCondition) []interface{} {
+	result := make([]interface{}, 0)
+	for _, condition := range conditions {
+		result = append(result, map[string]interface{}{
+			"match_type": condition.MatchType,
+			"key":        condition.Key,
+			"value_list": condition.ValueList,
+		})
+	}
+	return result
+}
+
+func flattenAreaConditions(conditions []*waapCustomizerule.AreaCondition) []interface{} {
+	result := make([]interface{}, 0)
+	for _, condition := range conditions {
+		result = append(result, map[string]interface{}{
+			"match_type": condition.MatchType,
+			"areas":      condition.Areas,
+		})
+	}
+	return result
+}
+
+func flattenMethodConditions(conditions []*waapCustomizerule.RequestMethodCondition) []interface{} {
+	result := make([]interface{}, 0)
+	for _, condition := range conditions {
+		result = append(result, map[string]interface{}{
+			"match_type":     condition.MatchType,
+			"request_method": condition.RequestMethod,
+		})
+	}
+	return result
 }

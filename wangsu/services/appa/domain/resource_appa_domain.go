@@ -89,6 +89,22 @@ func ResourceAppaDomain() *schema.Resource {
 					Type: schema.TypeString,
 				},
 			},
+			"tcp_ports": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: "TCP port. Multiple ports are supported.",
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
+			"udp_ports": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: "UDP port. Multiple ports are supported.",
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
 		},
 	}
 }
@@ -145,6 +161,30 @@ func resourceAppaDomainCreate(context context.Context, data *schema.ResourceData
 			HttpsPortList = append(HttpsPortList, &port)
 		}
 		request.HttpsPorts = HttpsPortList
+	}
+	if tcpPorts, ok := data.Get("tcp_ports").([]interface{}); ok && len(tcpPorts) > 0 {
+		TcpPortList := make([]*string, 0, len(tcpPorts))
+		for _, v := range tcpPorts {
+			if v == nil {
+				diags = append(diags, diag.FromErr(errors.New("The tcp port could not be empty."))...)
+				return diags
+			}
+			port := v.(string)
+			TcpPortList = append(TcpPortList, &port)
+		}
+		request.TcpPorts = TcpPortList
+	}
+	if udpPorts, ok := data.Get("udp_ports").([]interface{}); ok && len(udpPorts) > 0 {
+		UdpPortList := make([]*string, 0, len(udpPorts))
+		for _, v := range udpPorts {
+			if v == nil {
+				diags = append(diags, diag.FromErr(errors.New("The udp port could not be empty."))...)
+				return diags
+			}
+			port := v.(string)
+			UdpPortList = append(UdpPortList, &port)
+		}
+		request.UdpPorts = UdpPortList
 	}
 
 	//start to create a domain in 2 minutes
@@ -253,6 +293,8 @@ func resourceAppaDomainRead(context context.Context, data *schema.ResourceData, 
 	_ = data.Set("origin_config", flattenOriginConfig(response.Data.OriginConfig))
 	_ = data.Set("http_ports", response.Data.HttpPorts)
 	_ = data.Set("https_ports", response.Data.HttpsPorts)
+	_ = data.Set("tcp_ports", response.Data.TcpPorts)
+	_ = data.Set("udp_ports", response.Data.UdpPorts)
 
 	log.Printf("resource.wangsu_appa_domain.read success")
 	return nil
@@ -349,6 +391,40 @@ func resourceAppaDomainUpdate(context context.Context, data *schema.ResourceData
 			request.HttpsPorts = HttpsPortList
 		} else {
 			request.HttpsPorts = make([]*string, 0)
+		}
+	}
+
+	if data.HasChanges("tcp_ports") {
+		if tcpPorts, ok := data.Get("tcp_ports").([]interface{}); ok && len(tcpPorts) > 0 {
+			TcpPortList := make([]*string, 0, len(tcpPorts))
+			for _, v := range tcpPorts {
+				if v == nil {
+					diags = append(diags, diag.FromErr(errors.New("The tcp port could not be empty."))...)
+					return diags
+				}
+				port := v.(string)
+				TcpPortList = append(TcpPortList, &port)
+			}
+			request.TcpPorts = TcpPortList
+		} else {
+			request.TcpPorts = make([]*string, 0)
+		}
+	}
+
+	if data.HasChanges("udp_ports") {
+		if udpPorts, ok := data.Get("udp_ports").([]interface{}); ok && len(udpPorts) > 0 {
+			UdpPortList := make([]*string, 0, len(udpPorts))
+			for _, v := range udpPorts {
+				if v == nil {
+					diags = append(diags, diag.FromErr(errors.New("The udp port could not be empty."))...)
+					return diags
+				}
+				port := v.(string)
+				UdpPortList = append(UdpPortList, &port)
+			}
+			request.UdpPorts = UdpPortList
+		} else {
+			request.UdpPorts = make([]*string, 0)
 		}
 	}
 

@@ -108,7 +108,7 @@ func DataSourceAppaDomainDetail() *schema.Resource {
 						"http_ports": {
 							Type:        schema.TypeList,
 							Computed:    true,
-							Description: "HTTP port. The value is an integer ranging from 1 to 65535. Multiple ports are supported and can be configured in the following format:httpPorts:[1000,1001]Note: 1. Ports 2012, 2323, 2443, 4031, 12012, 20121, 57891, 62016, 65383, and 65529 do not support.2. The HTTP port and HTTPS port must be unique.3. At least one HTTP port or HTTPS port must be configured.",
+							Description: "HTTP port. The value is an integer ranging from 1 to 65535. Multiple ports are supported and can be configured in the following format:httpPorts:[\"9001\"]Note: 1. Ports 2012, 2323, 2443, 4031, 12012, 20121, 57891, 62016, 65383, and 65529 do not support.2. The HTTP port and HTTPS port and TCP port must be unique.3. At least one HTTP port or HTTPS port or TCP port or UDP port must be configured.",
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
@@ -116,7 +116,23 @@ func DataSourceAppaDomainDetail() *schema.Resource {
 						"https_ports": {
 							Type:        schema.TypeList,
 							Computed:    true,
-							Description: "HTTPS port. The value is an integer ranging from 1 to 65535. Multiple ports are supported and can be configured in the following format:httpPorts:[1000,1001]Note: 1. Ports 2012, 2323, 2443, 4031, 12012, 20121, 57891, 62016, 65383, and 65529 do not support.2. The HTTP port and HTTPS port must be unique.3. At least one HTTP port or HTTPS port must be configured.",
+							Description: "HTTPS port. The value is an integer ranging from 1 to 65535. Multiple ports are supported and can be configured in the following format:httpPorts:[\"9002\",\"9003\"]Note: 1. Ports 2012, 2323, 2443, 4031, 12012, 20121, 57891, 62016, 65383, and 65529 do not support.2. The HTTP port and HTTPS port and TCP port must be unique.3. At least one HTTP port or HTTPS port or TCP port or UDP port must be configured.",
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
+						"tcp_ports": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "TCP port.The value is an integer ranging from 1 to 65535. Multiple ports are supported and can be configured in the following format:tcpPorts:[\"9005-9007\"]Note: 1. Ports 2012, 2323, 2443, 4031, 12012, 20121, 57891, 62016, 65383, and 65529 do not support.2. The HTTP port and HTTPS port and TCP port must be unique.3. At least one HTTP port or HTTPS port or TCP port or UDP port must be configured.",
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
+						"udp_ports": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "UDP port.The value is an integer ranging from 1 to 65535. Multiple ports are supported and can be configured in the following format:udpPorts:[\"9008-9009\"]Note: 1. Ports 2012, 2323, 2443, 4031, 12012, 20121, 57891, 62016, 65383, and 65529 do not support.2. At least one HTTP port or HTTPS port or TCP port or UDP port must be configured.",
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
@@ -244,6 +260,8 @@ func dataSourceAppaDomainDetailRead(context context.Context, data *schema.Resour
 		"origin_config":   flattenOriginConfig(response.Data.OriginConfig),
 		"http_ports":      response.Data.HttpPorts,
 		"https_ports":     response.Data.HttpsPorts,
+		"tcp_ports":       response.Data.TcpPorts,
+		"udp_ports":       response.Data.UdpPorts,
 		"carry_client_ip": flattenCarryClientIp(response.Data.CarryClientIp),
 	}
 	resultList = append(resultList, domainDetail)

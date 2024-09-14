@@ -79,9 +79,13 @@ func Provider() *schema.Provider {
 			"wangsu_appa_domain_detail":     appadomain.DataSourceAppaDomainDetail(),
 			"wangsu_ssl_certificates":       certificate.DataSourceSslCertificates(),
 			"wangsu_waap_whitelist":         waapWhitelist.DataSourceWaapWhitelist(),
+			"wangsu_waap_whitelists":        waapWhitelist.DataSourceWaapWhitelists(),
 			"wangsu_waap_customizerule":     waapCustomizerule.DataSourceCustomizeRule(),
+			"wangsu_waap_customizerules":    waapCustomizerule.DataSourceCustomizeRules(),
 			"wangsu_waap_ratelimit":         waapRatelimit.DataSourceRateLimit(),
+			"wangsu_waap_ratelimits":        waapRatelimit.DataSourceRateLimits(),
 			"wangsu_waap_domain":            waapDomain.DataSourceWaapDomain(),
+			"wangsu_waap_domains":           waapDomain.DataSourceWaapDomains(),
 		},
 		ConfigureContextFunc: providerConfigure,
 	}

@@ -48,11 +48,11 @@ resource "wangsu_waap_customizerule" "demo" {
 }
 
 
-data "wangsu_waap_customizerule" "demo" {
+data "wangsu_waap_customizerules" "demo" {
   rule_name   = wangsu_waap_customizerule.demo.rule_name
   domain_list = [wangsu_waap_customizerule.demo.domain]
 }
 
 output "customizerule_list" {
-  value = data.wangsu_waap_customizerule.demo
+  value = data.wangsu_waap_customizerules.demo
 }
