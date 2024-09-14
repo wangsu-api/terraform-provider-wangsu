@@ -41,6 +41,8 @@ resource "wangsu_appa_domain" "appa1" {
   }
   http_ports  = ["1000", "1002"]
   https_ports = ["2000", "2002"]
+  tcp_ports = ["199-200"]
+  udp_ports = ["300-301"]
 }
 
 data "wangsu_appa_domain_detail" "appa1-data" {
@@ -66,6 +68,8 @@ output "show-appa1" {
 
 - `http_ports` (List of String) HTTP port. Multiple ports are supported.
 - `https_ports` (List of String) HTTPS port. Multiple ports are supported.
+- `tcp_ports` (List of String) TCP port. Multiple ports are supported.
+- `udp_ports` (List of String) UDP port. Multiple ports are supported.
 
 ### Read-Only
 
@@ -90,3 +94,4 @@ Required:
 Optional:
 
 - `weight` (Number) Weight, which is only useful for robin strategy. If this parameter is not specified, the default value is 10.
+
