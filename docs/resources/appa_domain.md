@@ -94,4 +94,3 @@ Required:
 Optional:
 
 - `weight` (Number) Weight, which is only useful for robin strategy. If this parameter is not specified, the default value is 10.
-

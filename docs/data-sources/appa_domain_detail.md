@@ -97,4 +97,3 @@ Read-Only:
 
 - `origin_ip` (String)
 - `weight` (Number)
-

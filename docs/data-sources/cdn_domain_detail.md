@@ -60,6 +60,7 @@ Read-Only:
 - `service_areas` (String)
 - `service_type` (String)
 - `ssl` (List of Object) (see [below for nested schema](#nestedobjatt--data--ssl))
+- `back_to_origin_rewrite_rule` (List of Object) Back to origin rewrite rule.(see [below for nested schema](#nestedobjatt--data--back_to_origin_rewrite_rule))
 
 <a id="nestedobjatt--data--cache_by_resp_headers"></a>
 ### Nested Schema for `data.cache_by_resp_headers`
@@ -257,3 +258,11 @@ Read-Only:
 - `ssl_cipher_suite` (String)
 - `tls_version` (String)
 - `use_ssl` (String)
+
+<a id="nestedobjatt--data--back_to_origin_rewrite_rule"></a>
+### Nested Schema for `data.back_to_origin_rewrite_rule`
+
+Read-Only:
+
+- `protocol` (String) The specified protocol is either 'http' or 'https'.
+- `port` (String) If the protocol is http, the default is 80. If the protocol is https, the default is 443.

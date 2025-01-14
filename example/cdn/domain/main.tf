@@ -389,4 +389,8 @@ resource "wangsu_cdn_domain" "domain20240712001" {
     exception_request_header = "exception_request_header"
     priority                 = "5"
   }
+  back_to_origin_rewrite_rule {
+    protocol                 = "https"
+    port                     = "8443"
+  }
 }

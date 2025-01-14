@@ -756,6 +756,25 @@ func DataSourceWangSuCdnDomainDetail() *schema.Resource {
 								},
 							},
 						},
+						"back_to_origin_rewrite_rule": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: "Back to origin rewrite rule.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"protocol": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The specified protocol is either 'http' or 'https'.",
+									},
+									"port": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "If the protocol is http, the default is 80. If the protocol is https, the default is 443.",
+									},
+								},
+							},
+						},
 					},
 				},
 			},
@@ -797,24 +816,25 @@ func dataSourceWangSuCdnDomainDetailRead(context context.Context, data *schema.R
 	var resultList []interface{}
 	//读取response.Data的所有属性到map中
 	var domainDetail = map[string]interface{}{
-		"domain_id":             response.Data.DomainId,
-		"cname":                 response.Data.Cname,
-		"domain_name":           response.Data.DomainName,
-		"service_type":          response.Data.ServiceType,
-		"service_areas":         response.Data.ServiceAreas,
-		"comment":               response.Data.Comment,
-		"header_of_client_ip":   response.Data.HeaderOfClientIp,
-		"origin_config":         buildOriginConfig(response.Data.OriginConfig),
-		"ssl":                   buildSsl(response.Data.Ssl),
-		"cache_time_behaviors":  buildCacheTimeBehaviors(response.Data.CacheTimeBehaviors),
-		"cache_key_rules":       buildCacheKeyRules(response.Data.CacheKeyRules),
-		"query_string_settings": buildQueryStringSettings(response.Data.QueryStringSettings),
-		"cache_by_resp_headers": buildCacheByRespHeaders(response.Data.CacheByRespHeaders),
-		"http_code_cache_rules": buildHttpCodeCacheRules(response.Data.HttpCodeCacheRules),
-		"ignore_protocol_rules": buildIgnoreProtocolRules(response.Data.IgnoreProtocolRules),
-		"http2_settings":        buildHttp2Settings(response.Data.Http2Settings),
-		"header_modify_rules":   buildHeaderModifyRules(response.Data.HeaderModifyRules),
-		"rewrite_rule_settings": buildRewriteRuleSettings(response.Data.RewriteRuleSettings),
+		"domain_id":                   response.Data.DomainId,
+		"cname":                       response.Data.Cname,
+		"domain_name":                 response.Data.DomainName,
+		"service_type":                response.Data.ServiceType,
+		"service_areas":               response.Data.ServiceAreas,
+		"comment":                     response.Data.Comment,
+		"header_of_client_ip":         response.Data.HeaderOfClientIp,
+		"origin_config":               buildOriginConfig(response.Data.OriginConfig),
+		"ssl":                         buildSsl(response.Data.Ssl),
+		"cache_time_behaviors":        buildCacheTimeBehaviors(response.Data.CacheTimeBehaviors),
+		"cache_key_rules":             buildCacheKeyRules(response.Data.CacheKeyRules),
+		"query_string_settings":       buildQueryStringSettings(response.Data.QueryStringSettings),
+		"cache_by_resp_headers":       buildCacheByRespHeaders(response.Data.CacheByRespHeaders),
+		"http_code_cache_rules":       buildHttpCodeCacheRules(response.Data.HttpCodeCacheRules),
+		"ignore_protocol_rules":       buildIgnoreProtocolRules(response.Data.IgnoreProtocolRules),
+		"http2_settings":              buildHttp2Settings(response.Data.Http2Settings),
+		"header_modify_rules":         buildHeaderModifyRules(response.Data.HeaderModifyRules),
+		"rewrite_rule_settings":       buildRewriteRuleSettings(response.Data.RewriteRuleSettings),
+		"back_to_origin_rewrite_rule": buildBackToOriginRewriteRule(response.Data.BackToOriginRewriteRule),
 	}
 	resultList = append(resultList, domainDetail)
 
@@ -1076,4 +1096,15 @@ func buildRewriteRuleSettings(settings []*cdn.QueryDomainForTerraformResponseDat
 		rewriteRuleSettings = append(rewriteRuleSettings, rewriteRuleSetting)
 	}
 	return rewriteRuleSettings
+}
+
+func buildBackToOriginRewriteRule(rule *cdn.QueryDomainForTerraformResponseDataBackToOriginRewriteRule) interface{} {
+	if rule == nil {
+		return nil
+	}
+	var backToOriginRewriteRule = map[string]interface{}{
+		"protocol": rule.Protocol,
+		"port":     rule.Port,
+	}
+	return []interface{}{backToOriginRewriteRule}
 }

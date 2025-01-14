@@ -691,6 +691,25 @@ func ResourceCdnDomain() *schema.Resource {
 					},
 				},
 			},
+			"back_to_origin_rewrite_rule": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: "Back to origin rewrite rule.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"protocol": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "The specified protocol is either 'http' or 'https'.",
+						},
+						"port": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "If the protocol is http, the default is 80. If the protocol is https, the default is 443.",
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -975,6 +994,15 @@ func resourceCdnDomainRead(context context.Context, data *schema.ResourceData, m
 		}
 		_ = data.Set("rewrite_rule_settings", rewriteRuleSettings)
 	}
+
+	if responseData.BackToOriginRewriteRule != nil {
+		backToOriginRewriteRule := map[string]interface{}{
+			"protocol": responseData.BackToOriginRewriteRule.Protocol,
+			"port":     responseData.BackToOriginRewriteRule.Port,
+		}
+		_ = data.Set("back_to_origin_rewrite_rule", []interface{}{backToOriginRewriteRule})
+	}
+
 	log.Printf("resource.wangsu_cdn_domain.read success")
 	return nil
 }
@@ -1352,6 +1380,19 @@ func resourceCdnDomainCreate(context context.Context, data *schema.ResourceData,
 			})
 		}
 	}
+
+	if backToOriginRewriteRule, ok := data.Get("back_to_origin_rewrite_rule").([]interface{}); ok && len(backToOriginRewriteRule) > 0 {
+		for _, v := range backToOriginRewriteRule {
+			backToOriginRewriteRuleMap := v.(map[string]interface{})
+			protocol := backToOriginRewriteRuleMap["protocol"].(string)
+			port := backToOriginRewriteRuleMap["port"].(string)
+			request.BackToOriginRewriteRule = &cdn.AddDomainForTerraformRequestBackToOriginRewriteRule{
+				Protocol: &protocol,
+				Port:     &port,
+			}
+		}
+	}
+
 	//start to create a domain in 2 minutes
 	var createDomainResponse *cdn.AddDomainForTerraformResponse
 	var requestId string
@@ -1819,6 +1860,21 @@ func resourceCdnDomainUpdate(context context.Context, data *schema.ResourceData,
 		}
 	}
 
+	if data.HasChanges("back_to_origin_rewrite_rule") {
+		if backToOriginRewriteRule, ok := data.Get("back_to_origin_rewrite_rule").([]interface{}); ok && len(backToOriginRewriteRule) > 0 {
+			for _, v := range backToOriginRewriteRule {
+				backToOriginRewriteRuleMap := v.(map[string]interface{})
+				protocol := backToOriginRewriteRuleMap["protocol"].(string)
+				port := backToOriginRewriteRuleMap["port"].(string)
+				request.BackToOriginRewriteRule = &cdn.UpdateDomainForTerraformRequestBackToOriginRewriteRule{
+					Protocol: &protocol,
+					Port:     &port,
+				}
+			}
+		} else {
+			request.BackToOriginRewriteRule = &cdn.UpdateDomainForTerraformRequestBackToOriginRewriteRule{}
+		}
+	}
 	var editResponse *cdn.UpdateDomainForTerraformResponse
 	var requestId string
 	var err error

@@ -393,6 +393,10 @@ resource "wangsu_cdn_domain" "domain20240712001" {
     exception_request_header = "exception_request_header"
     priority                 = "5"
   }
+  back_to_origin_rewrite_rule {
+    protocol                 = "http"
+    port                     = "80"
+  }
 }
 ```
 
@@ -424,6 +428,7 @@ resource "wangsu_cdn_domain" "domain20240712001" {
 - `rewrite_rule_settings` (Block List) redirection function note: 1. Define a set of internal redirected content. If there is internal redirected content, this field is required. 2. need to clear the content redirection content under the domain name, you can pass the empty node <rewrite-rule-settings></rewrite-rule-settings> (see [below for nested schema](#nestedblock--rewrite_rule_settings))
 - `service_areas` (String) The acceleration area of the acceleration domain. if the resource coverage needs to be limited according to the area. the acceleration area needs to be specified. When no acceleration area is specified. we will provide acceleration services with optimal resource coverage according to the service area opened by the customer. Multiple regions are separated by semicolons. and the supported regions are as follows: cn (Mainland China). am (Americas). emea (Europe. Middle East. Africa). apac (Asia-Pacific region).
 - `ssl` (Block List) SSL settings, to bind a certificate with the accelerated domain. You can use the interface [AddCertificate] to upload your  certificates. If you want to modify a certificate, please use the interface: [UpdateCertificate] (see [below for nested schema](#nestedblock--ssl))
+- `back_to_origin_rewrite_rule` (Block List) Back to origin rewrite rule.(see [below for nested schema](#nestedblock--back_to_origin_rewrite_rule))
 
 ### Read-Only
 
@@ -644,3 +649,11 @@ Optional:
 - `ssl_cipher_suite` (String) This optional object is used to specify a colon separated list of cipher suites which are permitted when clients negotiate security settings to access your content. Cipher suites which you can specify are: LOW, ALL:!LOW, HIGH, !EXPORT, !aNULL, !RC4, !DH, !SHA, !MD5, @STRENGTH,  AES128-SHA, AES256-SHA, AES128-SHA256, AES256-SHA256, AES128-GCM-SHA256, AES256-GCM-SHA384, ECDHE-RSA-AES128-SHA, ECDHE-RSA-AES256-SHA, ECDHE-RSA-AES128-SHA256, ECDHE-RSA-AES256-SHA384, ECDHE-RSA-AES128-GCM-SHA256, and ECDHE-RSA-AES256-GCM-SHA384. These cipher suites are a subset of those supported by OpenSSL, https://www.openssl.org/docs/man1.0.2/man1/ciphers.html. Please note that !MD5 or !SHA must appear after HIGH..
 - `tls_version` (String) TLS version. Optional values: SSLv3,TLSv1,TLSv1.1,TLSv1.2,TLSv1.3
 - `use_ssl` (String) Use a certificate, the optional values are true and false, true means to use the certificate, false means not to use the certificate
+
+<a id="nestedblock--back_to_origin_rewrite_rule"></a>
+### Nested Schema for `back_to_origin_rewrite_rule`
+
+Optional:
+
+- `protocol` (String) The specified protocol is either 'http' or 'https'.
+- `port` (String) If the protocol is http, the default is 80. If the protocol is https, the default is 443.
