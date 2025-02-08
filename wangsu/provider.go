@@ -8,6 +8,7 @@ import (
 	"github.com/wangsu-api/terraform-provider-wangsu/wangsu/connectivity"
 	appadomain "github.com/wangsu-api/terraform-provider-wangsu/wangsu/services/appa/domain"
 	"github.com/wangsu-api/terraform-provider-wangsu/wangsu/services/cdn/domain"
+	monitorRule "github.com/wangsu-api/terraform-provider-wangsu/wangsu/services/monitor/rule"
 	"github.com/wangsu-api/terraform-provider-wangsu/wangsu/services/ssl/certificate"
 	waapCustomizerule "github.com/wangsu-api/terraform-provider-wangsu/wangsu/services/waap/customizerule"
 	waapDomain "github.com/wangsu-api/terraform-provider-wangsu/wangsu/services/waap/domain"
@@ -63,14 +64,15 @@ func Provider() *schema.Provider {
 			},
 		},
 		ResourcesMap: map[string]*schema.Resource{
-			"wangsu_cdn_domain":         domain.ResourceCdnDomain(),
-			"wangsu_ssl_certificate":    certificate.ResourceSslCertificate(),
-			"wangsu_appa_domain":        appadomain.ResourceAppaDomain(),
-			"wangsu_waap_whitelist":     waapWhitelist.ResourceWaapWhitelist(),
-			"wangsu_waap_customizerule": waapCustomizerule.ResourceWaapCustomizeRule(),
-			"wangsu_waap_ratelimit":     waapRatelimit.ResourceWaapRateLimit(),
-			"wangsu_waap_domain_copy":   waapDomain.ResourceWaapDomainCopy(),
-			"wangsu_waap_domain":        waapDomain.ResourceWaapDomain(),
+			"wangsu_cdn_domain":            domain.ResourceCdnDomain(),
+			"wangsu_ssl_certificate":       certificate.ResourceSslCertificate(),
+			"wangsu_appa_domain":           appadomain.ResourceAppaDomain(),
+			"wangsu_waap_whitelist":        waapWhitelist.ResourceWaapWhitelist(),
+			"wangsu_waap_customizerule":    waapCustomizerule.ResourceWaapCustomizeRule(),
+			"wangsu_waap_ratelimit":        waapRatelimit.ResourceWaapRateLimit(),
+			"wangsu_waap_domain_copy":      waapDomain.ResourceWaapDomainCopy(),
+			"wangsu_waap_domain":           waapDomain.ResourceWaapDomain(),
+			"wangsu_monitor_realtime_rule": monitorRule.ResourceMonitorRealtimeRule(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			"wangsu_cdn_domains":            domain.DataSourceWangSuCdnDomains(),

@@ -4,6 +4,7 @@ import (
 	"github.com/wangsu-api/wangsu-sdk-go/common"
 	appadomain "github.com/wangsu-api/wangsu-sdk-go/wangsu/appa/domain"
 	cdn "github.com/wangsu-api/wangsu-sdk-go/wangsu/cdn/domain"
+	monitorRule "github.com/wangsu-api/wangsu-sdk-go/wangsu/monitor/rule"
 	"github.com/wangsu-api/wangsu-sdk-go/wangsu/ssl/certificate"
 	waapCustomizerule "github.com/wangsu-api/wangsu-sdk-go/wangsu/waap/customizerule"
 	waapDomain "github.com/wangsu-api/wangsu-sdk-go/wangsu/waap/domain"
@@ -22,6 +23,7 @@ type WangSuClient struct {
 	waapCustomizeruleConn *waapCustomizerule.Client
 	waapRatelimitConn     *waapRatelimit.Client
 	waapDomainConn        *waapDomain.Client
+	monitorRuleConn       *monitorRule.Client
 }
 
 func (me *WangSuClient) UseCdnClient() *cdn.Client {
@@ -92,4 +94,14 @@ func (me *WangSuClient) UseSslCertificateClient() *certificate.Client {
 	me.sslCertificateConn, _ = certificate.NewClient(me.Credential, me.HttpProfile)
 
 	return me.sslCertificateConn
+}
+
+func (me *WangSuClient) UseMonitorRuleClient() *monitorRule.Client {
+	if me.monitorRuleConn != nil {
+		return me.monitorRuleConn
+	}
+
+	me.monitorRuleConn, _ = monitorRule.NewClient(me.Credential, me.HttpProfile)
+
+	return me.monitorRuleConn
 }
