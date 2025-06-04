@@ -11,6 +11,7 @@ description: |-
 
 Use this resource to create a WAAP domain.
 This resource allows you to create a WAAP domain.
+Accessing domains limit 100 at once
 
 ## Example Usage
 
@@ -42,7 +43,7 @@ resource "wangsu_waap_domain" "example" {
 
   dms_defend_config {
     config_switch   = "OFF"
-    protection_mode = "UNDER_ATTACK"
+    protection_mode = "MODERATE"
     ai_switch       = "ON"
   }
 
@@ -176,8 +177,9 @@ OFF: Disabled
 ON: Enabled<br/>
 OFF: Disabled
 - `protection_mode` (String) DDoS protection mode.<br/>
-AI_DEPOSIT: Managed Auto-Protect<br/>
-UNDER_ATTACK: I'm Under Attack
+LOOSE: Loose, blocks specific known attacks by default, AI engine only enables adaptive protection when it detects that attacks are significantly impacting the website availability, which has a very low false positives. <br/>
+MODERATE: Moderate (Recommended), can effectively protect against common attacks and adapt to most business scenarios.<br/>
+STRICT: Strict,enable strict protection policies for attacks, which may lead to some false positives.
 
 
 <a id="nestedblock--intelligence_config"></a>

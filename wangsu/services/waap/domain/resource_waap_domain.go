@@ -125,7 +125,7 @@ func ResourceWaapDomain() *schema.Resource {
 						"protection_mode": {
 							Type:        schema.TypeString,
 							Required:    true,
-							Description: "DDoS protection mode.<br/>AI_DEPOSIT: Managed Auto-Protect<br/>UNDER_ATTACK: I'm Under Attack",
+							Description: "DDoS protection mode.<br/>LOOSE: Loose<br/>MODERATE: Moderate<br/>STRICT: Strict",
 						},
 						"ai_switch": {
 							Type:        schema.TypeString,

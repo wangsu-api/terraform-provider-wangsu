@@ -1,11 +1,13 @@
 package connectivity
 
 import (
-	"github.com/wangsu-api/wangsu-sdk-go/common"
 	appadomain "github.com/wangsu-api/wangsu-sdk-go/wangsu/appa/domain"
 	cdn "github.com/wangsu-api/wangsu-sdk-go/wangsu/cdn/domain"
+	"github.com/wangsu-api/wangsu-sdk-go/wangsu/common"
 	monitorRule "github.com/wangsu-api/wangsu-sdk-go/wangsu/monitor/rule"
+	"github.com/wangsu-api/wangsu-sdk-go/wangsu/policy"
 	"github.com/wangsu-api/wangsu-sdk-go/wangsu/ssl/certificate"
+	userManage "github.com/wangsu-api/wangsu-sdk-go/wangsu/usermanage"
 	waapCustomizerule "github.com/wangsu-api/wangsu-sdk-go/wangsu/waap/customizerule"
 	waapDomain "github.com/wangsu-api/wangsu-sdk-go/wangsu/waap/domain"
 	waapRatelimit "github.com/wangsu-api/wangsu-sdk-go/wangsu/waap/ratelimit"
@@ -24,6 +26,8 @@ type WangSuClient struct {
 	waapRatelimitConn     *waapRatelimit.Client
 	waapDomainConn        *waapDomain.Client
 	monitorRuleConn       *monitorRule.Client
+	policyConn            *policy.Client
+	userManageConn        *userManage.Client
 }
 
 func (me *WangSuClient) UseCdnClient() *cdn.Client {
@@ -104,4 +108,32 @@ func (me *WangSuClient) UseMonitorRuleClient() *monitorRule.Client {
 	me.monitorRuleConn, _ = monitorRule.NewClient(me.Credential, me.HttpProfile)
 
 	return me.monitorRuleConn
+}
+func (me *WangSuClient) UseUserManageClient() *userManage.Client {
+	if me.userManageConn != nil {
+		return me.userManageConn
+	}
+
+	me.userManageConn, _ = userManage.NewClient(me.Credential, me.HttpProfile)
+
+	return me.userManageConn
+}
+func (me *WangSuClient) UsePolicyClient() *policy.Client {
+	if me.policyConn != nil {
+		return me.policyConn
+	}
+
+	me.policyConn, _ = policy.NewClient(me.Credential, me.HttpProfile)
+
+	return me.policyConn
+}
+
+func (me *WangSuClient) UsePolicyAttachmentClient() *userManage.Client {
+	if me.userManageConn != nil {
+		return me.userManageConn
+	}
+
+	me.userManageConn, _ = userManage.NewClient(me.Credential, me.HttpProfile)
+
+	return me.userManageConn
 }

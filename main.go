@@ -14,6 +14,7 @@ import (
 
 // Run the docs generation tool, check its repository for more information on how it works and how docs
 // can be customized.
+// Before executing this command, please set debuggable to false
 //go:generate go run github.com/hashicorp/terraform-plugin-docs/cmd/tfplugindocs generate -provider-name wangsu
 
 func main() {

@@ -8,13 +8,15 @@ import (
 	"github.com/wangsu-api/terraform-provider-wangsu/wangsu/connectivity"
 	appadomain "github.com/wangsu-api/terraform-provider-wangsu/wangsu/services/appa/domain"
 	"github.com/wangsu-api/terraform-provider-wangsu/wangsu/services/cdn/domain"
+	policy "github.com/wangsu-api/terraform-provider-wangsu/wangsu/services/iam/policy"
+	"github.com/wangsu-api/terraform-provider-wangsu/wangsu/services/iam/user"
 	monitorRule "github.com/wangsu-api/terraform-provider-wangsu/wangsu/services/monitor/rule"
 	"github.com/wangsu-api/terraform-provider-wangsu/wangsu/services/ssl/certificate"
 	waapCustomizerule "github.com/wangsu-api/terraform-provider-wangsu/wangsu/services/waap/customizerule"
 	waapDomain "github.com/wangsu-api/terraform-provider-wangsu/wangsu/services/waap/domain"
 	waapRatelimit "github.com/wangsu-api/terraform-provider-wangsu/wangsu/services/waap/ratelimit"
 	waapWhitelist "github.com/wangsu-api/terraform-provider-wangsu/wangsu/services/waap/whitelist"
-	sdkCommon "github.com/wangsu-api/wangsu-sdk-go/common"
+	sdkCommon "github.com/wangsu-api/wangsu-sdk-go/wangsu/common"
 )
 
 const (
@@ -73,6 +75,9 @@ func Provider() *schema.Provider {
 			"wangsu_waap_domain_copy":      waapDomain.ResourceWaapDomainCopy(),
 			"wangsu_waap_domain":           waapDomain.ResourceWaapDomain(),
 			"wangsu_monitor_realtime_rule": monitorRule.ResourceMonitorRealtimeRule(),
+			"wangsu_iam_policy":            policy.ResourceIamPolicy(),
+			"wangsu_iam_policy_attachment": policy.ResourceIamPolicyAttachment(),
+			"wangsu_iam_user":              user.ResourceUserInfo(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			"wangsu_cdn_domains":                   domain.DataSourceWangSuCdnDomains(),
@@ -89,6 +94,9 @@ func Provider() *schema.Provider {
 			"wangsu_waap_domain":                   waapDomain.DataSourceWaapDomain(),
 			"wangsu_waap_domains":                  waapDomain.DataSourceWaapDomains(),
 			"wangsu_monitor_realtime_rules_detail": monitorRule.DataSourceMonitorRealtimeRuleDetail(),
+			"wangsu_iam_policy_detail":             policy.ResourceIamPolicyDetail(),
+			"wangsu_iam_user_detail":               user.ResourceIamUserDetail(),
+			"wangsu_iam_users":                     user.ResourceIamUsers(),
 		},
 		ConfigureContextFunc: providerConfigure,
 	}

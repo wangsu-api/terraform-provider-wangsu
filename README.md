@@ -99,4 +99,4 @@ log.Println("[DEBUG] the message and some import values: %v", importantValues)
 
 ### License
 
-Terraform-Provider-Wangsu is under the Mozilla Public License 2.0. See the [LICENSE](LICENSE) file for details.
+Terraform-Provider-Wangsu is under the Mozilla Public License 2.0. See the [LICENSE](LICENSE.txt) file for details.

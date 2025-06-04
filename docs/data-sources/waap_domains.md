@@ -43,7 +43,7 @@ resource "wangsu_waap_domain" "example" {
 
   dms_defend_config {
     config_switch   = "OFF"
-    protection_mode = "UNDER_ATTACK"
+    protection_mode = "MODERATE"
     ai_switch       = "ON"
   }
 
