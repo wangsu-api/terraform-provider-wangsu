@@ -1,4 +1,4 @@
-package customizerule
+package share_customizerule
 
 import (
 	"context"
@@ -7,7 +7,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	wangsuCommon "github.com/wangsu-api/terraform-provider-wangsu/wangsu/common"
-	waapCustomizerule "github.com/wangsu-api/wangsu-sdk-go/wangsu/waap/customizerule"
+	waapShareCustomizerule "github.com/wangsu-api/wangsu-sdk-go/wangsu/waap/share-customizerule"
 	"log"
 	"time"
 )
@@ -16,12 +16,6 @@ func DataSourceCustomizeRules() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceCustomizeRulesRead,
 		Schema: map[string]*schema.Schema{
-			"domain_list": {
-				Type:        schema.TypeList,
-				Required:    true,
-				Elem:        &schema.Schema{Type: schema.TypeString},
-				Description: "Hostname list.",
-			},
 			"rule_name": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -37,10 +31,13 @@ func DataSourceCustomizeRules() *schema.Resource {
 							Computed:    true,
 							Description: "Rule ID.",
 						},
-						"domain": {
-							Type:        schema.TypeString,
+						"relation_domain_list": {
+							Type:        schema.TypeList,
 							Computed:    true,
-							Description: "Hostname.",
+							Description: "Associated hostname.",
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
 						},
 						"rule_name": {
 							Type:        schema.TypeString,
@@ -51,16 +48,6 @@ func DataSourceCustomizeRules() *schema.Resource {
 							Type:        schema.TypeString,
 							Computed:    true,
 							Description: "Description.",
-						},
-						"scene": {
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: "Protected target.<br/>WEB:Website<br/>API:API",
-						},
-						"api_id": {
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: "API ID, multiple separated by ; sign.",
 						},
 						"act": {
 							Type:        schema.TypeString,
@@ -125,30 +112,6 @@ func DataSourceCustomizeRules() *schema.Resource {
 													Computed:    true,
 													Elem:        &schema.Schema{Type: schema.TypeString},
 													Description: "URI.",
-												},
-											},
-										},
-									},
-									"uri_param_conditions": {
-										Type:     schema.TypeList,
-										Computed: true,
-										Elem: &schema.Resource{
-											Schema: map[string]*schema.Schema{
-												"match_type": {
-													Type:        schema.TypeString,
-													Computed:    true,
-													Description: "Match type.<br/>EQUAL:Equals<br/>NOT_EQUAL:Does not equal<br/>CONTAIN:Contains<br/>NOT_CONTAIN:Does not contains<br/>REGEX:Regex match<br/>NONE:Empty or non-existent",
-												},
-												"param_name": {
-													Type:        schema.TypeString,
-													Computed:    true,
-													Description: "Param name.",
-												},
-												"param_value": {
-													Type:        schema.TypeList,
-													Computed:    true,
-													Elem:        &schema.Schema{Type: schema.TypeString},
-													Description: "Param value.",
 												},
 											},
 										},
@@ -302,26 +265,17 @@ func DataSourceCustomizeRules() *schema.Resource {
 }
 
 func dataSourceCustomizeRulesRead(context context.Context, data *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Printf("data_source.wangsu_waap_customizerule.read")
+	log.Printf("data_source.wangsu_waap_share_customizerule.read")
 
-	var response *waapCustomizerule.ListCustomRulesResponse
+	var response *waapShareCustomizerule.ListSharedCustomRulesResponse
 	var err error
 	var diags diag.Diagnostics
-	request := &waapCustomizerule.ListCustomRulesRequest{}
+	request := &waapShareCustomizerule.ListSharedCustomRulesRequest{}
 	if v, ok := data.GetOk("rule_name"); ok {
 		request.SetRuleName(v.(string))
 	}
-	if v, ok := data.GetOk("domain_list"); ok {
-		targetDomainsList := v.([]interface{})
-		targetDomainsStr := make([]*string, len(targetDomainsList))
-		for i, v := range targetDomainsList {
-			str := v.(string)
-			targetDomainsStr[i] = &str
-		}
-		request.SetDomainList(targetDomainsStr)
-	}
 	err = resource.RetryContext(context, time.Duration(2)*time.Minute, func() *resource.RetryError {
-		_, response, err = meta.(wangsuCommon.ProviderMeta).GetAPIV3Conn().UseWaapCustomizeruleClient().GetCustomRuleList(request)
+		_, response, err = meta.(wangsuCommon.ProviderMeta).GetAPIV3Conn().UseWaapShareCustomizeruleClient().GetList(request)
 		if err != nil {
 			return resource.NonRetryableError(err)
 		}
@@ -346,29 +300,26 @@ func dataSourceCustomizeRulesRead(context context.Context, data *schema.Resource
 		for _, item := range response.Data {
 			conditionList := make([]map[string]interface{}, 1)
 			condition := make(map[string]interface{})
-			if item.ConditionList != nil {
-				condition["ip_or_ips_conditions"] = flattenIpOrIpsConditions(item.ConditionList.IpOrIpsConditions)
-				condition["path_conditions"] = flattenPathConditions(item.ConditionList.PathConditions)
-				condition["uri_conditions"] = flattenUriConditions(item.ConditionList.UriConditions)
-				condition["uri_param_conditions"] = flattenUriParamConditions(item.ConditionList.UriParamConditions)
-				condition["ua_conditions"] = flattenUaConditions(item.ConditionList.UaConditions)
-				condition["referer_conditions"] = flattenRefererConditions(item.ConditionList.RefererConditions)
-				condition["header_conditions"] = flattenHeaderConditions(item.ConditionList.HeaderConditions)
-				condition["area_conditions"] = flattenAreaConditions(item.ConditionList.AreaConditions)
-				condition["method_conditions"] = flattenMethodConditions(item.ConditionList.MethodConditions)
-				condition["ja3_conditions"] = flattenJa3Conditions(item.ConditionList.Ja3Conditions)
-				condition["ja4_conditions"] = flattenJa4Conditions(item.ConditionList.Ja4Conditions)
+			if item.Condition != nil {
+				condition["ip_or_ips_conditions"] = flattenIpOrIpsConditions(item.Condition.IpOrIpsConditions)
+				condition["path_conditions"] = flattenPathConditions(item.Condition.PathConditions)
+				condition["uri_conditions"] = flattenUriConditions(item.Condition.UriConditions)
+				condition["ua_conditions"] = flattenUaConditions(item.Condition.UaConditions)
+				condition["referer_conditions"] = flattenRefererConditions(item.Condition.RefererConditions)
+				condition["header_conditions"] = flattenHeaderConditions(item.Condition.HeaderConditions)
+				condition["area_conditions"] = flattenAreaConditions(item.Condition.AreaConditions)
+				condition["method_conditions"] = flattenMethodConditions(item.Condition.MethodConditions)
+				condition["ja3_conditions"] = flattenJa3Conditions(item.Condition.Ja3Conditions)
+				condition["ja4_conditions"] = flattenJa4Conditions(item.Condition.Ja4Conditions)
 			}
 			conditionList[0] = condition
 			itemList = append(itemList, map[string]interface{}{
-				"id":             item.Id,
-				"domain":         item.Domain,
-				"rule_name":      item.RuleName,
-				"description":    item.Description,
-				"scene":          item.Scene,
-				"api_id":         item.ApiId,
-				"act":            item.Act,
-				"condition_list": conditionList,
+				"id":                   item.Id,
+				"relation_domain_list": item.RelationDomainList,
+				"rule_name":            item.RuleName,
+				"description":          item.Description,
+				"act":                  item.Act,
+				"condition_list":       conditionList,
 			})
 			ids = append(ids, *item.Id)
 		}
@@ -380,7 +331,7 @@ func dataSourceCustomizeRulesRead(context context.Context, data *schema.Resource
 	return diags
 }
 
-func flattenIpOrIpsConditions(conditions []*waapCustomizerule.IpOrIpsCondition) []interface{} {
+func flattenIpOrIpsConditions(conditions []*waapShareCustomizerule.IpOrIpsCondition) []interface{} {
 	result := make([]interface{}, 0)
 	for _, condition := range conditions {
 		result = append(result, map[string]interface{}{
@@ -391,7 +342,7 @@ func flattenIpOrIpsConditions(conditions []*waapCustomizerule.IpOrIpsCondition) 
 	return result
 }
 
-func flattenPathConditions(conditions []*waapCustomizerule.PathCondition) []interface{} {
+func flattenPathConditions(conditions []*waapShareCustomizerule.PathCondition) []interface{} {
 	result := make([]interface{}, 0)
 	for _, condition := range conditions {
 		result = append(result, map[string]interface{}{
@@ -402,7 +353,7 @@ func flattenPathConditions(conditions []*waapCustomizerule.PathCondition) []inte
 	return result
 }
 
-func flattenUriConditions(conditions []*waapCustomizerule.UriCondition) []interface{} {
+func flattenUriConditions(conditions []*waapShareCustomizerule.UriCondition) []interface{} {
 	result := make([]interface{}, 0)
 	for _, condition := range conditions {
 		result = append(result, map[string]interface{}{
@@ -413,19 +364,7 @@ func flattenUriConditions(conditions []*waapCustomizerule.UriCondition) []interf
 	return result
 }
 
-func flattenUriParamConditions(conditions []*waapCustomizerule.UriParamCondition) []interface{} {
-	result := make([]interface{}, 0)
-	for _, condition := range conditions {
-		result = append(result, map[string]interface{}{
-			"match_type":  condition.MatchType,
-			"param_name":  condition.ParamName,
-			"param_value": condition.ParamValue,
-		})
-	}
-	return result
-}
-
-func flattenUaConditions(conditions []*waapCustomizerule.UaCondition) []interface{} {
+func flattenUaConditions(conditions []*waapShareCustomizerule.UaCondition) []interface{} {
 	result := make([]interface{}, 0)
 	for _, condition := range conditions {
 		result = append(result, map[string]interface{}{
@@ -436,7 +375,7 @@ func flattenUaConditions(conditions []*waapCustomizerule.UaCondition) []interfac
 	return result
 }
 
-func flattenRefererConditions(conditions []*waapCustomizerule.RefererCondition) []interface{} {
+func flattenRefererConditions(conditions []*waapShareCustomizerule.RefererCondition) []interface{} {
 	result := make([]interface{}, 0)
 	for _, condition := range conditions {
 		result = append(result, map[string]interface{}{
@@ -447,7 +386,7 @@ func flattenRefererConditions(conditions []*waapCustomizerule.RefererCondition) 
 	return result
 }
 
-func flattenHeaderConditions(conditions []*waapCustomizerule.HeaderCondition) []interface{} {
+func flattenHeaderConditions(conditions []*waapShareCustomizerule.HeaderCondition) []interface{} {
 	result := make([]interface{}, 0)
 	for _, condition := range conditions {
 		result = append(result, map[string]interface{}{
@@ -459,7 +398,7 @@ func flattenHeaderConditions(conditions []*waapCustomizerule.HeaderCondition) []
 	return result
 }
 
-func flattenAreaConditions(conditions []*waapCustomizerule.AreaCondition) []interface{} {
+func flattenAreaConditions(conditions []*waapShareCustomizerule.AreaCondition) []interface{} {
 	result := make([]interface{}, 0)
 	for _, condition := range conditions {
 		result = append(result, map[string]interface{}{
@@ -470,7 +409,7 @@ func flattenAreaConditions(conditions []*waapCustomizerule.AreaCondition) []inte
 	return result
 }
 
-func flattenMethodConditions(conditions []*waapCustomizerule.RequestMethodCondition) []interface{} {
+func flattenMethodConditions(conditions []*waapShareCustomizerule.MethodCondition) []interface{} {
 	result := make([]interface{}, 0)
 	for _, condition := range conditions {
 		result = append(result, map[string]interface{}{
@@ -481,7 +420,7 @@ func flattenMethodConditions(conditions []*waapCustomizerule.RequestMethodCondit
 	return result
 }
 
-func flattenJa3Conditions(conditions []*waapCustomizerule.Ja3Condition) []interface{} {
+func flattenJa3Conditions(conditions []*waapShareCustomizerule.Ja3Condition) []interface{} {
 	result := make([]interface{}, 0)
 	for _, condition := range conditions {
 		result = append(result, map[string]interface{}{
@@ -492,7 +431,7 @@ func flattenJa3Conditions(conditions []*waapCustomizerule.Ja3Condition) []interf
 	return result
 }
 
-func flattenJa4Conditions(conditions []*waapCustomizerule.Ja4Condition) []interface{} {
+func flattenJa4Conditions(conditions []*waapShareCustomizerule.Ja4Condition) []interface{} {
 	result := make([]interface{}, 0)
 	for _, condition := range conditions {
 		result = append(result, map[string]interface{}{

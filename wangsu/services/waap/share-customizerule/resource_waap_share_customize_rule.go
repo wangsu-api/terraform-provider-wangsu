@@ -1,23 +1,22 @@
-package customizerule
+package share_customizerule
 
 import (
 	"context"
-	"errors"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	wangsuCommon "github.com/wangsu-api/terraform-provider-wangsu/wangsu/common"
-	waapCustomizerule "github.com/wangsu-api/wangsu-sdk-go/wangsu/waap/customizerule"
+	waapShareCustomizerule "github.com/wangsu-api/wangsu-sdk-go/wangsu/waap/share-customizerule"
 	"log"
 	"time"
 )
 
-func ResourceWaapCustomizeRule() *schema.Resource {
+func ResourceWaapShareCustomizeRule() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceWaapCustomizeRuleCreate,
-		ReadContext:   resourceWaapCustomizeRuleRead,
-		UpdateContext: resourceWaapCustomizeRuleUpdate,
-		DeleteContext: resourceWaapCustomizeRuleDelete,
+		CreateContext: resourceWaapShareCustomizeRuleCreate,
+		ReadContext:   resourceWaapShareCustomizeRuleRead,
+		UpdateContext: resourceWaapShareCustomizeRuleUpdate,
+		DeleteContext: resourceWaapShareCustomizeRuleDelete,
 
 		Schema: map[string]*schema.Schema{
 			"id": {
@@ -25,10 +24,13 @@ func ResourceWaapCustomizeRule() *schema.Resource {
 				Computed:    true,
 				Description: "Rule ID.",
 			},
-			"domain": {
-				Type:        schema.TypeString,
-				Required:    true,
-				Description: "Hostname.",
+			"relation_domain_list": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: "Associated hostname.",
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
 			},
 			"rule_name": {
 				Type:        schema.TypeString,
@@ -39,16 +41,6 @@ func ResourceWaapCustomizeRule() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "Description, maximum 200 characters.",
-			},
-			"scene": {
-				Type:        schema.TypeString,
-				Required:    true,
-				Description: "Protected target.<br/>WEB:Website<br/>API:API",
-			},
-			"api_id": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: "API ID under API business, multiple separated by ; sign.<br/>When the protected target is APIThis field is required.",
 			},
 			"act": {
 				Type:        schema.TypeString,
@@ -316,13 +308,19 @@ func ResourceWaapCustomizeRule() *schema.Resource {
 	}
 }
 
-func resourceWaapCustomizeRuleCreate(context context.Context, data *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Printf("resource.wangsu_waap_customize_rule.create")
+func resourceWaapShareCustomizeRuleCreate(context context.Context, data *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	log.Printf("resource.wangsu_waap_share_customize_rule.create")
 
 	var diags diag.Diagnostics
-	request := &waapCustomizerule.AddCustomizeRuleRequest{}
-	if domain, ok := data.Get("domain").(string); ok && domain != "" {
-		request.Domain = &domain
+	request := &waapShareCustomizerule.CreateSharedCustomRuleRequest{}
+	if domains, ok := data.GetOk("relation_domain_list"); ok {
+		domainsList := domains.([]interface{})
+		domainsStr := make([]*string, len(domainsList))
+		for i, v := range domainsList {
+			str := v.(string)
+			domainsStr[i] = &str
+		}
+		request.RelationDomainList = domainsStr
 	}
 	if ruleName, ok := data.Get("rule_name").(string); ok && ruleName != "" {
 		request.RuleName = &ruleName
@@ -330,22 +328,16 @@ func resourceWaapCustomizeRuleCreate(context context.Context, data *schema.Resou
 	if description, ok := data.Get("description").(string); ok && description != "" {
 		request.Description = &description
 	}
-	if scene, ok := data.Get("scene").(string); ok && scene != "" {
-		request.Scene = &scene
-	}
-	if apiId, ok := data.Get("api_id").(string); ok && apiId != "" {
-		request.ApiId = &apiId
-	}
 	if act, ok := data.Get("act").(string); ok && act != "" {
 		request.Act = &act
 	}
 	conditions := data.Get("condition").([]interface{})
-	conditionsRequest := &waapCustomizerule.CommonCustomizeRuleConditionDTO{}
+	conditionsRequest := &waapShareCustomizerule.ShareCustomizeRuleCondition{}
 	for _, condition := range conditions {
 		conditionMap := condition.(map[string]interface{})
 		// IpOrIps Conditions
 		if conditionMap["ip_or_ips_conditions"] != nil {
-			ipOrIpsConditions := make([]*waapCustomizerule.IpOrIpsCondition, 0)
+			ipOrIpsConditions := make([]*waapShareCustomizerule.IpOrIpsCondition, 0)
 			for _, ipOrIpsCondition := range conditionMap["ip_or_ips_conditions"].([]interface{}) {
 				ipOrIpsConditionMap := ipOrIpsCondition.(map[string]interface{})
 				matchType := ipOrIpsConditionMap["match_type"].(string)
@@ -355,7 +347,7 @@ func resourceWaapCustomizeRuleCreate(context context.Context, data *schema.Resou
 					str := v.(string)
 					ipOrIps[i] = &str
 				}
-				ipOrIpsCondition := &waapCustomizerule.IpOrIpsCondition{
+				ipOrIpsCondition := &waapShareCustomizerule.IpOrIpsCondition{
 					MatchType: &matchType,
 					IpOrIps:   ipOrIps,
 				}
@@ -366,7 +358,7 @@ func resourceWaapCustomizeRuleCreate(context context.Context, data *schema.Resou
 
 		// Path Conditions
 		if conditionMap["path_conditions"] != nil {
-			pathConditions := make([]*waapCustomizerule.PathCondition, 0)
+			pathConditions := make([]*waapShareCustomizerule.PathCondition, 0)
 			for _, pathCondition := range conditionMap["path_conditions"].([]interface{}) {
 				pathConditionMap := pathCondition.(map[string]interface{})
 				matchType := pathConditionMap["match_type"].(string)
@@ -376,7 +368,7 @@ func resourceWaapCustomizeRuleCreate(context context.Context, data *schema.Resou
 					str := v.(string)
 					paths[i] = &str
 				}
-				pathCondition := &waapCustomizerule.PathCondition{
+				pathCondition := &waapShareCustomizerule.PathCondition{
 					MatchType: &matchType,
 					Paths:     paths,
 				}
@@ -387,7 +379,7 @@ func resourceWaapCustomizeRuleCreate(context context.Context, data *schema.Resou
 
 		// URI Conditions
 		if conditionMap["uri_conditions"] != nil {
-			uriConditions := make([]*waapCustomizerule.UriCondition, 0)
+			uriConditions := make([]*waapShareCustomizerule.UriCondition, 0)
 			for _, uriCondition := range conditionMap["uri_conditions"].([]interface{}) {
 				uriConditionMap := uriCondition.(map[string]interface{})
 				matchType := uriConditionMap["match_type"].(string)
@@ -397,7 +389,7 @@ func resourceWaapCustomizeRuleCreate(context context.Context, data *schema.Resou
 					str := v.(string)
 					uri[i] = &str
 				}
-				uriCondition := &waapCustomizerule.UriCondition{
+				uriCondition := &waapShareCustomizerule.UriCondition{
 					MatchType: &matchType,
 					Uri:       uri,
 				}
@@ -406,32 +398,9 @@ func resourceWaapCustomizeRuleCreate(context context.Context, data *schema.Resou
 			conditionsRequest.UriConditions = uriConditions
 		}
 
-		// URI Param Conditions
-		if conditionMap["uri_param_conditions"] != nil {
-			uriParamConditions := make([]*waapCustomizerule.UriParamCondition, 0)
-			for _, uriParamCondition := range conditionMap["uri_param_conditions"].([]interface{}) {
-				uriParamConditionMap := uriParamCondition.(map[string]interface{})
-				matchType := uriParamConditionMap["match_type"].(string)
-				paramName := uriParamConditionMap["param_name"].(string)
-				paramValueInterface := uriParamConditionMap["param_value"].([]interface{})
-				paramValue := make([]*string, len(paramValueInterface))
-				for i, v := range paramValueInterface {
-					str := v.(string)
-					paramValue[i] = &str
-				}
-				uriParamCondition := &waapCustomizerule.UriParamCondition{
-					MatchType:  &matchType,
-					ParamName:  &paramName,
-					ParamValue: paramValue,
-				}
-				uriParamConditions = append(uriParamConditions, uriParamCondition)
-			}
-			conditionsRequest.UriParamConditions = uriParamConditions
-		}
-
 		// UA Conditions
 		if conditionMap["ua_conditions"] != nil {
-			uaConditions := make([]*waapCustomizerule.UaCondition, 0)
+			uaConditions := make([]*waapShareCustomizerule.UaCondition, 0)
 			for _, uaCondition := range conditionMap["ua_conditions"].([]interface{}) {
 				uaConditionMap := uaCondition.(map[string]interface{})
 				matchType := uaConditionMap["match_type"].(string)
@@ -441,7 +410,7 @@ func resourceWaapCustomizeRuleCreate(context context.Context, data *schema.Resou
 					str := v.(string)
 					ua[i] = &str
 				}
-				uaCondition := &waapCustomizerule.UaCondition{
+				uaCondition := &waapShareCustomizerule.UaCondition{
 					MatchType: &matchType,
 					Ua:        ua,
 				}
@@ -452,7 +421,7 @@ func resourceWaapCustomizeRuleCreate(context context.Context, data *schema.Resou
 
 		// Referer Conditions
 		if conditionMap["referer_conditions"] != nil {
-			refererConditions := make([]*waapCustomizerule.RefererCondition, 0)
+			refererConditions := make([]*waapShareCustomizerule.RefererCondition, 0)
 			for _, refererCondition := range conditionMap["referer_conditions"].([]interface{}) {
 				refererConditionMap := refererCondition.(map[string]interface{})
 				matchType := refererConditionMap["match_type"].(string)
@@ -462,7 +431,7 @@ func resourceWaapCustomizeRuleCreate(context context.Context, data *schema.Resou
 					str := v.(string)
 					referer[i] = &str
 				}
-				refererCondition := &waapCustomizerule.RefererCondition{
+				refererCondition := &waapShareCustomizerule.RefererCondition{
 					MatchType: &matchType,
 					Referer:   referer,
 				}
@@ -473,7 +442,7 @@ func resourceWaapCustomizeRuleCreate(context context.Context, data *schema.Resou
 
 		// Header Conditions
 		if conditionMap["header_conditions"] != nil {
-			headerConditions := make([]*waapCustomizerule.HeaderCondition, 0)
+			headerConditions := make([]*waapShareCustomizerule.HeaderCondition, 0)
 			for _, headerCondition := range conditionMap["header_conditions"].([]interface{}) {
 				headerConditionMap := headerCondition.(map[string]interface{})
 				matchType := headerConditionMap["match_type"].(string)
@@ -484,7 +453,7 @@ func resourceWaapCustomizeRuleCreate(context context.Context, data *schema.Resou
 					str := v.(string)
 					valueList[i] = &str
 				}
-				headerCondition := &waapCustomizerule.HeaderCondition{
+				headerCondition := &waapShareCustomizerule.HeaderCondition{
 					MatchType: &matchType,
 					Key:       &key,
 					ValueList: valueList,
@@ -496,7 +465,7 @@ func resourceWaapCustomizeRuleCreate(context context.Context, data *schema.Resou
 
 		// Area Conditions
 		if conditionMap["area_conditions"] != nil {
-			areaConditions := make([]*waapCustomizerule.AreaCondition, 0)
+			areaConditions := make([]*waapShareCustomizerule.AreaCondition, 0)
 			for _, areaCondition := range conditionMap["area_conditions"].([]interface{}) {
 				areaConditionMap := areaCondition.(map[string]interface{})
 				matchType := areaConditionMap["match_type"].(string)
@@ -506,7 +475,7 @@ func resourceWaapCustomizeRuleCreate(context context.Context, data *schema.Resou
 					str := v.(string)
 					areas[i] = &str
 				}
-				areaCondition := &waapCustomizerule.AreaCondition{
+				areaCondition := &waapShareCustomizerule.AreaCondition{
 					MatchType: &matchType,
 					Areas:     areas,
 				}
@@ -517,7 +486,7 @@ func resourceWaapCustomizeRuleCreate(context context.Context, data *schema.Resou
 
 		// Method Conditions
 		if conditionMap["method_conditions"] != nil {
-			methodConditions := make([]*waapCustomizerule.RequestMethodCondition, 0)
+			methodConditions := make([]*waapShareCustomizerule.MethodCondition, 0)
 			for _, methodCondition := range conditionMap["method_conditions"].([]interface{}) {
 				methodConditionMap := methodCondition.(map[string]interface{})
 				matchType := methodConditionMap["match_type"].(string)
@@ -527,7 +496,7 @@ func resourceWaapCustomizeRuleCreate(context context.Context, data *schema.Resou
 					str := v.(string)
 					requestMethod[i] = &str
 				}
-				methodCondition := &waapCustomizerule.RequestMethodCondition{
+				methodCondition := &waapShareCustomizerule.MethodCondition{
 					MatchType:     &matchType,
 					RequestMethod: requestMethod,
 				}
@@ -538,7 +507,7 @@ func resourceWaapCustomizeRuleCreate(context context.Context, data *schema.Resou
 
 		// JA3 Conditions
 		if conditionMap["ja3_conditions"] != nil {
-			ja3Conditions := make([]*waapCustomizerule.Ja3Condition, 0)
+			ja3Conditions := make([]*waapShareCustomizerule.Ja3Condition, 0)
 			for _, ja3Condition := range conditionMap["ja3_conditions"].([]interface{}) {
 				ja3ConditionMap := ja3Condition.(map[string]interface{})
 				matchType := ja3ConditionMap["match_type"].(string)
@@ -548,7 +517,7 @@ func resourceWaapCustomizeRuleCreate(context context.Context, data *schema.Resou
 					str := v.(string)
 					ja3[i] = &str
 				}
-				ja3Condition := &waapCustomizerule.Ja3Condition{
+				ja3Condition := &waapShareCustomizerule.Ja3Condition{
 					MatchType: &matchType,
 					Ja3List:   ja3,
 				}
@@ -559,7 +528,7 @@ func resourceWaapCustomizeRuleCreate(context context.Context, data *schema.Resou
 
 		// JA4 Conditions
 		if conditionMap["ja4_conditions"] != nil {
-			ja4Conditions := make([]*waapCustomizerule.Ja4Condition, 0)
+			ja4Conditions := make([]*waapShareCustomizerule.Ja4Condition, 0)
 			for _, ja4Condition := range conditionMap["ja4_conditions"].([]interface{}) {
 				ja4ConditionMap := ja4Condition.(map[string]interface{})
 				matchType := ja4ConditionMap["match_type"].(string)
@@ -569,7 +538,7 @@ func resourceWaapCustomizeRuleCreate(context context.Context, data *schema.Resou
 					str := v.(string)
 					ja4[i] = &str
 				}
-				ja4Condition := &waapCustomizerule.Ja4Condition{
+				ja4Condition := &waapShareCustomizerule.Ja4Condition{
 					MatchType: &matchType,
 					Ja4List:   ja4,
 				}
@@ -580,10 +549,10 @@ func resourceWaapCustomizeRuleCreate(context context.Context, data *schema.Resou
 	}
 	request.Condition = conditionsRequest
 
-	var response *waapCustomizerule.AddCustomizeRuleResponse
+	var response *waapShareCustomizerule.CreateSharedCustomRuleResponse
 	var err error
 	err = resource.RetryContext(context, time.Duration(2)*time.Minute, func() *resource.RetryError {
-		_, response, err = meta.(wangsuCommon.ProviderMeta).GetAPIV3Conn().UseWaapCustomizeruleClient().AddCustomRule(request)
+		_, response, err = meta.(wangsuCommon.ProviderMeta).GetAPIV3Conn().UseWaapShareCustomizeruleClient().Add(request)
 		if err != nil {
 			return resource.NonRetryableError(err)
 		}
@@ -601,24 +570,17 @@ func resourceWaapCustomizeRuleCreate(context context.Context, data *schema.Resou
 	_ = data.Set("id", *response.Data)
 	data.SetId(*response.Data)
 	//set status
-	return resourceWaapCustomizeRuleRead(context, data, meta)
+	return resourceWaapShareCustomizeRuleRead(context, data, meta)
 }
 
-func resourceWaapCustomizeRuleRead(context context.Context, data *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Printf("resource.wangsu_waap_customize_rule.read")
-	var response *waapCustomizerule.ListCustomRulesResponse
+func resourceWaapShareCustomizeRuleRead(context context.Context, data *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	log.Printf("resource.wangsu_waap_share_customize_rule.read")
+	var response *waapShareCustomizerule.ListSharedCustomRulesResponse
 	var err error
 	var diags diag.Diagnostics
 	err = resource.RetryContext(context, time.Duration(2)*time.Minute, func() *resource.RetryError {
-		domain := data.Get("domain").(string)
-		// 规则名称会变，不当成查询条件
-		//ruleName := data.Get("rule_name").(string)
-
-		request := &waapCustomizerule.ListCustomRulesRequest{
-			DomainList: []*string{&domain},
-			//RuleName:   &ruleName,
-		}
-		_, response, err = meta.(wangsuCommon.ProviderMeta).GetAPIV3Conn().UseWaapCustomizeruleClient().GetCustomRuleList(request)
+		request := &waapShareCustomizerule.ListSharedCustomRulesRequest{}
+		_, response, err = meta.(wangsuCommon.ProviderMeta).GetAPIV3Conn().UseWaapShareCustomizeruleClient().GetList(request)
 		if err != nil {
 			return resource.NonRetryableError(err)
 		}
@@ -643,17 +605,16 @@ func resourceWaapCustomizeRuleRead(context context.Context, data *schema.Resourc
 			if *item.Id != data.Id() {
 				continue
 			}
-			_ = data.Set("domain", item.Domain)
+			_ = data.Set("id", item.Id)
+			_ = data.Set("relation_domain_list", item.RelationDomainList)
 			_ = data.Set("rule_name", item.RuleName)
 			_ = data.Set("description", item.Description)
-			_ = data.Set("scene", item.Scene)
-			_ = data.Set("api_id", item.ApiId)
 			_ = data.Set("act", item.Act)
 			condition := make(map[string]interface{})
-			if item.ConditionList != nil {
-				if item.ConditionList.IpOrIpsConditions != nil {
+			if item.Condition != nil {
+				if item.Condition.IpOrIpsConditions != nil {
 					ipOrIpsConditions := make([]interface{}, 0)
-					for _, condition := range item.ConditionList.IpOrIpsConditions {
+					for _, condition := range item.Condition.IpOrIpsConditions {
 						ipOrIpsCondition := map[string]interface{}{
 							"match_type": condition.MatchType,
 							"ip_or_ips":  condition.IpOrIps,
@@ -662,9 +623,9 @@ func resourceWaapCustomizeRuleRead(context context.Context, data *schema.Resourc
 					}
 					condition["ip_or_ips_conditions"] = ipOrIpsConditions
 				}
-				if item.ConditionList.PathConditions != nil {
+				if item.Condition.PathConditions != nil {
 					pathConditions := make([]interface{}, 0)
-					for _, condition := range item.ConditionList.PathConditions {
+					for _, condition := range item.Condition.PathConditions {
 						pathCondition := map[string]interface{}{
 							"match_type": condition.MatchType,
 							"paths":      condition.Paths,
@@ -673,9 +634,9 @@ func resourceWaapCustomizeRuleRead(context context.Context, data *schema.Resourc
 					}
 					condition["path_conditions"] = pathConditions
 				}
-				if item.ConditionList.UriConditions != nil {
+				if item.Condition.UriConditions != nil {
 					uriConditions := make([]interface{}, 0)
-					for _, condition := range item.ConditionList.UriConditions {
+					for _, condition := range item.Condition.UriConditions {
 						uriCondition := map[string]interface{}{
 							"match_type": condition.MatchType,
 							"uri":        condition.Uri,
@@ -684,21 +645,9 @@ func resourceWaapCustomizeRuleRead(context context.Context, data *schema.Resourc
 					}
 					condition["uri_conditions"] = uriConditions
 				}
-				if item.ConditionList.UriParamConditions != nil {
-					uriParamConditions := make([]interface{}, 0)
-					for _, condition := range item.ConditionList.UriParamConditions {
-						uriParamCondition := map[string]interface{}{
-							"match_type":  condition.MatchType,
-							"param_name":  condition.ParamName,
-							"param_value": condition.ParamValue,
-						}
-						uriParamConditions = append(uriParamConditions, uriParamCondition)
-					}
-					condition["uri_param_conditions"] = uriParamConditions
-				}
-				if item.ConditionList.UaConditions != nil {
+				if item.Condition.UaConditions != nil {
 					uaConditions := make([]interface{}, 0)
-					for _, condition := range item.ConditionList.UaConditions {
+					for _, condition := range item.Condition.UaConditions {
 						uaCondition := map[string]interface{}{
 							"match_type": condition.MatchType,
 							"ua":         condition.Ua,
@@ -707,9 +656,9 @@ func resourceWaapCustomizeRuleRead(context context.Context, data *schema.Resourc
 					}
 					condition["ua_conditions"] = uaConditions
 				}
-				if item.ConditionList.RefererConditions != nil {
+				if item.Condition.RefererConditions != nil {
 					refererConditions := make([]interface{}, 0)
-					for _, condition := range item.ConditionList.RefererConditions {
+					for _, condition := range item.Condition.RefererConditions {
 						refererCondition := map[string]interface{}{
 							"match_type": condition.MatchType,
 							"referer":    condition.Referer,
@@ -718,9 +667,9 @@ func resourceWaapCustomizeRuleRead(context context.Context, data *schema.Resourc
 					}
 					condition["referer_conditions"] = refererConditions
 				}
-				if item.ConditionList.HeaderConditions != nil {
+				if item.Condition.HeaderConditions != nil {
 					headerConditions := make([]interface{}, 0)
-					for _, condition := range item.ConditionList.HeaderConditions {
+					for _, condition := range item.Condition.HeaderConditions {
 						headerCondition := map[string]interface{}{
 							"match_type": condition.MatchType,
 							"key":        condition.Key,
@@ -730,9 +679,9 @@ func resourceWaapCustomizeRuleRead(context context.Context, data *schema.Resourc
 					}
 					condition["header_conditions"] = headerConditions
 				}
-				if item.ConditionList.AreaConditions != nil {
+				if item.Condition.AreaConditions != nil {
 					areaConditions := make([]interface{}, 0)
-					for _, condition := range item.ConditionList.AreaConditions {
+					for _, condition := range item.Condition.AreaConditions {
 						areaCondition := map[string]interface{}{
 							"match_type": condition.MatchType,
 							"areas":      condition.Areas,
@@ -741,9 +690,9 @@ func resourceWaapCustomizeRuleRead(context context.Context, data *schema.Resourc
 					}
 					condition["area_conditions"] = areaConditions
 				}
-				if item.ConditionList.MethodConditions != nil {
+				if item.Condition.MethodConditions != nil {
 					methodConditions := make([]interface{}, 0)
-					for _, condition := range item.ConditionList.MethodConditions {
+					for _, condition := range item.Condition.MethodConditions {
 						methodCondition := map[string]interface{}{
 							"match_type":     condition.MatchType,
 							"request_method": condition.RequestMethod,
@@ -752,9 +701,9 @@ func resourceWaapCustomizeRuleRead(context context.Context, data *schema.Resourc
 					}
 					condition["method_conditions"] = methodConditions
 				}
-				if item.ConditionList.Ja3Conditions != nil {
+				if item.Condition.Ja3Conditions != nil {
 					ja3Conditions := make([]interface{}, 0)
-					for _, condition := range item.ConditionList.Ja3Conditions {
+					for _, condition := range item.Condition.Ja3Conditions {
 						ja3Condition := map[string]interface{}{
 							"match_type": condition.MatchType,
 							"ja3_list":   condition.Ja3List,
@@ -763,9 +712,9 @@ func resourceWaapCustomizeRuleRead(context context.Context, data *schema.Resourc
 					}
 					condition["ja3_conditions"] = ja3Conditions
 				}
-				if item.ConditionList.Ja4Conditions != nil {
+				if item.Condition.Ja4Conditions != nil {
 					ja4Conditions := make([]interface{}, 0)
-					for _, condition := range item.ConditionList.Ja4Conditions {
+					for _, condition := range item.Condition.Ja4Conditions {
 						ja4Condition := map[string]interface{}{
 							"match_type": condition.MatchType,
 							"ja4_list":   condition.Ja4List,
@@ -781,44 +730,38 @@ func resourceWaapCustomizeRuleRead(context context.Context, data *schema.Resourc
 	return nil
 }
 
-func resourceWaapCustomizeRuleUpdate(context context.Context, data *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Printf("resource.wangsu_waap_customize_rule.update")
+func resourceWaapShareCustomizeRuleUpdate(context context.Context, data *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	log.Printf("resource.wangsu_waap_share_customize_rule.update")
 	var diags diag.Diagnostics
-	if data.HasChange("domain") {
-		// 把domain强制刷回旧值，否则会有权限问题
-		oldDomain, _ := data.GetChange("domain")
-		_ = data.Set("domain", oldDomain)
-		err := errors.New("Hostname cannot be changed.")
-		diags = append(diags, diag.FromErr(err)...)
-		return diags
-	}
-	request := &waapCustomizerule.UpdateCustomRuleRequest{}
+	request := &waapShareCustomizerule.UpdateSharedCustomRulesRequest{}
 	if id, ok := data.Get("id").(string); ok && id != "" {
 		request.Id = &id
 	}
-
+	if domains, ok := data.GetOk("relation_domain_list"); ok {
+		domainsList := domains.([]interface{})
+		domainsStr := make([]*string, len(domainsList))
+		for i, v := range domainsList {
+			str := v.(string)
+			domainsStr[i] = &str
+		}
+		request.RelationDomainList = domainsStr
+	}
 	if ruleName, ok := data.Get("rule_name").(string); ok && ruleName != "" {
 		request.RuleName = &ruleName
 	}
 	if description, ok := data.Get("description").(string); ok && description != "" {
 		request.Description = &description
 	}
-	if scene, ok := data.Get("scene").(string); ok && scene != "" {
-		request.Scene = &scene
-	}
-	if apiId, ok := data.Get("api_id").(string); ok && apiId != "" {
-		request.ApiId = &apiId
-	}
 	if act, ok := data.Get("act").(string); ok && act != "" {
 		request.Act = &act
 	}
 	conditions := data.Get("condition").([]interface{})
-	conditionsRequest := &waapCustomizerule.CommonCustomizeRuleConditionDTO{}
+	conditionsRequest := &waapShareCustomizerule.ShareCustomizeRuleCondition{}
 	for _, condition := range conditions {
 		conditionMap := condition.(map[string]interface{})
 		// IpOrIps Conditions
 		if conditionMap["ip_or_ips_conditions"] != nil {
-			ipOrIpsConditions := make([]*waapCustomizerule.IpOrIpsCondition, 0)
+			ipOrIpsConditions := make([]*waapShareCustomizerule.IpOrIpsCondition, 0)
 			for _, ipOrIpsCondition := range conditionMap["ip_or_ips_conditions"].([]interface{}) {
 				ipOrIpsConditionMap := ipOrIpsCondition.(map[string]interface{})
 				matchType := ipOrIpsConditionMap["match_type"].(string)
@@ -828,7 +771,7 @@ func resourceWaapCustomizeRuleUpdate(context context.Context, data *schema.Resou
 					str := v.(string)
 					ipOrIps[i] = &str
 				}
-				ipOrIpsCondition := &waapCustomizerule.IpOrIpsCondition{
+				ipOrIpsCondition := &waapShareCustomizerule.IpOrIpsCondition{
 					MatchType: &matchType,
 					IpOrIps:   ipOrIps,
 				}
@@ -839,7 +782,7 @@ func resourceWaapCustomizeRuleUpdate(context context.Context, data *schema.Resou
 
 		// Path Conditions
 		if conditionMap["path_conditions"] != nil {
-			pathConditions := make([]*waapCustomizerule.PathCondition, 0)
+			pathConditions := make([]*waapShareCustomizerule.PathCondition, 0)
 			for _, pathCondition := range conditionMap["path_conditions"].([]interface{}) {
 				pathConditionMap := pathCondition.(map[string]interface{})
 				matchType := pathConditionMap["match_type"].(string)
@@ -849,7 +792,7 @@ func resourceWaapCustomizeRuleUpdate(context context.Context, data *schema.Resou
 					str := v.(string)
 					paths[i] = &str
 				}
-				pathCondition := &waapCustomizerule.PathCondition{
+				pathCondition := &waapShareCustomizerule.PathCondition{
 					MatchType: &matchType,
 					Paths:     paths,
 				}
@@ -860,7 +803,7 @@ func resourceWaapCustomizeRuleUpdate(context context.Context, data *schema.Resou
 
 		// URI Conditions
 		if conditionMap["uri_conditions"] != nil {
-			uriConditions := make([]*waapCustomizerule.UriCondition, 0)
+			uriConditions := make([]*waapShareCustomizerule.UriCondition, 0)
 			for _, uriCondition := range conditionMap["uri_conditions"].([]interface{}) {
 				uriConditionMap := uriCondition.(map[string]interface{})
 				matchType := uriConditionMap["match_type"].(string)
@@ -870,7 +813,7 @@ func resourceWaapCustomizeRuleUpdate(context context.Context, data *schema.Resou
 					str := v.(string)
 					uri[i] = &str
 				}
-				uriCondition := &waapCustomizerule.UriCondition{
+				uriCondition := &waapShareCustomizerule.UriCondition{
 					MatchType: &matchType,
 					Uri:       uri,
 				}
@@ -879,32 +822,9 @@ func resourceWaapCustomizeRuleUpdate(context context.Context, data *schema.Resou
 			conditionsRequest.UriConditions = uriConditions
 		}
 
-		// URI Param Conditions
-		if conditionMap["uri_param_conditions"] != nil {
-			uriParamConditions := make([]*waapCustomizerule.UriParamCondition, 0)
-			for _, uriParamCondition := range conditionMap["uri_param_conditions"].([]interface{}) {
-				uriParamConditionMap := uriParamCondition.(map[string]interface{})
-				matchType := uriParamConditionMap["match_type"].(string)
-				paramName := uriParamConditionMap["param_name"].(string)
-				paramValueInterface := uriParamConditionMap["param_value"].([]interface{})
-				paramValue := make([]*string, len(paramValueInterface))
-				for i, v := range paramValueInterface {
-					str := v.(string)
-					paramValue[i] = &str
-				}
-				uriParamCondition := &waapCustomizerule.UriParamCondition{
-					MatchType:  &matchType,
-					ParamName:  &paramName,
-					ParamValue: paramValue,
-				}
-				uriParamConditions = append(uriParamConditions, uriParamCondition)
-			}
-			conditionsRequest.UriParamConditions = uriParamConditions
-		}
-
 		// UA Conditions
 		if conditionMap["ua_conditions"] != nil {
-			uaConditions := make([]*waapCustomizerule.UaCondition, 0)
+			uaConditions := make([]*waapShareCustomizerule.UaCondition, 0)
 			for _, uaCondition := range conditionMap["ua_conditions"].([]interface{}) {
 				uaConditionMap := uaCondition.(map[string]interface{})
 				matchType := uaConditionMap["match_type"].(string)
@@ -914,7 +834,7 @@ func resourceWaapCustomizeRuleUpdate(context context.Context, data *schema.Resou
 					str := v.(string)
 					ua[i] = &str
 				}
-				uaCondition := &waapCustomizerule.UaCondition{
+				uaCondition := &waapShareCustomizerule.UaCondition{
 					MatchType: &matchType,
 					Ua:        ua,
 				}
@@ -925,7 +845,7 @@ func resourceWaapCustomizeRuleUpdate(context context.Context, data *schema.Resou
 
 		// Referer Conditions
 		if conditionMap["referer_conditions"] != nil {
-			refererConditions := make([]*waapCustomizerule.RefererCondition, 0)
+			refererConditions := make([]*waapShareCustomizerule.RefererCondition, 0)
 			for _, refererCondition := range conditionMap["referer_conditions"].([]interface{}) {
 				refererConditionMap := refererCondition.(map[string]interface{})
 				matchType := refererConditionMap["match_type"].(string)
@@ -935,7 +855,7 @@ func resourceWaapCustomizeRuleUpdate(context context.Context, data *schema.Resou
 					str := v.(string)
 					referer[i] = &str
 				}
-				refererCondition := &waapCustomizerule.RefererCondition{
+				refererCondition := &waapShareCustomizerule.RefererCondition{
 					MatchType: &matchType,
 					Referer:   referer,
 				}
@@ -946,7 +866,7 @@ func resourceWaapCustomizeRuleUpdate(context context.Context, data *schema.Resou
 
 		// Header Conditions
 		if conditionMap["header_conditions"] != nil {
-			headerConditions := make([]*waapCustomizerule.HeaderCondition, 0)
+			headerConditions := make([]*waapShareCustomizerule.HeaderCondition, 0)
 			for _, headerCondition := range conditionMap["header_conditions"].([]interface{}) {
 				headerConditionMap := headerCondition.(map[string]interface{})
 				matchType := headerConditionMap["match_type"].(string)
@@ -957,7 +877,7 @@ func resourceWaapCustomizeRuleUpdate(context context.Context, data *schema.Resou
 					str := v.(string)
 					valueList[i] = &str
 				}
-				headerCondition := &waapCustomizerule.HeaderCondition{
+				headerCondition := &waapShareCustomizerule.HeaderCondition{
 					MatchType: &matchType,
 					Key:       &key,
 					ValueList: valueList,
@@ -969,7 +889,7 @@ func resourceWaapCustomizeRuleUpdate(context context.Context, data *schema.Resou
 
 		// Area Conditions
 		if conditionMap["area_conditions"] != nil {
-			areaConditions := make([]*waapCustomizerule.AreaCondition, 0)
+			areaConditions := make([]*waapShareCustomizerule.AreaCondition, 0)
 			for _, areaCondition := range conditionMap["area_conditions"].([]interface{}) {
 				areaConditionMap := areaCondition.(map[string]interface{})
 				matchType := areaConditionMap["match_type"].(string)
@@ -979,7 +899,7 @@ func resourceWaapCustomizeRuleUpdate(context context.Context, data *schema.Resou
 					str := v.(string)
 					areas[i] = &str
 				}
-				areaCondition := &waapCustomizerule.AreaCondition{
+				areaCondition := &waapShareCustomizerule.AreaCondition{
 					MatchType: &matchType,
 					Areas:     areas,
 				}
@@ -990,7 +910,7 @@ func resourceWaapCustomizeRuleUpdate(context context.Context, data *schema.Resou
 
 		// Method Conditions
 		if conditionMap["method_conditions"] != nil {
-			methodConditions := make([]*waapCustomizerule.RequestMethodCondition, 0)
+			methodConditions := make([]*waapShareCustomizerule.MethodCondition, 0)
 			for _, methodCondition := range conditionMap["method_conditions"].([]interface{}) {
 				methodConditionMap := methodCondition.(map[string]interface{})
 				matchType := methodConditionMap["match_type"].(string)
@@ -1000,7 +920,7 @@ func resourceWaapCustomizeRuleUpdate(context context.Context, data *schema.Resou
 					str := v.(string)
 					requestMethod[i] = &str
 				}
-				methodCondition := &waapCustomizerule.RequestMethodCondition{
+				methodCondition := &waapShareCustomizerule.MethodCondition{
 					MatchType:     &matchType,
 					RequestMethod: requestMethod,
 				}
@@ -1011,7 +931,7 @@ func resourceWaapCustomizeRuleUpdate(context context.Context, data *schema.Resou
 
 		// JA3 Conditions
 		if conditionMap["ja3_conditions"] != nil {
-			ja3Conditions := make([]*waapCustomizerule.Ja3Condition, 0)
+			ja3Conditions := make([]*waapShareCustomizerule.Ja3Condition, 0)
 			for _, ja3Condition := range conditionMap["ja3_conditions"].([]interface{}) {
 				ja3ConditionMap := ja3Condition.(map[string]interface{})
 				matchType := ja3ConditionMap["match_type"].(string)
@@ -1021,7 +941,7 @@ func resourceWaapCustomizeRuleUpdate(context context.Context, data *schema.Resou
 					str := v.(string)
 					ja3[i] = &str
 				}
-				ja3Condition := &waapCustomizerule.Ja3Condition{
+				ja3Condition := &waapShareCustomizerule.Ja3Condition{
 					MatchType: &matchType,
 					Ja3List:   ja3,
 				}
@@ -1032,7 +952,7 @@ func resourceWaapCustomizeRuleUpdate(context context.Context, data *schema.Resou
 
 		// JA4 Conditions
 		if conditionMap["ja4_conditions"] != nil {
-			ja4Conditions := make([]*waapCustomizerule.Ja4Condition, 0)
+			ja4Conditions := make([]*waapShareCustomizerule.Ja4Condition, 0)
 			for _, ja4Condition := range conditionMap["ja4_conditions"].([]interface{}) {
 				ja4ConditionMap := ja4Condition.(map[string]interface{})
 				matchType := ja4ConditionMap["match_type"].(string)
@@ -1042,7 +962,7 @@ func resourceWaapCustomizeRuleUpdate(context context.Context, data *schema.Resou
 					str := v.(string)
 					ja4[i] = &str
 				}
-				ja4Condition := &waapCustomizerule.Ja4Condition{
+				ja4Condition := &waapShareCustomizerule.Ja4Condition{
 					MatchType: &matchType,
 					Ja4List:   ja4,
 				}
@@ -1053,10 +973,10 @@ func resourceWaapCustomizeRuleUpdate(context context.Context, data *schema.Resou
 	}
 	request.Condition = conditionsRequest
 
-	var response *waapCustomizerule.UpdateCustomRuleResponse
+	var response *waapShareCustomizerule.UpdateSharedCustomRulesResponse
 	var err error
 	err = resource.RetryContext(context, time.Duration(2)*time.Minute, func() *resource.RetryError {
-		_, response, err = meta.(wangsuCommon.ProviderMeta).GetAPIV3Conn().UseWaapCustomizeruleClient().UpdateCustomRule(request)
+		_, response, err = meta.(wangsuCommon.ProviderMeta).GetAPIV3Conn().UseWaapShareCustomizeruleClient().Update(request)
 		if err != nil {
 			return resource.NonRetryableError(err)
 		}
@@ -1069,22 +989,22 @@ func resourceWaapCustomizeRuleUpdate(context context.Context, data *schema.Resou
 	if response == nil {
 		return nil
 	}
-	log.Printf("resource.wangsu_waap_customize_rule.update success")
+	log.Printf("resource.wangsu_waap_share_customize_rule.update success")
 	return nil
 }
 
-func resourceWaapCustomizeRuleDelete(context context.Context, data *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Printf("resource.wangsu_waap_customize_rule.delete")
+func resourceWaapShareCustomizeRuleDelete(context context.Context, data *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	log.Printf("resource.wangsu_waap_share_customize_rule.delete")
 
-	var response *waapCustomizerule.DeleteCustomRuleResponse
+	var response *waapShareCustomizerule.DeleteSharedCustomRulesResponse
 	var err error
 	var diags diag.Diagnostics
 	err = resource.RetryContext(context, time.Duration(2)*time.Minute, func() *resource.RetryError {
 		id := data.Id()
-		request := &waapCustomizerule.DeleteCustomRuleRequest{
+		request := &waapShareCustomizerule.DeleteSharedCustomRulesRequest{
 			IdList: []*string{&id},
 		}
-		_, response, err = meta.(wangsuCommon.ProviderMeta).GetAPIV3Conn().UseWaapCustomizeruleClient().DeleteCustomRule(request)
+		_, response, err = meta.(wangsuCommon.ProviderMeta).GetAPIV3Conn().UseWaapShareCustomizeruleClient().Delete(request)
 		if err != nil {
 			return resource.NonRetryableError(err)
 		}

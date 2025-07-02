@@ -7,10 +7,8 @@ toolchain go1.22.5
 require (
 	github.com/alibabacloud-go/tea v1.2.0
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.20.0
-	github.com/wangsu-api/wangsu-sdk-go v1.2.5
+	github.com/wangsu-api/wangsu-sdk-go v1.2.7
 	github.com/wangsu-api/wangsu-sdk-go/wangsu/common v1.2.4
-	github.com/wangsu-api/wangsu-sdk-go/wangsu/policy v0.0.0-20250604074930-e03da8ffd3ab
-	github.com/wangsu-api/wangsu-sdk-go/wangsu/usermanage v0.0.0-20250604074930-e03da8ffd3ab
 	golang.org/x/net v0.23.0
 )
 
@@ -25,6 +23,7 @@ require (
 	github.com/fatih/color v1.16.0 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/google/go-cmp v0.6.0 // indirect
+	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-checkpoint v0.5.0 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect

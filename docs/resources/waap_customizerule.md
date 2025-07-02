@@ -48,6 +48,14 @@ resource "wangsu_waap_customizerule" "demo" {
       key        = "hk1"
       value_list = ["h1", "h2"]
     }
+    ja3_conditions {
+      match_type = "NOT_EQUAL"
+      ja3_list   = ["ja312345678901234567890123456788", "ja322345678901234567890123456788"]
+    }
+    ja4_conditions {
+      match_type = "NOT_EQUAL"
+      ja4_list   = ["ja41740600_c43983326036_1b2d6ce873a3", "ja42740600_c43983326036_1b2d6ce873a3"]
+    }
   }
 }
 
@@ -110,6 +118,8 @@ When the business scenario is API, this matching condition is not supported. (se
 When the business scenario is API, this matching condition is not supported. (see [below for nested schema](#nestedblock--condition--uri_conditions))
 - `uri_param_conditions` (Block List) URI Parameter, match type cannot be repeated.<br/>
 When the business scenario is API, this matching condition is not supported. (see [below for nested schema](#nestedblock--condition--uri_param_conditions))
+- `ja3_conditions` (Block List) JA3 Fingerprint, match type cannot be repeated. (see [below for nested schema](#nestedblock--condition--ja3_conditions))
+- `ja4_conditions` (Block List) JA4 Fingerprint, match type cannot be repeated. (see [below for nested schema](#nestedblock--condition--ja4_conditions))
 
 <a id="nestedblock--condition--area_conditions"></a>
 ### Nested Schema for `condition.area_conditions`
@@ -197,3 +207,34 @@ Required:
 - `match_type` (String) Match type.<br/>EQUAL:Equals<br/>NOT_EQUAL:Does not equal<br/>CONTAIN:Contains<br/>NOT_CONTAIN:Does not contains<br/>REGEX:Regex match<br/>NONE:Empty or non-existent
 - `param_name` (String) Param name,case sensitive,maximum 100 characters.<br/>Example: id.
 - `param_value` (List of String) Param value.
+
+<a id="nestedblock--condition--ja3_conditions"></a>
+### Nested Schema for `condition.ja3_conditions`
+
+Optional:
+
+- `ja3_list` (List of String) JA3 Fingerprint List, maximum 300 JA3 Fingerprint.<br/>
+  When the match type is EQUAL/NOT_EQUAL, each item's character length must be 32 and can only include numbers and lowercase letters.
+- `match_type` (String) Match type.<br/>
+  EQUAL: Equals<br/>
+  NOT_EQUAL: Does not equal
+
+
+<a id="nestedblock--condition--ja4_conditions"></a>
+### Nested Schema for `condition.ja4_conditions`
+
+Optional:
+
+- `ja4_list` (List of String) JA4 Fingerprint List, maximum 300 JA4 Fingerprint.<br/>
+  When the match type is EQUAL/NOT_EQUAL, each item's format must be 10 characters + 12 characters + 12 characters, separated by underscores, and can only include underscores, numbers, and lowercase letters.<br/>
+  When the match type is CONTAIN/NOT_CONTAIN/START_WITH/END_WITH, each item is only allowed to include underscores, numbers, and lowercase letters.<br/>
+  When the match type is WILDCARD/NOT_WILDCARD, each item, aside from  ** and ?, is only allowed to include underscores, numbers, and lowercase letters.<br/>
+- `match_type` (String) Match type.<br/>
+  EQUAL: Equals<br/>
+  NOT_EQUAL: Does not equal<br/>
+  CONTAIN: Contains<br/>
+  NOT_CONTAIN: Does not Contains<br/>
+  START_WITH: Starts with<br/>
+  END_WITH: Ends with<br/>
+  WILDCARD: Wildcard matches, ** represents zero or more arbitrary characters, ? represents any single character<br/>
+  NOT_WILDCARD: Wildcard does not match, ** represents zero or more arbitrary characters, ? represents any single character
