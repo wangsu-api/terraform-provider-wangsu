@@ -11,10 +11,13 @@ import (
 	"github.com/wangsu-api/wangsu-sdk-go/wangsu/ssl/certificate"
 	userManage "github.com/wangsu-api/wangsu-sdk-go/wangsu/usermanage"
 	waapCustomizerule "github.com/wangsu-api/wangsu-sdk-go/wangsu/waap/customizerule"
+	waapDDoSProtection "github.com/wangsu-api/wangsu-sdk-go/wangsu/waap/ddosprotection"
 	waapDomain "github.com/wangsu-api/wangsu-sdk-go/wangsu/waap/domain"
+	waapPreDeploy "github.com/wangsu-api/wangsu-sdk-go/wangsu/waap/predeploy"
 	waapRatelimit "github.com/wangsu-api/wangsu-sdk-go/wangsu/waap/ratelimit"
 	waapShareCustomizerule "github.com/wangsu-api/wangsu-sdk-go/wangsu/waap/share-customizerule"
 	waapShareWhitelist "github.com/wangsu-api/wangsu-sdk-go/wangsu/waap/share-whitelist"
+	waapWAF "github.com/wangsu-api/wangsu-sdk-go/wangsu/waap/waf"
 	waapWhitelist "github.com/wangsu-api/wangsu-sdk-go/wangsu/waap/whitelist"
 )
 
@@ -31,6 +34,9 @@ type WangSuClient struct {
 	waapDomainConn             *waapDomain.Client
 	waapShareWhitelistConn     *waapShareWhitelist.Client
 	waapShareCustomizeruleConn *waapShareCustomizerule.Client
+	waapWAFConn                *waapWAF.Client
+	waapDDoSProtectionConn     *waapDDoSProtection.Client
+	waapPreDeployConn          *waapPreDeploy.Client
 	monitorRuleConn            *monitorRule.Client
 	policyConn                 *policy.Client
 	userManageConn             *userManage.Client
@@ -116,6 +122,36 @@ func (me *WangSuClient) UseWaapShareCustomizeruleClient() *waapShareCustomizerul
 	me.waapShareCustomizeruleConn, _ = waapShareCustomizerule.NewClient(me.Credential, me.HttpProfile)
 
 	return me.waapShareCustomizeruleConn
+}
+
+func (me *WangSuClient) UseWaapPreDeployClient() *waapPreDeploy.Client {
+	if me.waapPreDeployConn != nil {
+		return me.waapPreDeployConn
+	}
+
+	me.waapPreDeployConn, _ = waapPreDeploy.NewClient(me.Credential, me.HttpProfile)
+
+	return me.waapPreDeployConn
+}
+
+func (me *WangSuClient) UseWaapWAFClient() *waapWAF.Client {
+	if me.waapWAFConn != nil {
+		return me.waapWAFConn
+	}
+
+	me.waapWAFConn, _ = waapWAF.NewClient(me.Credential, me.HttpProfile)
+
+	return me.waapWAFConn
+}
+
+func (me *WangSuClient) UseWaapDDoSProtectionClient() *waapDDoSProtection.Client {
+	if me.waapDDoSProtectionConn != nil {
+		return me.waapDDoSProtectionConn
+	}
+
+	me.waapDDoSProtectionConn, _ = waapDDoSProtection.NewClient(me.Credential, me.HttpProfile)
+
+	return me.waapDDoSProtectionConn
 }
 
 func (me *WangSuClient) UseSslCertificateClient() *certificate.Client {

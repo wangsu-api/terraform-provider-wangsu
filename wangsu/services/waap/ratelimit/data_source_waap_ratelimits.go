@@ -129,7 +129,7 @@ func DataSourceRateLimits() *schema.Resource {
 						"action": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: "Action.<br/>NO_USE:Not Used<br/>LOG:Log<br/>COOKIE:Cookie verification<br/>JS_CHECK:Javascript verification<br/>DELAY:Delay<br/>BLOCK:Deny<br/>RESET:Reset Connection<br/>Custom response ID:Custom response ID",
+							Description: "Action.<br/>NO_USE:Not Used<br/>LOG:Log<br/>COOKIE:Cookie verification<br/>JS_CHECK:Javascript verification<br/>DELAY:Delay<br/>BLOCK:Deny<br/>RESET:Reset Connection<br/>JSC:Interactive Captcha<br/>Custom response ID:Custom response ID",
 						},
 						"rate_limit_rule_condition": {
 							Type:        schema.TypeList,
@@ -377,6 +377,44 @@ func DataSourceRateLimits() *schema.Resource {
 											},
 										},
 									},
+									"ja3_conditions": {
+										Type:     schema.TypeList,
+										Computed: true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"match_type": {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "Match type.\nEQUAL: Equals\nNOT_EQUAL: Does not equal",
+												},
+												"ja3_list": {
+													Type:        schema.TypeList,
+													Computed:    true,
+													Elem:        &schema.Schema{Type: schema.TypeString},
+													Description: "JA3 Fingerprint List.",
+												},
+											},
+										},
+									},
+									"ja4_conditions": {
+										Type:     schema.TypeList,
+										Computed: true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"match_type": {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "Match type. \nEQUAL: Equals\nNOT_EQUAL: Does not equal\nCONTAIN: Contains\nNOT_CONTAIN: Does not Contains\nSTART_WITH: Starts with\nEND_WITH: Ends with\nWILDCARD: Wildcard matches, ** represents zero or more arbitrary characters, ? represents any single character\nNOT_WILDCARD: Wildcard does not match, ** represents zero or more arbitrary characters, ? represents any single character",
+												},
+												"ja4_list": {
+													Type:        schema.TypeList,
+													Computed:    true,
+													Elem:        &schema.Schema{Type: schema.TypeString},
+													Description: "JA4 Fingerprint List.",
+												},
+											},
+										},
+									},
 								},
 							},
 						},
@@ -444,6 +482,8 @@ func dataSourceRateLimitsRead(context context.Context, data *schema.ResourceData
 				condition["area_conditions"] = flattenAreaConditions(item.RateLimitRuleCondition.AreaConditions)
 				condition["status_code_conditions"] = flattenStatusCodeConditions(item.RateLimitRuleCondition.StatusCodeConditions)
 				condition["scheme_conditions"] = flattenSchemeConditions(item.RateLimitRuleCondition.SchemeConditions)
+				condition["ja3_conditions"] = flattenJa3Conditions(item.RateLimitRuleCondition.Ja3Conditions)
+				condition["ja4_conditions"] = flattenJa4Conditions(item.RateLimitRuleCondition.Ja4Conditions)
 			}
 			conditionList[0] = condition
 			ids = append(ids, *item.Id)
@@ -603,6 +643,28 @@ func flattenSchemeConditions(conditions []*waapRatelimit.SchemeCondition) []inte
 		result = append(result, map[string]interface{}{
 			"match_type": condition.MatchType,
 			"scheme":     condition.Scheme,
+		})
+	}
+	return result
+}
+
+func flattenJa3Conditions(conditions []*waapRatelimit.Ja3Condition) []interface{} {
+	result := make([]interface{}, 0)
+	for _, condition := range conditions {
+		result = append(result, map[string]interface{}{
+			"match_type": condition.MatchType,
+			"ja3_list":   condition.Ja3List,
+		})
+	}
+	return result
+}
+
+func flattenJa4Conditions(conditions []*waapRatelimit.Ja4Condition) []interface{} {
+	result := make([]interface{}, 0)
+	for _, condition := range conditions {
+		result = append(result, map[string]interface{}{
+			"match_type": condition.MatchType,
+			"ja4_list":   condition.Ja4List,
 		})
 	}
 	return result

@@ -15,10 +15,13 @@ import (
 	monitorRule "github.com/wangsu-api/terraform-provider-wangsu/wangsu/services/monitor/rule"
 	"github.com/wangsu-api/terraform-provider-wangsu/wangsu/services/ssl/certificate"
 	waapCustomizerule "github.com/wangsu-api/terraform-provider-wangsu/wangsu/services/waap/customizerule"
+	waapDDoSProtection "github.com/wangsu-api/terraform-provider-wangsu/wangsu/services/waap/ddosprotection"
 	waapDomain "github.com/wangsu-api/terraform-provider-wangsu/wangsu/services/waap/domain"
+	waapPredeploy "github.com/wangsu-api/terraform-provider-wangsu/wangsu/services/waap/predeploy"
 	waapRatelimit "github.com/wangsu-api/terraform-provider-wangsu/wangsu/services/waap/ratelimit"
 	waapShareCustomizerule "github.com/wangsu-api/terraform-provider-wangsu/wangsu/services/waap/share-customizerule"
 	waapShareWhitelist "github.com/wangsu-api/terraform-provider-wangsu/wangsu/services/waap/share-whitelist"
+	waapWAF "github.com/wangsu-api/terraform-provider-wangsu/wangsu/services/waap/waf"
 	waapWhitelist "github.com/wangsu-api/terraform-provider-wangsu/wangsu/services/waap/whitelist"
 	sdkCommon "github.com/wangsu-api/wangsu-sdk-go/wangsu/common"
 )
@@ -70,23 +73,28 @@ func Provider() *schema.Provider {
 			},
 		},
 		ResourcesMap: map[string]*schema.Resource{
-			"wangsu_cdn_domain":               domain.ResourceCdnDomain(),
-			"wangsu_cdn_property":             property.ResourceCdnProperty(),
-			"wangsu_cdn_property_deployment":  property.ResourceCdnPropertyDeployment(),
-			"wangsu_cdn_edge_hostname":        edgehostname.ResourceCdnEdgeHostname(),
-			"wangsu_ssl_certificate":          certificate.ResourceSslCertificate(),
-			"wangsu_appa_domain":              appadomain.ResourceAppaDomain(),
-			"wangsu_waap_whitelist":           waapWhitelist.ResourceWaapWhitelist(),
-			"wangsu_waap_customizerule":       waapCustomizerule.ResourceWaapCustomizeRule(),
-			"wangsu_waap_ratelimit":           waapRatelimit.ResourceWaapRateLimit(),
-			"wangsu_waap_domain_copy":         waapDomain.ResourceWaapDomainCopy(),
-			"wangsu_waap_domain":              waapDomain.ResourceWaapDomain(),
-			"wangsu_waap_share_whitelist":     waapShareWhitelist.ResourceWaapShareWhitelist(),
-			"wangsu_waap_share_customizerule": waapShareCustomizerule.ResourceWaapShareCustomizeRule(),
-			"wangsu_monitor_realtime_rule":    monitorRule.ResourceMonitorRealtimeRule(),
-			"wangsu_iam_policy":               policy.ResourceIamPolicy(),
-			"wangsu_iam_policy_attachment":    policy.ResourceIamPolicyAttachment(),
-			"wangsu_iam_user":                 user.ResourceUserInfo(),
+			"wangsu_cdn_domain":                      domain.ResourceCdnDomain(),
+			"wangsu_cdn_property":                    property.ResourceCdnProperty(),
+			"wangsu_cdn_property_deployment":         property.ResourceCdnPropertyDeployment(),
+			"wangsu_cdn_edge_hostname":               edgehostname.ResourceCdnEdgeHostname(),
+			"wangsu_ssl_certificate":                 certificate.ResourceSslCertificate(),
+			"wangsu_appa_domain":                     appadomain.ResourceAppaDomain(),
+			"wangsu_waap_whitelist":                  waapWhitelist.ResourceWaapWhitelist(),
+			"wangsu_waap_customizerule":              waapCustomizerule.ResourceWaapCustomizeRule(),
+			"wangsu_waap_ratelimit":                  waapRatelimit.ResourceWaapRateLimit(),
+			"wangsu_waap_domain_copy":                waapDomain.ResourceWaapDomainCopy(),
+			"wangsu_waap_domain":                     waapDomain.ResourceWaapDomain(),
+			"wangsu_waap_share_whitelist":            waapShareWhitelist.ResourceWaapShareWhitelist(),
+			"wangsu_waap_share_customizerule":        waapShareCustomizerule.ResourceWaapShareCustomizeRule(),
+			"wangsu_waap_pre_deploy_whitelist":       waapPredeploy.ResourceWaapPreDeployWhitelist(),
+			"wangsu_waap_pre_deploy_custom_rule":     waapPredeploy.ResourceWaapPreDeployCustomRule(),
+			"wangsu_waap_pre_deploy_rate_limiting":   waapPredeploy.ResourceWaapPreDeployRateLimiting(),
+			"wangsu_waap_pre_deploy_waf":             waapPredeploy.ResourceWaapPreDeployWAF(),
+			"wangsu_waap_pre_deploy_ddos_protection": waapPredeploy.ResourceWaapPreDeployDDoSProtection(),
+			"wangsu_monitor_realtime_rule":           monitorRule.ResourceMonitorRealtimeRule(),
+			"wangsu_iam_policy":                      policy.ResourceIamPolicy(),
+			"wangsu_iam_policy_attachment":           policy.ResourceIamPolicyAttachment(),
+			"wangsu_iam_user":                        user.ResourceUserInfo(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			"wangsu_cdn_domains":                    domain.DataSourceWangSuCdnDomains(),
@@ -110,6 +118,8 @@ func Provider() *schema.Provider {
 			"wangsu_waap_domains":                   waapDomain.DataSourceWaapDomains(),
 			"wangsu_waap_share_whitelists":          waapShareWhitelist.DataSourceWaapShareWhitelists(),
 			"wangsu_waap_share_customizerules":      waapShareCustomizerule.DataSourceCustomizeRules(),
+			"wangsu_waap_waf_configs":               waapWAF.DataSourceWaapWAF(),
+			"wangsu_waap_ddos_protection_configs":   waapDDoSProtection.DataSourceWaapDDoSProtection(),
 			"wangsu_monitor_realtime_rules_detail":  monitorRule.DataSourceMonitorRealtimeRuleDetail(),
 			"wangsu_iam_policy_detail":              policy.ResourceIamPolicyDetail(),
 			"wangsu_iam_user_detail":                user.ResourceIamUserDetail(),

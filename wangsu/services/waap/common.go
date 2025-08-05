@@ -51,3 +51,12 @@ func Difference(slice1, slice2 []string) []string {
 
 	return diff
 }
+
+func ConvertToStringSlice(input []interface{}) []*string {
+	result := make([]*string, len(input))
+	for i, v := range input {
+		str := v.(string)
+		result[i] = &str
+	}
+	return result
+}

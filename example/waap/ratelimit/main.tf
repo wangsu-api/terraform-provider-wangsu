@@ -81,6 +81,14 @@ resource "wangsu_waap_ratelimit" "demo" {
       match_type     = "EQUAL"
       request_method = ["GET", "DELETE"]
     }*/
+    ja3_conditions {
+      match_type = "NOT_EQUAL"
+      ja3_list   = ["ja312345678901234567890123456788", "ja322345678901234567890123456788"]
+    }
+    ja4_conditions {
+      match_type = "NOT_EQUAL"
+      ja4_list   = ["ja41740600_c43983326036_1b2d6ce873a3", "ja42740600_c43983326036_1b2d6ce873a3"]
+    }
   }
 }
 

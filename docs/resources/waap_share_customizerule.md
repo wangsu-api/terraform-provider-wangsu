@@ -69,7 +69,7 @@ data "wangsu_waap_share_customizerules" "demo" {
 
 - `act` (String) Action.<br/>NO_USE:Not Used<br/>LOG:Log<br/>DELAY:Delay<br/>BLOCK:Deny<br/>RESET:Reset Connection
 - `condition` (Block List, Min: 1) Match Conditions. (see [below for nested schema](#nestedblock--condition))
-- `rule_name` (String) Rule Name, maximum 50 characters.<br/>Does not support special characters and spaces.
+- `rule_name` (String) Rule Name, maximum 50 characters.<br/>does not support # and & .
 
 ### Optional
 

@@ -54,7 +54,7 @@ data "wangsu_waap_share_whitelists" "demo" {
 ### Required
 
 - `conditions` (Block List, Min: 1) Match conditions, at least one, at most five. (see [below for nested schema](#nestedblock--conditions))
-- `rule_name` (String) Rule name, maximum 50 characters.<br/> Does not support special characters and spaces.
+- `rule_name` (String) Rule name, maximum 50 characters.<br/> does not support # and & .
 
 ### Optional
 

@@ -87,6 +87,14 @@ resource "wangsu_waap_ratelimit" "demo" {
       match_type     = "EQUAL"
       request_method = ["GET", "DELETE"]
     }*/
+    ja3_conditions {
+      match_type = "NOT_EQUAL"
+      ja3_list   = ["ja312345678901234567890123456788", "ja322345678901234567890123456788"]
+    }
+    ja4_conditions {
+      match_type = "NOT_EQUAL"
+      ja4_list   = ["ja41740600_c43983326036_1b2d6ce873a3", "ja42740600_c43983326036_1b2d6ce873a3"]
+    }
   }
 }
 
@@ -121,7 +129,7 @@ WITHIN:Selected time
 - `intercept_time` (Number) Action duration, unit: seconds.
 - `rate_limit_rule_condition` (Block List, Min: 1) Matching conditions. (see [below for nested schema](#nestedblock--rate_limit_rule_condition))
 - `rule_name` (String) Rule Name, maximum 50 characters.<br/>
-Does not support special characters and spaces.
+does not support # and & .
 - `scene` (String) Protected target.<br/>
 WEB:Website<br/>
 API:API
@@ -158,10 +166,10 @@ Optional:
 - `area_conditions` (Block List) Geo,match type cannot be repeated. (see [below for nested schema](#nestedblock--rate_limit_rule_condition--area_conditions))
 - `header_conditions` (Block List) Request Header, match type can be repeated. (see [below for nested schema](#nestedblock--rate_limit_rule_condition--header_conditions))
 - `ip_or_ips_conditions` (Block List) IP/CIDR, match type cannot be repeated. (see [below for nested schema](#nestedblock--rate_limit_rule_condition--ip_or_ips_conditions))
-- `method_conditions` (Block List) Request Method.<br/>
-When the business scenario is API,this matching condition is not supported. (see [below for nested schema](#nestedblock--rate_limit_rule_condition--method_conditions))
-- `path_conditions` (Block List) Path, match type cannot be repeated.<br/>
-When the business scenario is API, this matching condition is not supported. (see [below for nested schema](#nestedblock--rate_limit_rule_condition--path_conditions))
+- `ja3_conditions` (Block List) JA3 Fingerprint, match type cannot be repeated. (see [below for nested schema](#nestedblock--rate_limit_rule_condition--ja3_conditions))
+- `ja4_conditions` (Block List) JA4 Fingerprint, match type cannot be repeated. (see [below for nested schema](#nestedblock--rate_limit_rule_condition--ja4_conditions))
+- `method_conditions` (Block List) Request Method.<br/>When the business scenario is API,this matching condition is not supported. (see [below for nested schema](#nestedblock--rate_limit_rule_condition--method_conditions))
+- `path_conditions` (Block List) Path, match type cannot be repeated.<br/>When the business scenario is API, this matching condition is not supported. (see [below for nested schema](#nestedblock--rate_limit_rule_condition--path_conditions))
 - `referer_conditions` (Block List) Referer, match type cannot be repeated. (see [below for nested schema](#nestedblock--rate_limit_rule_condition--referer_conditions))
 - `scheme_conditions` (Block List) HTTP/S, match type cannot be repeated. (see [below for nested schema](#nestedblock--rate_limit_rule_condition--scheme_conditions))
 - `status_code_conditions` (Block List) Response Code, match type cannot be repeated. (see [below for nested schema](#nestedblock--rate_limit_rule_condition--status_code_conditions))
@@ -198,9 +206,39 @@ Required:
 Required:
 
 - `ip_or_ips` (List of String) IP/CIDR, maximum 300 IP/CIDR.
-- `match_type` (String) Match type.<br/>
-EQUAL:Equal<br/>
-NOT_EQUAL:Does not equal
+- `match_type` (String) Match type.<br/>EQUAL:Equal<br/>NOT_EQUAL:Does not equal
+
+
+<a id="nestedblock--rate_limit_rule_condition--ja3_conditions"></a>
+### Nested Schema for `rate_limit_rule_condition.ja3_conditions`
+
+Optional:
+
+- `ja3_list` (List of String) JA3 Fingerprint List, maximum 300 JA3 Fingerprint.
+When the match type is EQUAL/NOT_EQUAL, each item's character length must be 32 and can only include numbers and lowercase letters.
+- `match_type` (String) Match type.
+EQUAL: Equals
+NOT_EQUAL: Does not equal
+
+
+<a id="nestedblock--rate_limit_rule_condition--ja4_conditions"></a>
+### Nested Schema for `rate_limit_rule_condition.ja4_conditions`
+
+Optional:
+
+- `ja4_list` (List of String) JA4 Fingerprint List, maximum 300 JA4 Fingerprint.
+When the match type is EQUAL/NOT_EQUAL, each item's format must be 10 characters + 12 characters + 12 characters, separated by underscores, and can only include underscores, numbers, and lowercase letters.
+When the match type is CONTAIN/NOT_CONTAIN/START_WITH/END_WITH, each item is only allowed to include underscores, numbers, and lowercase letters.
+When the match type is WILDCARD/NOT_WILDCARD, each item, aside from  ** and ?, is only allowed to include underscores, numbers, and lowercase letters.
+- `match_type` (String) Match type. 
+EQUAL: Equals
+NOT_EQUAL: Does not equal
+CONTAIN: Contains
+NOT_CONTAIN: Does not Contains
+START_WITH: Starts with
+END_WITH: Ends with
+WILDCARD: Wildcard matches, ** represents zero or more arbitrary characters, ? represents any single character
+NOT_WILDCARD: Wildcard does not match, ** represents zero or more arbitrary characters, ? represents any single character
 
 
 <a id="nestedblock--rate_limit_rule_condition--method_conditions"></a>

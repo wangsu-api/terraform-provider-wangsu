@@ -156,6 +156,8 @@ Read-Only:
 - `area_conditions` (List of Object) (see [below for nested schema](#nestedobjatt--data--rate_limit_rule_condition--area_conditions))
 - `header_conditions` (List of Object) (see [below for nested schema](#nestedobjatt--data--rate_limit_rule_condition--header_conditions))
 - `ip_or_ips_conditions` (List of Object) (see [below for nested schema](#nestedobjatt--data--rate_limit_rule_condition--ip_or_ips_conditions))
+- `ja3_conditions` (List of Object) (see [below for nested schema](#nestedobjatt--data--rate_limit_rule_condition--ja3_conditions))
+- `ja4_conditions` (List of Object) (see [below for nested schema](#nestedobjatt--data--rate_limit_rule_condition--ja4_conditions))
 - `method_conditions` (List of Object) (see [below for nested schema](#nestedobjatt--data--rate_limit_rule_condition--method_conditions))
 - `path_conditions` (List of Object) (see [below for nested schema](#nestedobjatt--data--rate_limit_rule_condition--path_conditions))
 - `referer_conditions` (List of Object) (see [below for nested schema](#nestedobjatt--data--rate_limit_rule_condition--referer_conditions))
@@ -190,6 +192,24 @@ Read-Only:
 Read-Only:
 
 - `ip_or_ips` (List of String)
+- `match_type` (String)
+
+
+<a id="nestedobjatt--data--rate_limit_rule_condition--ja3_conditions"></a>
+### Nested Schema for `data.rate_limit_rule_condition.ja3_conditions`
+
+Read-Only:
+
+- `ja3_list` (List of String)
+- `match_type` (String)
+
+
+<a id="nestedobjatt--data--rate_limit_rule_condition--ja4_conditions"></a>
+### Nested Schema for `data.rate_limit_rule_condition.ja4_conditions`
+
+Read-Only:
+
+- `ja4_list` (List of String)
 - `match_type` (String)
 
 

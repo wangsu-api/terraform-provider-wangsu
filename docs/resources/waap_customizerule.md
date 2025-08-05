@@ -85,7 +85,7 @@ RESET:Reset Connection
 - `condition` (Block List, Min: 1) Match Conditions. (see [below for nested schema](#nestedblock--condition))
 - `domain` (String) Hostname.
 - `rule_name` (String) Rule Name, maximum 50 characters.<br/>
-Does not support special characters and spaces.
+does not support # and & .
 - `scene` (String) Protected target.<br/>
 WEB:Website<br/>
 API:API

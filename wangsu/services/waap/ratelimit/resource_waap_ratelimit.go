@@ -34,7 +34,7 @@ func ResourceWaapRateLimit() *schema.Resource {
 			"rule_name": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: "Rule Name, maximum 50 characters.<br/>Does not support special characters and spaces.",
+				Description: "Rule Name, maximum 50 characters.<br/>does not support # and & .",
 			},
 			"description": {
 				Type:        schema.TypeString,
@@ -116,7 +116,7 @@ func ResourceWaapRateLimit() *schema.Resource {
 			"action": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: "Action.<br/>NO_USE:Not Used<br/>LOG:Log<br/>COOKIE:Cookie verification<br/>JS_CHECK:Javascript verification<br/>DELAY:Delay<br/>BLOCK:Deny<br/>RESET:Reset Connection<br/>Custom response ID:Custom response ID<br/>When there is a status code in the matching condition, the supported actions are Log, Deny,Not Used, and Reset Connection.",
+				Description: "Action.<br/>NO_USE:Not Used<br/>LOG:Log<br/>COOKIE:Cookie verification<br/>JS_CHECK:Javascript verification<br/>DELAY:Delay<br/>BLOCK:Deny<br/>RESET:Reset Connection<br/>JSC:Interactive Captcha<br/>Custom response ID:Custom response ID<br/>When there is a status code in the matching condition, the supported actions are Log, Deny,Not Used, and Reset Connection.",
 			},
 			"rate_limit_rule_condition": {
 				Type:        schema.TypeList,
@@ -372,6 +372,46 @@ func ResourceWaapRateLimit() *schema.Resource {
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
+									},
+								},
+							},
+						},
+						"ja3_conditions": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: "JA3 Fingerprint, match type cannot be repeated.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"match_type": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: "Match type.\nEQUAL: Equals\nNOT_EQUAL: Does not equal",
+									},
+									"ja3_list": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Elem:        &schema.Schema{Type: schema.TypeString},
+										Description: "JA3 Fingerprint List, maximum 300 JA3 Fingerprint.\nWhen the match type is EQUAL/NOT_EQUAL, each item's character length must be 32 and can only include numbers and lowercase letters.",
+									},
+								},
+							},
+						},
+						"ja4_conditions": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: "JA4 Fingerprint, match type cannot be repeated.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"match_type": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: "Match type. \nEQUAL: Equals\nNOT_EQUAL: Does not equal\nCONTAIN: Contains\nNOT_CONTAIN: Does not Contains\nSTART_WITH: Starts with\nEND_WITH: Ends with\nWILDCARD: Wildcard matches, ** represents zero or more arbitrary characters, ? represents any single character\nNOT_WILDCARD: Wildcard does not match, ** represents zero or more arbitrary characters, ? represents any single character",
+									},
+									"ja4_list": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Elem:        &schema.Schema{Type: schema.TypeString},
+										Description: "JA4 Fingerprint List, maximum 300 JA4 Fingerprint.\nWhen the match type is EQUAL/NOT_EQUAL, each item's format must be 10 characters + 12 characters + 12 characters, separated by underscores, and can only include underscores, numbers, and lowercase letters.\nWhen the match type is CONTAIN/NOT_CONTAIN/START_WITH/END_WITH, each item is only allowed to include underscores, numbers, and lowercase letters.\nWhen the match type is WILDCARD/NOT_WILDCARD, each item, aside from  ** and ?, is only allowed to include underscores, numbers, and lowercase letters.",
 									},
 								},
 							},
@@ -683,6 +723,48 @@ func resourceWaapRateLimitCreate(context context.Context, data *schema.ResourceD
 			}
 			conditionsRequest.SchemeConditions = schemeConditions
 		}
+
+		// JA3 Conditions
+		if conditionMap["ja3_conditions"] != nil {
+			ja3Conditions := make([]*waapRatelimit.Ja3Condition, 0)
+			for _, ja3Condition := range conditionMap["ja3_conditions"].([]interface{}) {
+				ja3ConditionMap := ja3Condition.(map[string]interface{})
+				matchType := ja3ConditionMap["match_type"].(string)
+				ja3Interface := ja3ConditionMap["ja3_list"].([]interface{})
+				ja3 := make([]*string, len(ja3Interface))
+				for i, v := range ja3Interface {
+					str := v.(string)
+					ja3[i] = &str
+				}
+				ja3Condition := &waapRatelimit.Ja3Condition{
+					MatchType: &matchType,
+					Ja3List:   ja3,
+				}
+				ja3Conditions = append(ja3Conditions, ja3Condition)
+			}
+			conditionsRequest.Ja3Conditions = ja3Conditions
+		}
+
+		// JA4 Conditions
+		if conditionMap["ja4_conditions"] != nil {
+			ja4Conditions := make([]*waapRatelimit.Ja4Condition, 0)
+			for _, ja4Condition := range conditionMap["ja4_conditions"].([]interface{}) {
+				ja4ConditionMap := ja4Condition.(map[string]interface{})
+				matchType := ja4ConditionMap["match_type"].(string)
+				ja4Interface := ja4ConditionMap["ja4_list"].([]interface{})
+				ja4 := make([]*string, len(ja4Interface))
+				for i, v := range ja4Interface {
+					str := v.(string)
+					ja4[i] = &str
+				}
+				ja4Condition := &waapRatelimit.Ja4Condition{
+					MatchType: &matchType,
+					Ja4List:   ja4,
+				}
+				ja4Conditions = append(ja4Conditions, ja4Condition)
+			}
+			conditionsRequest.Ja4Conditions = ja4Conditions
+		}
 	}
 	request.RateLimitRuleCondition = conditionsRequest
 
@@ -908,6 +990,29 @@ func resourceWaapRateLimitRead(context context.Context, data *schema.ResourceDat
 						schemeConditions = append(schemeConditions, schemeCondition)
 					}
 					condition["scheme_conditions"] = schemeConditions
+				}
+
+				if item.RateLimitRuleCondition.Ja3Conditions != nil {
+					ja3Conditions := make([]interface{}, 0)
+					for _, condition := range item.RateLimitRuleCondition.Ja3Conditions {
+						ja3Condition := map[string]interface{}{
+							"match_type": condition.MatchType,
+							"ja3_list":   condition.Ja3List,
+						}
+						ja3Conditions = append(ja3Conditions, ja3Condition)
+					}
+					condition["ja3_conditions"] = ja3Conditions
+				}
+				if item.RateLimitRuleCondition.Ja4Conditions != nil {
+					ja4Conditions := make([]interface{}, 0)
+					for _, condition := range item.RateLimitRuleCondition.Ja4Conditions {
+						ja4Condition := map[string]interface{}{
+							"match_type": condition.MatchType,
+							"ja4_list":   condition.Ja4List,
+						}
+						ja4Conditions = append(ja4Conditions, ja4Condition)
+					}
+					condition["ja4_conditions"] = ja4Conditions
 				}
 				rateLimitRuleCondition = append(rateLimitRuleCondition, condition)
 			}
@@ -1224,6 +1329,48 @@ func resourceWaapRateLimitUpdate(context context.Context, data *schema.ResourceD
 				schemeConditions = append(schemeConditions, schemeConditionRequest)
 			}
 			conditionsRequest.SchemeConditions = schemeConditions
+		}
+
+		// JA3 Conditions
+		if conditionMap["ja3_conditions"] != nil {
+			ja3Conditions := make([]*waapRatelimit.Ja3Condition, 0)
+			for _, ja3Condition := range conditionMap["ja3_conditions"].([]interface{}) {
+				ja3ConditionMap := ja3Condition.(map[string]interface{})
+				matchType := ja3ConditionMap["match_type"].(string)
+				ja3Interface := ja3ConditionMap["ja3_list"].([]interface{})
+				ja3 := make([]*string, len(ja3Interface))
+				for i, v := range ja3Interface {
+					str := v.(string)
+					ja3[i] = &str
+				}
+				ja3Condition := &waapRatelimit.Ja3Condition{
+					MatchType: &matchType,
+					Ja3List:   ja3,
+				}
+				ja3Conditions = append(ja3Conditions, ja3Condition)
+			}
+			conditionsRequest.Ja3Conditions = ja3Conditions
+		}
+
+		// JA4 Conditions
+		if conditionMap["ja4_conditions"] != nil {
+			ja4Conditions := make([]*waapRatelimit.Ja4Condition, 0)
+			for _, ja4Condition := range conditionMap["ja4_conditions"].([]interface{}) {
+				ja4ConditionMap := ja4Condition.(map[string]interface{})
+				matchType := ja4ConditionMap["match_type"].(string)
+				ja4Interface := ja4ConditionMap["ja4_list"].([]interface{})
+				ja4 := make([]*string, len(ja4Interface))
+				for i, v := range ja4Interface {
+					str := v.(string)
+					ja4[i] = &str
+				}
+				ja4Condition := &waapRatelimit.Ja4Condition{
+					MatchType: &matchType,
+					Ja4List:   ja4,
+				}
+				ja4Conditions = append(ja4Conditions, ja4Condition)
+			}
+			conditionsRequest.Ja4Conditions = ja4Conditions
 		}
 	}
 	request.RateLimitRuleCondition = conditionsRequest

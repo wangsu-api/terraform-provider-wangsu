@@ -33,7 +33,7 @@ func ResourceWaapWhitelist() *schema.Resource {
 			"rule_name": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: "Rule name, maximum 50 characters.<br/> Does not support special characters and spaces.",
+				Description: "Rule name, maximum 50 characters.<br/> does not support # and & .",
 			},
 			"description": {
 				Type:        schema.TypeString,
