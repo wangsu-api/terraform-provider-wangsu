@@ -57,13 +57,13 @@ resource "wangsu_waap_domain" "example" {
   }
 
   bot_manage_config {
-    public_bots_act = "NO_USE"
     config_switch   = "OFF"
-    ua_bots_act     = "LOG"
+    public_bots_act = "BLOCK"
+    ai_bots_act     = "BLOCK"
     web_risk_config {
-      act = "LOG"
+      act = "BLOCK"
     }
-    scene_analyse_switch = "ON"
+    absolute_bots_act = "BLOCK"
   }
 
   rate_limit_config {
@@ -88,7 +88,7 @@ data "wangsu_waap_domain" "demo" {
 
 - `api_defend_config` (Block List) API security. (see [below for nested schema](#nestedblock--api_defend_config))
 - `block_config` (Block List) IP/Geo blocking. (see [below for nested schema](#nestedblock--block_config))
-- `bot_manage_config` (Block List) Bot management. (see [below for nested schema](#nestedblock--bot_manage_config))
+- `bot_manage_config` (Block List, Max: 1) Bot Management. (see [below for nested schema](#nestedblock--bot_manage_config))
 - `customize_rule_config` (Block List) Custom rules. (see [below for nested schema](#nestedblock--customize_rule_config))
 - `dms_defend_config` (Block List) DDoS protection. (see [below for nested schema](#nestedblock--dms_defend_config))
 - `intelligence_config` (Block List) Threat intelligence. (see [below for nested schema](#nestedblock--intelligence_config))
@@ -125,23 +125,23 @@ OFF: Disabled
 
 Required:
 
-- `config_switch` (String) Bot management switch.<br/>
-ON: Enabled<br/>
-OFF: Disabled
-- `public_bots_act` (String) Known Bots action.<br/>
-NO_USE: not used<br/>
-BLOCK: Deny<br/>
-LOG: Log<br/>
-ACCEPT: Skip
-- `scene_analyse_switch` (String) Client-based detection function switch.<br/>
-ON: Enabled<br/>
-OFF: Disabled
-- `ua_bots_act` (String) User-Agent based detection action.<br/>
+- `absolute_bots_act` (String) Definite Bots action.<br/>
 NO_USE: Not used<br/>
 BLOCK: Deny<br/>
 LOG: Log<br/>
-ACCEPT: Skip
-- `web_risk_config` (Block List, Min: 1) Browser Bot defense. (see [below for nested schema](#nestedblock--bot_manage_config--web_risk_config))
+- `ai_bots_act` (String) AI Bots action.<br/>
+NO_USE: Not used<br/>
+BLOCK: Deny<br/>
+LOG: Log<br/>
+- `config_switch` (String) Bot management switch.<br/>
+ON:Enabled<br/>
+OFF:Disabled<br/>
+- `public_bots_act` (String) Public Bots action.<br/>
+NO_USE: not used<br/>
+BLOCK: Deny<br/>
+LOG: Log<br/>
+ACCEPT: Skip<br/>
+- `web_risk_config` (Block List, Min: 1, Max: 1) Browser Bot defense. (see [below for nested schema](#nestedblock--bot_manage_config--web_risk_config))
 
 <a id="nestedblock--bot_manage_config--web_risk_config"></a>
 ### Nested Schema for `bot_manage_config.web_risk_config`

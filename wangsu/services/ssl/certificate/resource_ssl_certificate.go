@@ -18,6 +18,9 @@ func ResourceSslCertificate() *schema.Resource {
 		ReadContext:   resourceSslCertificateRead,
 		UpdateContext: resourceSslCertificateUpdate,
 		DeleteContext: resourceSslCertificateDelete,
+		Importer: &schema.ResourceImporter{
+			StateContext: schema.ImportStatePassthroughContext,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"name": {

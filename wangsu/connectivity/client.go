@@ -8,13 +8,17 @@ import (
 	monitorRule "github.com/wangsu-api/wangsu-sdk-go/wangsu/monitor/rule"
 	"github.com/wangsu-api/wangsu-sdk-go/wangsu/policy"
 	propertyConfig "github.com/wangsu-api/wangsu-sdk-go/wangsu/propertyconfig"
+	"github.com/wangsu-api/wangsu-sdk-go/wangsu/securitypolicy"
 	"github.com/wangsu-api/wangsu-sdk-go/wangsu/ssl/certificate"
 	userManage "github.com/wangsu-api/wangsu-sdk-go/wangsu/usermanage"
+	waapBot "github.com/wangsu-api/wangsu-sdk-go/wangsu/waap/bot"
+	waapBotSceneWhitelist "github.com/wangsu-api/wangsu-sdk-go/wangsu/waap/bot-scene-whitelist"
 	waapCustomizerule "github.com/wangsu-api/wangsu-sdk-go/wangsu/waap/customizerule"
 	waapDDoSProtection "github.com/wangsu-api/wangsu-sdk-go/wangsu/waap/ddosprotection"
 	waapDomain "github.com/wangsu-api/wangsu-sdk-go/wangsu/waap/domain"
 	waapPreDeploy "github.com/wangsu-api/wangsu-sdk-go/wangsu/waap/predeploy"
 	waapRatelimit "github.com/wangsu-api/wangsu-sdk-go/wangsu/waap/ratelimit"
+	waapShareCustomizeBot "github.com/wangsu-api/wangsu-sdk-go/wangsu/waap/share-customizebot"
 	waapShareCustomizerule "github.com/wangsu-api/wangsu-sdk-go/wangsu/waap/share-customizerule"
 	waapShareWhitelist "github.com/wangsu-api/wangsu-sdk-go/wangsu/waap/share-whitelist"
 	waapWAF "github.com/wangsu-api/wangsu-sdk-go/wangsu/waap/waf"
@@ -35,6 +39,7 @@ type WangSuClient struct {
 	waapShareWhitelistConn     *waapShareWhitelist.Client
 	waapShareCustomizeruleConn *waapShareCustomizerule.Client
 	waapWAFConn                *waapWAF.Client
+	waapBotConn                *waapBot.Client
 	waapDDoSProtectionConn     *waapDDoSProtection.Client
 	waapPreDeployConn          *waapPreDeploy.Client
 	monitorRuleConn            *monitorRule.Client
@@ -42,6 +47,9 @@ type WangSuClient struct {
 	userManageConn             *userManage.Client
 	propertyConfigConn         *propertyConfig.Client
 	edgeHostnameConn           *edgeHostname.Client
+	securityPolicyConn         *securitypolicy.Client
+	waapBotSceneWhitelistConn  *waapBotSceneWhitelist.Client
+	waapShareCustomizeBotConn  *waapShareCustomizeBot.Client
 }
 
 func (me *WangSuClient) UseCdnClient() *cdn.Client {
@@ -124,6 +132,26 @@ func (me *WangSuClient) UseWaapShareCustomizeruleClient() *waapShareCustomizerul
 	return me.waapShareCustomizeruleConn
 }
 
+func (me *WangSuClient) UseWaapBotSceneWhiteListClient() *waapBotSceneWhitelist.Client {
+	if me.waapBotConn != nil {
+		return me.waapBotSceneWhitelistConn
+	}
+
+	me.waapBotSceneWhitelistConn, _ = waapBotSceneWhitelist.NewClient(me.Credential, me.HttpProfile)
+
+	return me.waapBotSceneWhitelistConn
+}
+
+func (me *WangSuClient) UseWaapShareCustomizeBotClient() *waapShareCustomizeBot.Client {
+	if me.waapShareCustomizeBotConn != nil {
+		return me.waapShareCustomizeBotConn
+	}
+
+	me.waapShareCustomizeBotConn, _ = waapShareCustomizeBot.NewClient(me.Credential, me.HttpProfile)
+
+	return me.waapShareCustomizeBotConn
+}
+
 func (me *WangSuClient) UseWaapPreDeployClient() *waapPreDeploy.Client {
 	if me.waapPreDeployConn != nil {
 		return me.waapPreDeployConn
@@ -144,6 +172,16 @@ func (me *WangSuClient) UseWaapWAFClient() *waapWAF.Client {
 	return me.waapWAFConn
 }
 
+func (me *WangSuClient) UseWaapBotClient() *waapBot.Client {
+	if me.waapBotConn != nil {
+		return me.waapBotConn
+	}
+
+	me.waapBotConn, _ = waapBot.NewClient(me.Credential, me.HttpProfile)
+
+	return me.waapBotConn
+}
+
 func (me *WangSuClient) UseWaapDDoSProtectionClient() *waapDDoSProtection.Client {
 	if me.waapDDoSProtectionConn != nil {
 		return me.waapDDoSProtectionConn
@@ -152,6 +190,16 @@ func (me *WangSuClient) UseWaapDDoSProtectionClient() *waapDDoSProtection.Client
 	me.waapDDoSProtectionConn, _ = waapDDoSProtection.NewClient(me.Credential, me.HttpProfile)
 
 	return me.waapDDoSProtectionConn
+}
+
+func (me *WangSuClient) UseSecurityPolicyClient() *securitypolicy.Client {
+	if me.securityPolicyConn != nil {
+		return me.securityPolicyConn
+	}
+
+	me.securityPolicyConn, _ = securitypolicy.NewClient(me.Credential, me.HttpProfile)
+
+	return me.securityPolicyConn
 }
 
 func (me *WangSuClient) UseSslCertificateClient() *certificate.Client {

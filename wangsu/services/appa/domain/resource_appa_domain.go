@@ -20,6 +20,9 @@ func ResourceAppaDomain() *schema.Resource {
 		ReadContext:   resourceAppaDomainRead,
 		UpdateContext: resourceAppaDomainUpdate,
 		DeleteContext: resourceAppaDomainDelete,
+		Importer: &schema.ResourceImporter{
+			StateContext: schema.ImportStatePassthroughContext,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"domain_name": {

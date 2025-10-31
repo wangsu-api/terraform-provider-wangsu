@@ -176,27 +176,34 @@ func ResourceWaapDomain() *schema.Resource {
 			"bot_manage_config": {
 				Type:        schema.TypeList,
 				Optional:    true,
-				Description: "Bot management.",
+				MaxItems:    1,
+				Description: "Bot Management.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"public_bots_act": {
 							Type:        schema.TypeString,
 							Required:    true,
-							Description: "Known Bots action.<br/>NO_USE: not used<br/>BLOCK: Deny<br/>LOG: Log<br/>ACCEPT: Skip",
+							Description: "Public Bots action.<br/>NO_USE: not used<br/>BLOCK: Deny<br/>LOG: Log<br/>ACCEPT: Skip",
+						},
+						"ai_bots_act": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: "AI Bots action.<br/>NO_USE: Not used<br/>BLOCK: Deny<br/>LOG: Log",
 						},
 						"config_switch": {
 							Type:        schema.TypeString,
 							Required:    true,
-							Description: "Bot management switch.<br/>ON: Enabled<br/>OFF: Disabled",
+							Description: "Bot management switch.<br/>ON:Enabled<br/>OFF:Disabled",
 						},
-						"ua_bots_act": {
+						"absolute_bots_act": {
 							Type:        schema.TypeString,
 							Required:    true,
-							Description: "User-Agent based detection action.<br/>NO_USE: Not used<br/>BLOCK: Deny<br/>LOG: Log<br/>ACCEPT: Skip",
+							Description: "Definite Bots action.<br/>NO_USE: Not used<br/>BLOCK: Deny<br/>LOG: Log",
 						},
 						"web_risk_config": {
 							Type:        schema.TypeList,
 							Required:    true,
+							MaxItems:    1,
 							Description: "Browser Bot defense.",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
@@ -207,11 +214,6 @@ func ResourceWaapDomain() *schema.Resource {
 									},
 								},
 							},
-						},
-						"scene_analyse_switch": {
-							Type:        schema.TypeString,
-							Required:    true,
-							Description: "Client-based detection function switch.<br/>ON: Enabled<br/>OFF: Disabled",
 						},
 					},
 				},
@@ -759,8 +761,8 @@ func expandBotManageConfig(i interface{}) *waapDomain.BOTConfig {
 	if v, ok := m["config_switch"]; ok {
 		config.ConfigSwitch = tea.String(v.(string))
 	}
-	if v, ok := m["ua_bots_act"]; ok {
-		config.UaBotsAct = tea.String(v.(string))
+	if v, ok := m["absolute_bots_act"]; ok {
+		config.AbsoluteBotsAct = tea.String(v.(string))
 	}
 	if v, ok := m["public_bots_act"]; ok {
 		config.PublicBotsAct = tea.String(v.(string))
@@ -777,8 +779,8 @@ func expandBotManageConfig(i interface{}) *waapDomain.BOTConfig {
 		}
 		config.WebRiskConfig = botWebConfigDefault
 	}
-	if v, ok := m["scene_analyse_switch"]; ok {
-		config.SceneAnalyseSwitch = tea.String(v.(string))
+	if v, ok := m["ai_bots_act"]; ok {
+		config.AiBotsAct = tea.String(v.(string))
 	}
 	return config
 }

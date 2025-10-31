@@ -239,6 +239,27 @@ func DataSourceWangSuCdnPropertyDetail() *schema.Resource {
 													Description: "Origin servers",
 													Elem:        &schema.Schema{Type: schema.TypeString},
 												},
+												"scheme": {
+													Type:        schema.TypeString,
+													Optional:    true,
+													Description: "Scheme used for origin requests. Options include:- http: Fixedly use HTTP.- https: Fixedly use HTTPS.- honor: default option.Follow the scheme of the client request (default).",
+												},
+												"proxy_ssl_sni_enabled": {
+													Type:        schema.TypeBool,
+													Optional:    true,
+													Description: "Whether to enable SNI. Options include:- true: The origin TLS handshake will carry SNI (Server Name Indication).Note: Before enabling SNI, please upload the certificate to the origin and set the back-to-origin scheme to https.- false: The origin TLS handshake will not carry SNI (Server Name Indication)",
+												},
+												"proxy_ssl_sni_server": {
+													Type:        schema.TypeString,
+													Optional:    true,
+													Description: "After enabling SNI, you need to configure the specified SNI server to include the SNI information carried in the origin TLS handshake. If left empty or don't carry the parameter, the default value will follows the origin host header.",
+												},
+												"proxy_ssl_version": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: "List of origin TLS protocol versions, supporting configuring multiple versions.- Options: TLSv1, TLSv1.1, TLSv1.2, TLSv1.3- Default: TLSv1, TLSv1.1, TLSv1.2, TLSv1.3",
+													Elem:        &schema.Schema{Type: schema.TypeString},
+												},
 											},
 										},
 									},
@@ -469,11 +490,15 @@ func buildDefaultOrigin(defaultOrigin *propertyconfig.QueryPropertyVersionConfig
 		return nil
 	}
 	return []interface{}{map[string]interface{}{
-		"host":       defaultOrigin.Host,
-		"http_port":  defaultOrigin.HttpPort,
-		"https_port": defaultOrigin.HttpsPort,
-		"ip_version": defaultOrigin.IpVersion,
-		"servers":    defaultOrigin.Servers,
+		"host":                  defaultOrigin.Host,
+		"http_port":             defaultOrigin.HttpPort,
+		"https_port":            defaultOrigin.HttpsPort,
+		"ip_version":            defaultOrigin.IpVersion,
+		"servers":               defaultOrigin.Servers,
+		"scheme":                defaultOrigin.Scheme,
+		"proxy_ssl_sni_enabled": defaultOrigin.ProxySSLSNIEnabled,
+		"proxy_ssl_sni_server":  defaultOrigin.ProxySSLSNIServer,
+		"proxy_ssl_version":     defaultOrigin.ProxySSLVersion,
 	}}
 }
 func buildCertificates(certificates []*propertyconfig.QueryPropertyVersionConfigForTerrformResponseDataHostnamesCertificates) []interface{} {

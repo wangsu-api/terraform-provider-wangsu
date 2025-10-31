@@ -14,11 +14,15 @@ import (
 	"github.com/wangsu-api/terraform-provider-wangsu/wangsu/services/iam/user"
 	monitorRule "github.com/wangsu-api/terraform-provider-wangsu/wangsu/services/monitor/rule"
 	"github.com/wangsu-api/terraform-provider-wangsu/wangsu/services/ssl/certificate"
+	waapBot "github.com/wangsu-api/terraform-provider-wangsu/wangsu/services/waap/bot"
+	waapBotSceneWhitelist "github.com/wangsu-api/terraform-provider-wangsu/wangsu/services/waap/bot-scene-whitelist"
 	waapCustomizerule "github.com/wangsu-api/terraform-provider-wangsu/wangsu/services/waap/customizerule"
 	waapDDoSProtection "github.com/wangsu-api/terraform-provider-wangsu/wangsu/services/waap/ddosprotection"
 	waapDomain "github.com/wangsu-api/terraform-provider-wangsu/wangsu/services/waap/domain"
+	waapIntelligence "github.com/wangsu-api/terraform-provider-wangsu/wangsu/services/waap/intelligence"
 	waapPredeploy "github.com/wangsu-api/terraform-provider-wangsu/wangsu/services/waap/predeploy"
 	waapRatelimit "github.com/wangsu-api/terraform-provider-wangsu/wangsu/services/waap/ratelimit"
+	waapShareCustomizeBot "github.com/wangsu-api/terraform-provider-wangsu/wangsu/services/waap/share-customizebot"
 	waapShareCustomizerule "github.com/wangsu-api/terraform-provider-wangsu/wangsu/services/waap/share-customizerule"
 	waapShareWhitelist "github.com/wangsu-api/terraform-provider-wangsu/wangsu/services/waap/share-whitelist"
 	waapWAF "github.com/wangsu-api/terraform-provider-wangsu/wangsu/services/waap/waf"
@@ -85,45 +89,55 @@ func Provider() *schema.Provider {
 			"wangsu_waap_domain_copy":                waapDomain.ResourceWaapDomainCopy(),
 			"wangsu_waap_domain":                     waapDomain.ResourceWaapDomain(),
 			"wangsu_waap_share_whitelist":            waapShareWhitelist.ResourceWaapShareWhitelist(),
+			"wangsu_waap_bot_scene_whitelist":        waapBotSceneWhitelist.ResourceWaapBotSceneWhitelist(),
+			"wangsu_waap_share_customizebot":         waapShareCustomizeBot.ResourceWaapShareCustomizeBot(),
 			"wangsu_waap_share_customizerule":        waapShareCustomizerule.ResourceWaapShareCustomizeRule(),
 			"wangsu_waap_pre_deploy_whitelist":       waapPredeploy.ResourceWaapPreDeployWhitelist(),
 			"wangsu_waap_pre_deploy_custom_rule":     waapPredeploy.ResourceWaapPreDeployCustomRule(),
 			"wangsu_waap_pre_deploy_rate_limiting":   waapPredeploy.ResourceWaapPreDeployRateLimiting(),
 			"wangsu_waap_pre_deploy_waf":             waapPredeploy.ResourceWaapPreDeployWAF(),
 			"wangsu_waap_pre_deploy_ddos_protection": waapPredeploy.ResourceWaapPreDeployDDoSProtection(),
+			"wangsu_waap_waf_config":                 waapWAF.ResourceWaapWafConfig(),
+			"wangsu_waap_waf_rule_exception":         waapWAF.ResourceWaapWafRuleException(),
+			"wangsu_waap_threat_intelligence_config": waapIntelligence.ResourceWaapThreatIntelligence(),
+			"wangsu_waap_bot_config":                 waapBot.ResourceWaapBot(),
 			"wangsu_monitor_realtime_rule":           monitorRule.ResourceMonitorRealtimeRule(),
 			"wangsu_iam_policy":                      policy.ResourceIamPolicy(),
 			"wangsu_iam_policy_attachment":           policy.ResourceIamPolicyAttachment(),
 			"wangsu_iam_user":                        user.ResourceUserInfo(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
-			"wangsu_cdn_domains":                    domain.DataSourceWangSuCdnDomains(),
-			"wangsu_cdn_domain_detail":              domain.DataSourceWangSuCdnDomainDetail(),
-			"wangsu_cdn_properties":                 property.DataSourceWangsuCdnProperties(),
-			"wangsu_cdn_property_detail":            property.DataSourceWangSuCdnPropertyDetail(),
-			"wangsu_cdn_property_deployment_detail": property.DataSourceWangSuCdnPropertyDeploymentDetail(),
-			"wangsu_cdn_property_deployments":       property.DataSourceWangSuCdnPropertyDeployments(),
-			"wangsu_cdn_edge_hostname_detail":       edgehostname.DataSourceWangSuCdnEdgeHostnameDetail(),
-			"wangsu_cdn_edge_hostnames":             edgehostname.DataSourceWangSuCdnEdgeHostnames(),
-			"wangsu_ssl_certificate_detail":         certificate.DataSourceSslCertificateDetail(),
-			"wangsu_appa_domain_detail":             appadomain.DataSourceAppaDomainDetail(),
-			"wangsu_ssl_certificates":               certificate.DataSourceSslCertificates(),
-			"wangsu_waap_whitelist":                 waapWhitelist.DataSourceWaapWhitelist(),
-			"wangsu_waap_whitelists":                waapWhitelist.DataSourceWaapWhitelists(),
-			"wangsu_waap_customizerule":             waapCustomizerule.DataSourceCustomizeRule(),
-			"wangsu_waap_customizerules":            waapCustomizerule.DataSourceCustomizeRules(),
-			"wangsu_waap_ratelimit":                 waapRatelimit.DataSourceRateLimit(),
-			"wangsu_waap_ratelimits":                waapRatelimit.DataSourceRateLimits(),
-			"wangsu_waap_domain":                    waapDomain.DataSourceWaapDomain(),
-			"wangsu_waap_domains":                   waapDomain.DataSourceWaapDomains(),
-			"wangsu_waap_share_whitelists":          waapShareWhitelist.DataSourceWaapShareWhitelists(),
-			"wangsu_waap_share_customizerules":      waapShareCustomizerule.DataSourceCustomizeRules(),
-			"wangsu_waap_waf_configs":               waapWAF.DataSourceWaapWAF(),
-			"wangsu_waap_ddos_protection_configs":   waapDDoSProtection.DataSourceWaapDDoSProtection(),
-			"wangsu_monitor_realtime_rules_detail":  monitorRule.DataSourceMonitorRealtimeRuleDetail(),
-			"wangsu_iam_policy_detail":              policy.ResourceIamPolicyDetail(),
-			"wangsu_iam_user_detail":                user.ResourceIamUserDetail(),
-			"wangsu_iam_users":                      user.ResourceIamUsers(),
+			"wangsu_cdn_domains":                      domain.DataSourceWangSuCdnDomains(),
+			"wangsu_cdn_domain_detail":                domain.DataSourceWangSuCdnDomainDetail(),
+			"wangsu_cdn_properties":                   property.DataSourceWangsuCdnProperties(),
+			"wangsu_cdn_property_detail":              property.DataSourceWangSuCdnPropertyDetail(),
+			"wangsu_cdn_property_deployment_detail":   property.DataSourceWangSuCdnPropertyDeploymentDetail(),
+			"wangsu_cdn_property_deployments":         property.DataSourceWangSuCdnPropertyDeployments(),
+			"wangsu_cdn_edge_hostname_detail":         edgehostname.DataSourceWangSuCdnEdgeHostnameDetail(),
+			"wangsu_cdn_edge_hostnames":               edgehostname.DataSourceWangSuCdnEdgeHostnames(),
+			"wangsu_ssl_certificate_detail":           certificate.DataSourceSslCertificateDetail(),
+			"wangsu_appa_domain_detail":               appadomain.DataSourceAppaDomainDetail(),
+			"wangsu_ssl_certificates":                 certificate.DataSourceSslCertificates(),
+			"wangsu_waap_whitelist":                   waapWhitelist.DataSourceWaapWhitelist(),
+			"wangsu_waap_whitelists":                  waapWhitelist.DataSourceWaapWhitelists(),
+			"wangsu_waap_customizerule":               waapCustomizerule.DataSourceCustomizeRule(),
+			"wangsu_waap_customizerules":              waapCustomizerule.DataSourceCustomizeRules(),
+			"wangsu_waap_ratelimit":                   waapRatelimit.DataSourceRateLimit(),
+			"wangsu_waap_ratelimits":                  waapRatelimit.DataSourceRateLimits(),
+			"wangsu_waap_domain":                      waapDomain.DataSourceWaapDomain(),
+			"wangsu_waap_domains":                     waapDomain.DataSourceWaapDomains(),
+			"wangsu_waap_share_whitelists":            waapShareWhitelist.DataSourceWaapShareWhitelists(),
+			"wangsu_waap_bot_scene_whitelists":        waapBotSceneWhitelist.DataSourceBotSceneWhitelist(),
+			"wangsu_waap_share_customizebots":         waapShareCustomizeBot.DataSourceShareCustomizeBot(),
+			"wangsu_waap_share_customizerules":        waapShareCustomizerule.DataSourceCustomizeRules(),
+			"wangsu_waap_waf_configs":                 waapWAF.DataSourceWaapWAF(),
+			"wangsu_waap_ddos_protection_configs":     waapDDoSProtection.DataSourceWaapDDoSProtection(),
+			"wangsu_waap_threat_intelligence_configs": waapIntelligence.DataSourceWaapThreatIntelligence(),
+			"wangsu_waap_bot_configs":                 waapBot.DataSourceWaapBot(),
+			"wangsu_monitor_realtime_rules_detail":    monitorRule.DataSourceMonitorRealtimeRuleDetail(),
+			"wangsu_iam_policy_detail":                policy.ResourceIamPolicyDetail(),
+			"wangsu_iam_user_detail":                  user.ResourceIamUserDetail(),
+			"wangsu_iam_users":                        user.ResourceIamUsers(),
 		},
 		ConfigureContextFunc: providerConfigure,
 	}

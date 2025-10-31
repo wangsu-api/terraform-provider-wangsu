@@ -19,6 +19,9 @@ func ResourceCdnDomain() *schema.Resource {
 		ReadContext:   resourceCdnDomainRead,
 		UpdateContext: resourceCdnDomainUpdate,
 		DeleteContext: resourceCdnDomainDelete,
+		Importer: &schema.ResourceImporter{
+			StateContext: schema.ImportStatePassthroughContext,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"domain_name": {

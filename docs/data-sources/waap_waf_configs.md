@@ -49,6 +49,7 @@ Read-Only:
 - `config_switch` (String)
 - `domain` (String)
 - `rule_list` (List of Object) (see [below for nested schema](#nestedobjatt--data--array--rule_list))
+- `scan_protection` (List of Object) (see [below for nested schema](#nestedobjatt--data--array--scan_protection))
 
 <a id="nestedobjatt--data--array--conf_basic"></a>
 ### Nested Schema for `data.array.conf_basic`
@@ -77,3 +78,48 @@ Read-Only:
 - `content_list` (List of String)
 - `match_type` (String)
 - `type` (String)
+
+
+
+<a id="nestedobjatt--data--array--scan_protection"></a>
+### Nested Schema for `data.array.scan_protection`
+
+Read-Only:
+
+- `directory_probing_config` (List of Object) (see [below for nested schema](#nestedobjatt--data--array--scan_protection--directory_probing_config))
+- `repeated_violation_config` (List of Object) (see [below for nested schema](#nestedobjatt--data--array--scan_protection--repeated_violation_config))
+- `scan_tools_config` (List of Object) (see [below for nested schema](#nestedobjatt--data--array--scan_protection--scan_tools_config))
+
+<a id="nestedobjatt--data--array--scan_protection--directory_probing_config"></a>
+### Nested Schema for `data.array.scan_protection.directory_probing_config`
+
+Read-Only:
+
+- `action` (String)
+- `duration` (Number)
+- `non_existent_directory_threshold` (Number)
+- `period` (Number)
+- `rate404_threshold` (Number)
+- `request_count_threshold` (Number)
+- `target` (String)
+
+
+<a id="nestedobjatt--data--array--scan_protection--repeated_violation_config"></a>
+### Nested Schema for `data.array.scan_protection.repeated_violation_config`
+
+Read-Only:
+
+- `action` (String)
+- `block_count` (Number)
+- `duration` (Number)
+- `period` (Number)
+- `target` (String)
+- `waf_rule_type_count` (Number)
+
+
+<a id="nestedobjatt--data--array--scan_protection--scan_tools_config"></a>
+### Nested Schema for `data.array.scan_protection.scan_tools_config`
+
+Read-Only:
+
+- `action` (String)

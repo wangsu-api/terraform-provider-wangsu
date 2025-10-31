@@ -52,13 +52,13 @@ resource "wangsu_waap_domain" "example" {
   }
 
   bot_manage_config {
-    public_bots_act = "NO_USE"
     config_switch   = "OFF"
-    ua_bots_act     = "LOG"
+    public_bots_act = "BLOCK"
+    ai_bots_act     = "BLOCK"
     web_risk_config {
-      act = "LOG"
+      act = "BLOCK"
     }
-    scene_analyse_switch = "ON"
+    absolute_bots_act = "BLOCK"
   }
 
   rate_limit_config {

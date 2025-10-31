@@ -94,6 +94,10 @@ Read-Only:
 - `https_port` (Number) HTTPS port
 - `ip_version` (String) IP version. Data range: dual, ipv4, ipv6
 - `servers` (List of String) Origin servers
+- `scheme` (String) Scheme used for origin requests. Options include:- http: Fixedly use HTTP.- https: Fixedly use HTTPS.- honor: default option.Follow the scheme of the client request (default).
+- `proxy_ssl_sni_enabled` (Boolean) Whether to enable SNI. Options include:- true: The origin TLS handshake will carry SNI (Server Name Indication).Note: Before enabling SNI, please upload the certificate to the origin and set the back-to-origin scheme to https.- false: The origin TLS handshake will not carry SNI (Server Name Indication)
+- `proxy_ssl_sni_server` (String) After enabling SNI, you need to configure the specified SNI server to include the SNI information carried in the origin TLS handshake. If left empty or don't carry the parameter, the default value will follows the origin host header.
+- `proxy_ssl_version` (List of String) List of origin TLS protocol versions, supporting configuring multiple versions.- Options: TLSv1, TLSv1.1, TLSv1.2, TLSv1.3- Default: TLSv1, TLSv1.1, TLSv1.2, TLSv1.3
 
 
 <a id="nestedobjatt--data--hostnames--edge_hostname"></a>

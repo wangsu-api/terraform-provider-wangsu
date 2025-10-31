@@ -119,6 +119,116 @@ func DataSourceWaapWAF() *schema.Resource {
 											},
 										},
 									},
+									"scan_protection": {
+										Type:        schema.TypeList,
+										Required:    true,
+										MaxItems:    1,
+										Description: "Scan protection configuration.",
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"scan_tools_config": {
+													Type:     schema.TypeList,
+													Required: true,
+													MaxItems: 1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"action": {
+																Type:        schema.TypeString,
+																Required:    true,
+																Description: "Action.<br/>NO_USE:Not Used.<br/>LOG:Log.<br/>BLOCK:Deny.",
+															},
+														},
+													},
+													Description: "Scanning tool detection configuration.",
+												},
+												"repeated_violation_config": {
+													Type:     schema.TypeList,
+													Required: true,
+													MaxItems: 1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"action": {
+																Type:        schema.TypeString,
+																Required:    true,
+																Description: "Action.<br/>NO_USE:Not Used.<br/>LOG:Log.<br/>BLOCK:Deny.",
+															},
+															"target": {
+																Type:        schema.TypeString,
+																Required:    true,
+																Description: "Statistical subject.<br/>IP: IP.<br/>IP_JA3: IP and JA3 fingerprint.",
+															},
+															"period": {
+																Type:        schema.TypeInt,
+																Required:    true,
+																Description: "Time range, in seconds.",
+															},
+															"waf_rule_type_count": {
+																Type:        schema.TypeInt,
+																Required:    true,
+																Description: "Number of WAF built-in rule triggers.",
+															},
+															"block_count": {
+																Type:        schema.TypeInt,
+																Required:    true,
+																Description: "Number of block actions.",
+															},
+															"duration": {
+																Type:        schema.TypeInt,
+																Required:    true,
+																Description: "Handling action duration, in seconds.",
+															},
+														},
+													},
+													Description: "Repeated violation detection configuration.",
+												},
+												"directory_probing_config": {
+													Type:     schema.TypeList,
+													Required: true,
+													MaxItems: 1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"action": {
+																Type:        schema.TypeString,
+																Required:    true,
+																Description: "Action.<br/>NO_USE:Not Used.<br/>LOG:Log.<br/>BLOCK:Deny.",
+															},
+															"target": {
+																Type:        schema.TypeString,
+																Required:    true,
+																Description: "Statistical subject.<br/>IP: IP.<br/>IP_JA3: IP and JA3 fingerprint.",
+															},
+															"period": {
+																Type:        schema.TypeInt,
+																Required:    true,
+																Description: "Time range, in seconds.",
+															},
+															"request_count_threshold": {
+																Type:        schema.TypeInt,
+																Required:    true,
+																Description: "Number of requests.",
+															},
+															"non_existent_directory_threshold": {
+																Type:        schema.TypeInt,
+																Required:    true,
+																Description: "Number of non-existent directory requests.",
+															},
+															"rate404_threshold": {
+																Type:        schema.TypeInt,
+																Required:    true,
+																Description: "Proportion of 404 status codes.",
+															},
+															"duration": {
+																Type:        schema.TypeInt,
+																Required:    true,
+																Description: "Handling action duration, in seconds.",
+															},
+														},
+													},
+													Description: "Directory probing detection configuration.",
+												},
+											},
+										},
+									},
 								},
 							},
 						},
@@ -127,7 +237,6 @@ func DataSourceWaapWAF() *schema.Resource {
 			},
 		},
 	}
-
 }
 
 func dataSourceWaapWAFRead(context context.Context, data *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -178,6 +287,36 @@ func dataSourceWaapWAFRead(context context.Context, data *schema.ResourceData, m
 				map[string]interface{}{
 					"defend_mode":      tea.StringValue(item.ConfBasic.DefendMode),
 					"rule_update_mode": tea.StringValue(item.ConfBasic.RuleUpdateMode),
+				},
+			},
+			"scan_protection": []interface{}{
+				map[string]interface{}{
+					"scan_tools_config": []interface{}{
+						map[string]interface{}{
+							"action": tea.StringValue(item.ScanProtection.ScanToolsConfig.Action),
+						},
+					},
+					"repeated_violation_config": []interface{}{
+						map[string]interface{}{
+							"action":              tea.StringValue(item.ScanProtection.RepeatedViolationConfig.Action),
+							"target":              tea.StringValue(item.ScanProtection.RepeatedViolationConfig.Target),
+							"period":              tea.IntValue(item.ScanProtection.RepeatedViolationConfig.Period),
+							"waf_rule_type_count": tea.IntValue(item.ScanProtection.RepeatedViolationConfig.WafRuleTypeCount),
+							"block_count":         tea.IntValue(item.ScanProtection.RepeatedViolationConfig.BlockCount),
+							"duration":            tea.IntValue(item.ScanProtection.RepeatedViolationConfig.Duration),
+						},
+					},
+					"directory_probing_config": []interface{}{
+						map[string]interface{}{
+							"action":                           tea.StringValue(item.ScanProtection.DirectoryProbingConfig.Action),
+							"target":                           tea.StringValue(item.ScanProtection.DirectoryProbingConfig.Target),
+							"period":                           tea.IntValue(item.ScanProtection.DirectoryProbingConfig.Period),
+							"request_count_threshold":          tea.IntValue(item.ScanProtection.DirectoryProbingConfig.RequestCountThreshold),
+							"non_existent_directory_threshold": tea.IntValue(item.ScanProtection.DirectoryProbingConfig.NonExistentDirectoryThreshold),
+							"rate404_threshold":                tea.IntValue(item.ScanProtection.DirectoryProbingConfig.Rate404Threshold),
+							"duration":                         tea.IntValue(item.ScanProtection.DirectoryProbingConfig.Duration),
+						},
+					},
 				},
 			},
 		}

@@ -57,13 +57,13 @@ resource "wangsu_waap_domain" "example" {
   }
 
   bot_manage_config {
-    public_bots_act = "NO_USE"
     config_switch   = "OFF"
-    ua_bots_act     = "LOG"
+    public_bots_act = "BLOCK"
+    ai_bots_act     = "BLOCK"
     web_risk_config {
-      act = "LOG"
+      act = "BLOCK"
     }
-    scene_analyse_switch = "ON"
+    absolute_bots_act = "BLOCK"
   }
 
   rate_limit_config {
@@ -84,37 +84,17 @@ data "wangsu_waap_domain" "demo" {
 
 ### Optional
 
-- `api_defend_switch` (String) API security switch, if not specified, it means all the status.
-ON: Enabled
-OFF: Disabled
-- `block_switch` (String) IP/Geo blocking switch, if not specified, it means all the status.
-ON: Enabled
-OFF: Disabled
-- `bot_manage_switch` (String) Bot management switch, if not specified, it means all the status.
-ON: Enabled
-OFF: Disabled
-- `customize_rule_switch` (String) Custom rules switch, if not specified, it means all the status.
-ON: Enabled
-OFF: Disabled
-- `defend_status` (String) Protection status, If not specified, it means all the protection status.
-PROTECTING: Protecting
-UNPROTECTED: Unprotected
-- `dms_defend_switch` (String) DDoS protection switch, if not specified, it means all the status.
-ON: Enabled
-OFF: Disabled
+- `api_defend_switch` (String) API security switch, if not specified, it means all the status.<br/>ON: Enabled<br/>OFF: Disabled
+- `block_switch` (String) IP/Geo blocking switch, if not specified, it means all the status.<br/>ON: Enabled<br/>OFF: Disabled
+- `bot_manage_switch` (String) Bot management switch, if not specified, it means all the status.<br/>ON: Enabled<br/>OFF: Disabled
+- `customize_rule_switch` (String) Custom rules switch, if not specified, it means all the status.<br/>ON: Enabled<br/>OFF: Disabled
+- `defend_status` (String) Protection status, If not specified, it means all the protection status.<br/>PROTECTING: Protecting<br/>UNPROTECTED: Unprotected
+- `dms_defend_switch` (String) DDoS protection switch, if not specified, it means all the status.<br/>ON: Enabled<br/>OFF: Disabled
 - `domain_list` (List of String) Hostname list, if not specified, it means all the hostnames of the account.
-- `intelligence_switch` (String) Threat intelligence switch, if not specified, it means all the status.
-ON: Enabled
-OFF: Disabled
-- `rate_limit_switch` (String) Rate limiting switch, if not specified, it means all the status.
-ON: Enabled
-OFF: Disabled
-- `waf_defend_switch` (String) WAF protection switch, if not specified, it means all the status.
-ON: Enabled
-OFF: Disabled
-- `whitelist_switch` (String) Whitelist switch, if not specified, it means all the status.
-ON: Enabled
-OFF: Disabled
+- `intelligence_switch` (String) Threat intelligence switch, if not specified, it means all the status.<br/>ON: Enabled<br/>OFF: Disabled
+- `rate_limit_switch` (String) Rate limiting switch, if not specified, it means all the status.<br/>ON: Enabled<br/>OFF: Disabled
+- `waf_defend_switch` (String) WAF protection switch, if not specified, it means all the status.<br/>ON: Enabled<br/>OFF: Disabled
+- `whitelist_switch` (String) Whitelist switch, if not specified, it means all the status.<br/>ON: Enabled<br/>OFF: Disabled
 
 ### Read-Only
 
