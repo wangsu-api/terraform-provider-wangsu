@@ -3,6 +3,7 @@ package connectivity
 import (
 	appadomain "github.com/wangsu-api/wangsu-sdk-go/wangsu/appa/domain"
 	cdn "github.com/wangsu-api/wangsu-sdk-go/wangsu/cdn/domain"
+	"github.com/wangsu-api/wangsu-sdk-go/wangsu/certificateapplication"
 	"github.com/wangsu-api/wangsu-sdk-go/wangsu/common"
 	edgeHostname "github.com/wangsu-api/wangsu-sdk-go/wangsu/edgehostname"
 	monitorRule "github.com/wangsu-api/wangsu-sdk-go/wangsu/monitor/rule"
@@ -29,27 +30,28 @@ type WangSuClient struct {
 	Credential  *common.Credential
 	HttpProfile *common.HttpProfile
 
-	cdnConn                    *cdn.Client
-	appaDomainConn             *appadomain.Client
-	sslCertificateConn         *certificate.Client
-	waapWhitelistConn          *waapWhitelist.Client
-	waapCustomizeruleConn      *waapCustomizerule.Client
-	waapRatelimitConn          *waapRatelimit.Client
-	waapDomainConn             *waapDomain.Client
-	waapShareWhitelistConn     *waapShareWhitelist.Client
-	waapShareCustomizeruleConn *waapShareCustomizerule.Client
-	waapWAFConn                *waapWAF.Client
-	waapBotConn                *waapBot.Client
-	waapDDoSProtectionConn     *waapDDoSProtection.Client
-	waapPreDeployConn          *waapPreDeploy.Client
-	monitorRuleConn            *monitorRule.Client
-	policyConn                 *policy.Client
-	userManageConn             *userManage.Client
-	propertyConfigConn         *propertyConfig.Client
-	edgeHostnameConn           *edgeHostname.Client
-	securityPolicyConn         *securitypolicy.Client
-	waapBotSceneWhitelistConn  *waapBotSceneWhitelist.Client
-	waapShareCustomizeBotConn  *waapShareCustomizeBot.Client
+	cdnConn                       *cdn.Client
+	appaDomainConn                *appadomain.Client
+	sslCertificateConn            *certificate.Client
+	sslCertificateApplicationConn *certificateapplication.Client
+	waapWhitelistConn             *waapWhitelist.Client
+	waapCustomizeruleConn         *waapCustomizerule.Client
+	waapRatelimitConn             *waapRatelimit.Client
+	waapDomainConn                *waapDomain.Client
+	waapShareWhitelistConn        *waapShareWhitelist.Client
+	waapShareCustomizeruleConn    *waapShareCustomizerule.Client
+	waapWAFConn                   *waapWAF.Client
+	waapBotConn                   *waapBot.Client
+	waapDDoSProtectionConn        *waapDDoSProtection.Client
+	waapPreDeployConn             *waapPreDeploy.Client
+	monitorRuleConn               *monitorRule.Client
+	policyConn                    *policy.Client
+	userManageConn                *userManage.Client
+	propertyConfigConn            *propertyConfig.Client
+	edgeHostnameConn              *edgeHostname.Client
+	securityPolicyConn            *securitypolicy.Client
+	waapBotSceneWhitelistConn     *waapBotSceneWhitelist.Client
+	waapShareCustomizeBotConn     *waapShareCustomizeBot.Client
 }
 
 func (me *WangSuClient) UseCdnClient() *cdn.Client {
@@ -210,6 +212,16 @@ func (me *WangSuClient) UseSslCertificateClient() *certificate.Client {
 	me.sslCertificateConn, _ = certificate.NewClient(me.Credential, me.HttpProfile)
 
 	return me.sslCertificateConn
+}
+
+func (me *WangSuClient) UseSslCertificateApplicationClient() *certificateapplication.Client {
+	if me.sslCertificateApplicationConn != nil {
+		return me.sslCertificateApplicationConn
+	}
+
+	me.sslCertificateApplicationConn, _ = certificateapplication.NewClient(me.Credential, me.HttpProfile)
+
+	return me.sslCertificateApplicationConn
 }
 
 func (me *WangSuClient) UseMonitorRuleClient() *monitorRule.Client {

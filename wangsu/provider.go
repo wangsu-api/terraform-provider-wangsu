@@ -14,6 +14,7 @@ import (
 	"github.com/wangsu-api/terraform-provider-wangsu/wangsu/services/iam/user"
 	monitorRule "github.com/wangsu-api/terraform-provider-wangsu/wangsu/services/monitor/rule"
 	"github.com/wangsu-api/terraform-provider-wangsu/wangsu/services/ssl/certificate"
+	"github.com/wangsu-api/terraform-provider-wangsu/wangsu/services/ssl/certificateapplication"
 	waapBot "github.com/wangsu-api/terraform-provider-wangsu/wangsu/services/waap/bot"
 	waapBotSceneWhitelist "github.com/wangsu-api/terraform-provider-wangsu/wangsu/services/waap/bot-scene-whitelist"
 	waapCustomizerule "github.com/wangsu-api/terraform-provider-wangsu/wangsu/services/waap/customizerule"
@@ -82,6 +83,7 @@ func Provider() *schema.Provider {
 			"wangsu_cdn_property_deployment":         property.ResourceCdnPropertyDeployment(),
 			"wangsu_cdn_edge_hostname":               edgehostname.ResourceCdnEdgeHostname(),
 			"wangsu_ssl_certificate":                 certificate.ResourceSslCertificate(),
+			"wangsu_ssl_certificate_application":     certificateapplication.ResourceSslCertificateApplication(),
 			"wangsu_appa_domain":                     appadomain.ResourceAppaDomain(),
 			"wangsu_waap_whitelist":                  waapWhitelist.ResourceWaapWhitelist(),
 			"wangsu_waap_customizerule":              waapCustomizerule.ResourceWaapCustomizeRule(),
@@ -116,6 +118,8 @@ func Provider() *schema.Provider {
 			"wangsu_cdn_edge_hostname_detail":         edgehostname.DataSourceWangSuCdnEdgeHostnameDetail(),
 			"wangsu_cdn_edge_hostnames":               edgehostname.DataSourceWangSuCdnEdgeHostnames(),
 			"wangsu_ssl_certificate_detail":           certificate.DataSourceSslCertificateDetail(),
+			"wangsu_ssl_certificate_application_detail": certificateapplication.DataSourceSslCertificateApplicationDetail(),
+			"wangsu_ssl_certificate_applications":       certificateapplication.DataSourceSslCertificateApplications(),
 			"wangsu_appa_domain_detail":               appadomain.DataSourceAppaDomainDetail(),
 			"wangsu_ssl_certificates":                 certificate.DataSourceSslCertificates(),
 			"wangsu_waap_whitelist":                   waapWhitelist.DataSourceWaapWhitelist(),
