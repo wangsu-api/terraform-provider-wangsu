@@ -123,26 +123,28 @@ Read-Only:
 
 Read-Only:
 
-- `action` (String)
-- `allow_regexp` (String)
-- `custom_file_type` (String)
-- `custom_pattern` (String)
-- `data_id` (Number)
-- `directory` (String)
-- `except_directory` (String)
-- `except_file_type` (String)
-- `except_path_pattern` (String)
-- `except_request_header` (String)
-- `except_request_method` (String)
-- `file_type` (String)
-- `header_direction` (String)
-- `header_name` (String)
-- `header_value` (String)
-- `path_pattern` (String)
-- `priority` (String)
-- `request_header` (String)
-- `request_method` (String)
-- `specify_url` (String)
+- `action` (String) The control type of the http header supports the addition and deletion of the http header value. The optional value is add|set|delete, which is single-selected. Corresponding to the header-name and header-value parameters. 1. Add: add a header 2. Set: modify the header value 3. Delete: delete the header Note: priority is delete > set > add
+- `allow_regexp` (String) Http header regular match, optional value: true / false. True: indicates that the value of the header-name is handled as a regular match. False: indicates that the value of the header-name is processed according to the actual parameters, and no regular match is made. Do not pass the default is false
+- `custom_file_type` (String) Matching condition: Custom file type, separate by semicolon.
+- `custom_pattern` (String) Matching conditions: specify common types, optional values are all or homepage. 1. all: all files 2. homepage: home page
+- `data_id` (Number) Add a grid type identifier to indicate a specific group configuration when the client has multiple groups of configurations.
+- `directory` (String) Directory
+- `except_directory` (String) Exception directory.
+- `except_file_type` (String) Exception file type.
+- `except_path_pattern` (String) Exception url matching pattern, support regular. Example: /
+- `except_request_header` (String) Exception request header.
+- `except_request_method` (String) Exception request method.
+- `file_type` (String) Matching conditions: file type, please separate by semicolon, optional values: gif png bmp jpeg jpg html htm shtml mp3 wma flv mp4 wmv zip exe rar css txt ico js swf m3u8 xml f4m bootstarp ts.
+- `header_direction` (String) The control direction of the http header, the optional value is cache2visitor/cache2origin/visitor2cache/origin2cache, single-select. Cache2origin refers to the source direction---corresponding to the configuration item return source request; Cache2visitor refers to the direction of the client back - the corresponding configuration item returns to the client response; Visitor2cache refers to receiving client requests Origin2cache refers to the receiving source response
+- `header_name` (String) Http header name, add or modify the http header, only one is allowed; delete the http header to allow multiple entries, separated by a semicolon ';'. Note: The operation of the special http header is limited, and the http header and operation type of the operation are allowed. This item is required and cannot be empty When the action is add: indicates that the header-name header is added. When the action is set: modify the header-name header When the action is delete: delete the header-name header
+- `header_value` (String) The value corresponding to the HTTP header field, for example: mytest.example.com Note: 1. When the action is add or set, the input parameter must be passed a value 2. When the action is delete, the input parameter is not passed Support to get the value of specified variable by keyword, such as client IP, including: Key words: meaning #timestamp: current time, timestamp as 1559124945 #request-host: host in the request header #request-url: request url, which contains the full path of the protocol domain name, etc., such as http://aaa.aa.com/a.html #request-uri: request uri, relative path format, such as /index.html #origin- IP: return source IP #cache-ip: edge node IP #server-ip: external service IP #client-ip: client IP, or visitor IP #response-header{XXX} : get the value in the response header, such as #response-header{etag}, get the etag value in response-header #header{XXX} : to get the value in the HTTP header of the request, such as #header{user-agent}, is to get the user-agent value in the header #cookie{XXX} : get the value in the cookie, such as #cookie{account}, is to get the value of the account set in the cookie
+- `path_pattern` (String) The url matching mode supports fuzzy regularization. If all matches, the input parameters can be configured as: *
+- `priority` (String) Indicates the priority of execution order for multiple sets of configurations. A higher number indicates higher priority. If no parameters are passed, the default value is 10 and cannot be cleared.
+- `request_header` (String) Match request header, header values support regular, header and header values separated by Spaces, e.g. : Range bytes=[0-9]{9,}
+- `request_method` (String) The matching request method, the optional values are: GET, POST, PUT, HEAD, DELETE, OPTIONS, separate by semicolons.
+- `specify_url` (String) Matching Condition: Specify URL. The input parameter does not support the URI format starting with http(s)://
+- `status_code` (String) HTTP status code, multiple separated by semicolons, such as 403;404;500
+- `except_status_code` (String) Exception HTTP status code, multiple separated by semicolons, such as 403;404;500
 
 
 <a id="nestedobjatt--data--http2_settings"></a>
@@ -229,21 +231,27 @@ Read-Only:
 
 Read-Only:
 
-- `after_value` (String)
-- `before_value` (String)
-- `custom_file_type` (String)
-- `custom_pattern` (String)
-- `data_id` (Number)
-- `directory` (String)
-- `except_path_pattern` (String)
-- `exception_request_header` (String)
-- `file_type` (String)
-- `ignore_letter_case` (String)
-- `path_pattern` (String)
-- `priority` (String)
-- `publish_type` (String)
-- `request_header` (String)
-- `rewrite_type` (String)
+- `after_value` (String) Configuration item: new url Indicates the protocol method after rewriting, such as: http://$1
+- `before_value` (String) Configuration item: old url Indicates the protocol mode before rewriting (that is, the object that needs to be rewritten), such as: ^https://([^/]+/.*)
+- `custom_file_type` (String) Matching condition: Custom file type, please separate them by semicolon.
+- `custom_pattern` (String) Matching conditions: specify common types, optional values are all or homepage 1. all: all files 2. homepage: home page
+- `data_id` (Number) Add a grid type identifier to indicate a specific group configuration when the client has multiple groups of configurations.
+- `directory` (String) directory
+- `except_path_pattern` (String) Exceptional url matching mode, except for certain URLs: such as abc.jpg, no content redirection Customer reference: ^https?://[^/]+/.*\.m3u8
+- `exception_request_header` (String) Matching condition: Exception request header
+- `file_type` (String) gif png bmp jpeg jpg html htm shtml mp3 wma flv mp4 wmv zip exe rar css txt ico js swf m3u8 xml f4m bootstarp ts
+- `ignore_letter_case` (String) Ignore case, the optional value is true or false, true means to ignore case; false means not to ignore case; When adding a new configuration item, the default is not true. If the client passes a null value: such as <ignore-letter-case></ignore-letter-case>, the configuration is cleared.
+- `path_pattern` (String) The url matching mode supports fuzzy regularization. If all matches, the input parameters can be configured as: *
+- `priority` (String) Indicates the priority execution order of multiple sets of redirected content by the customer. The higher the number, the higher the priority. When adding a new configuration item, the default is 10
+- `publish_type` (String) Rewrite the location where the content is generated. The input value is: Cache indicates the node; Other input formats are not supported at this time
+- `request_header` (String) Matching condition: Request header
+- `rewrite_type` (String) Redirection type; support for input: before: before the anti-theft chain after: after the anti-theft chain
+- `request_way` (String) Request method, multiple separated by semicolons, such as GET;POST
+- `exceptional_request` (String) Exceptional Request Method, multiple separated by semicolons, such as GET;POST
+- `ua` (String) User-Agent. example: Chrome
+- `exceptional_ua` (String) Exceptional User-Agent. example: Chrome
+- `operators_area` (String) Region. multiple separated by semicolons, such as CN;US. For the range of values, see Appendix Table 1 at https://www.wangsu.com/document/openapi/api-authentication?rsr=ws.
+- `exceptional_operators_area` (String) Exceptional Region. multiple separated by semicolons, such as CN;US. For the range of values, see Appendix Table 1 at https://www.wangsu.com/document/openapi/api-authentication?rsr=ws.
 
 
 <a id="nestedobjatt--data--ssl"></a>

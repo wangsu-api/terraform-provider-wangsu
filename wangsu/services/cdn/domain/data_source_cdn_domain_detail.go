@@ -669,6 +669,16 @@ func DataSourceWangSuCdnDomainDetail() *schema.Resource {
 										Computed:    true,
 										Description: "Exception request header.",
 									},
+									"status_code": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "HTTP status code, multiple separated by semicolons, such as 403;404;500",
+									},
+									"except_status_code": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "Exception HTTP status code, multiple separated by semicolons, such as 403;404;500",
+									},
 								},
 							},
 						},
@@ -752,6 +762,36 @@ func DataSourceWangSuCdnDomainDetail() *schema.Resource {
 										Type:        schema.TypeString,
 										Computed:    true,
 										Description: "Matching condition: Exception request header",
+									},
+									"request_way": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "Request method, multiple separated by semicolons, such as GET;POST",
+									},
+									"exceptional_request": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "Exceptional Request Method, multiple separated by semicolons, such as GET;POST",
+									},
+									"ua": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "User-Agent. example: Chrome",
+									},
+									"exceptional_ua": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "Exceptional User-Agent. example: Chrome",
+									},
+									"operators_area": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "Region. multiple separated by semicolons, such as CN;US. For the range of values, see Appendix Table 1 at https://www.wangsu.com/document/openapi/api-authentication?rsr=ws.",
+									},
+									"exceptional_operators_area": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "Exceptional Region. multiple separated by semicolons, such as CN;US. For the range of values, see Appendix Table 1 at https://www.wangsu.com/document/openapi/api-authentication?rsr=ws.",
 									},
 								},
 							},
@@ -1064,6 +1104,8 @@ func buildHeaderModifyRules(rules []*cdn.QueryDomainForTerraformResponseDataHead
 			"except_directory":      rule.ExceptDirectory,
 			"except_request_method": rule.ExceptRequestMethod,
 			"except_request_header": rule.ExceptRequestHeader,
+			"status_code":           rule.StatusCode,
+			"except_status_code":    rule.ExceptStatusCode,
 		}
 		headerModifyRules = append(headerModifyRules, headerModifyRule)
 	}
@@ -1077,21 +1119,27 @@ func buildRewriteRuleSettings(settings []*cdn.QueryDomainForTerraformResponseDat
 	var rewriteRuleSettings []interface{}
 	for _, setting := range settings {
 		var rewriteRuleSetting = map[string]interface{}{
-			"data_id":                  setting.DataId,
-			"path_pattern":             setting.PathPattern,
-			"custom_pattern":           setting.CustomPattern,
-			"directory":                setting.Directory,
-			"file_type":                setting.FileType,
-			"custom_file_type":         setting.CustomFileType,
-			"except_path_pattern":      setting.ExceptPathPattern,
-			"ignore_letter_case":       setting.IgnoreLetterCase,
-			"publish_type":             setting.PublishType,
-			"priority":                 setting.Priority,
-			"before_value":             setting.BeforeValue,
-			"after_value":              setting.AfterValue,
-			"rewrite_type":             setting.RewriteType,
-			"request_header":           setting.RequestHeader,
-			"exception_request_header": setting.ExceptionRequestHeader,
+			"data_id":                    setting.DataId,
+			"path_pattern":               setting.PathPattern,
+			"custom_pattern":             setting.CustomPattern,
+			"directory":                  setting.Directory,
+			"file_type":                  setting.FileType,
+			"custom_file_type":           setting.CustomFileType,
+			"except_path_pattern":        setting.ExceptPathPattern,
+			"ignore_letter_case":         setting.IgnoreLetterCase,
+			"publish_type":               setting.PublishType,
+			"priority":                   setting.Priority,
+			"before_value":               setting.BeforeValue,
+			"after_value":                setting.AfterValue,
+			"rewrite_type":               setting.RewriteType,
+			"request_header":             setting.RequestHeader,
+			"exception_request_header":   setting.ExceptionRequestHeader,
+			"request_way":                setting.RequestWay,
+			"exceptional_request":        setting.ExceptionalRequest,
+			"ua":                         setting.Ua,
+			"exceptional_ua":             setting.ExceptionalUa,
+			"operators_area":             setting.OperatorsArea,
+			"exceptional_operators_area": setting.ExceptionalOperatorsArea,
 		}
 		rewriteRuleSettings = append(rewriteRuleSettings, rewriteRuleSetting)
 	}

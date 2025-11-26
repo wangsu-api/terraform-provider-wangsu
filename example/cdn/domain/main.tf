@@ -332,18 +332,26 @@ resource "wangsu_cdn_domain" "domain20240712001" {
     except_request_method = "POST"
     except_request_header = "r2"
     priority              = "6"
+    status_code           = "200;201;202"
+    except_status_code    = "500;501;502"
   }
   rewrite_rule_settings {
-    path_pattern             = "*.jpg"
-    except_path_pattern      = "abc.jpg"
-    ignore_letter_case       = "true"
-    publish_type             = "Cache"
-    before_value             = "abc"
-    after_value              = "def"
-    rewrite_type             = "before"
-    request_header           = "request_header"
-    exception_request_header = "exception_request_header"
-    priority                 = "1"
+    path_pattern               = "*.jpg"
+    except_path_pattern        = "abc.jpg"
+    ignore_letter_case         = "true"
+    publish_type               = "Cache"
+    before_value               = "abc"
+    after_value                = "def"
+    rewrite_type               = "before"
+    request_header             = "request_header"
+    exception_request_header   = "exception_request_header"
+    priority                   = "1"
+    request_way                = "GET;POST;HEAD"
+    exceptional_request        = "DELETE;PUT;PATCH"
+    ua                         = "Firefox"
+    exceptional_ua             = "MSIE"
+    operators_area             = "CN;US;SG"
+    exceptional_operators_area = "KR;JP;TW"
   }
   rewrite_rule_settings {
     custom_pattern           = "all"
@@ -390,7 +398,7 @@ resource "wangsu_cdn_domain" "domain20240712001" {
     priority                 = "5"
   }
   back_to_origin_rewrite_rule {
-    protocol                 = "https"
-    port                     = "8443"
+    protocol = "https"
+    port     = "8443"
   }
 }

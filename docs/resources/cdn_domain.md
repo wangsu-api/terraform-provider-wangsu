@@ -336,18 +336,26 @@ resource "wangsu_cdn_domain" "domain20240712001" {
     except_request_method = "POST"
     except_request_header = "r2"
     priority              = "6"
+    status_code           = "200;201;202"
+    except_status_code    = "500;501;502"
   }
   rewrite_rule_settings {
-    path_pattern             = "*.jpg"
-    except_path_pattern      = "abc.jpg"
-    ignore_letter_case       = "true"
-    publish_type             = "Cache"
-    before_value             = "abc"
-    after_value              = "def"
-    rewrite_type             = "before"
-    request_header           = "request_header"
-    exception_request_header = "exception_request_header"
-    priority                 = "1"
+    path_pattern               = "*.jpg"
+    except_path_pattern        = "abc.jpg"
+    ignore_letter_case         = "true"
+    publish_type               = "Cache"
+    before_value               = "abc"
+    after_value                = "def"
+    rewrite_type               = "before"
+    request_header             = "request_header"
+    exception_request_header   = "exception_request_header"
+    priority                   = "1"
+    request_way                = "GET;POST;HEAD"
+    exceptional_request        = "DELETE;PUT;PATCH"
+    ua                         = "Firefox"
+    exceptional_ua             = "MSIE"
+    operators_area             = "CN;US;SG"
+    exceptional_operators_area = "KR;JP;TW"
   }
   rewrite_rule_settings {
     custom_pattern           = "all"
@@ -514,6 +522,8 @@ Optional:
 - `request_header` (String) Match request header, header values support regular, header and header values separated by Spaces, e.g. : Range bytes=[0-9]{9,}
 - `request_method` (String) The matching request method, the optional values are: GET, POST, PUT, HEAD, DELETE, OPTIONS, separate by semicolons.
 - `specify_url` (String) Matching Condition: Specify URL. The input parameter does not support the URI format starting with http(s)://
+- `status_code` (String) HTTP status code, multiple separated by semicolons, such as 403;404;500
+- `except_status_code` (String) Exception HTTP status code, multiple separated by semicolons, such as 403;404;500
 
 
 <a id="nestedblock--http2_settings"></a>
@@ -635,6 +645,12 @@ Optional:
 - `path_pattern` (String) The url matching mode supports fuzzy regularization. If all matches, the input parameters can be configured as: *
 - `priority` (String) Indicates the priority execution order of multiple sets of redirected content by the customer. The higher the number, the higher the priority. When adding a new configuration item, the default is 10
 - `request_header` (String) Matching condition: Request header
+- `request_way` (String) Request method, multiple separated by semicolons, such as GET;POST
+- `exceptional_request` (String) Exceptional Request Method, multiple separated by semicolons, such as GET;POST
+- `ua` (String) User-Agent. example: Chrome
+- `exceptional_ua` (String) Exceptional User-Agent. example: Chrome
+- `operators_area` (String) Region. multiple separated by semicolons, such as CN;US. For the range of values, see Appendix Table 1 at https://www.wangsu.com/document/openapi/api-authentication?rsr=ws.
+- `exceptional_operators_area` (String) Exceptional Region. multiple separated by semicolons, such as CN;US. For the range of values, see Appendix Table 1 at https://www.wangsu.com/document/openapi/api-authentication?rsr=ws.
 
 
 <a id="nestedblock--ssl"></a>
