@@ -14,6 +14,8 @@ import (
 	"time"
 )
 
+const QueryDeployResultTimeoutMinutes = 15
+
 func ResourceAppaDomain() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceAppaDomainCreate,
@@ -215,7 +217,7 @@ func resourceAppaDomainCreate(context context.Context, data *schema.ResourceData
 	time.Sleep(3 * time.Second)
 	//query domain deployment status
 	var response *cdn.QueryDeployResultForTerraformResponse
-	err = resource.RetryContext(context, time.Duration(5)*time.Minute, func() *resource.RetryError {
+	err = resource.RetryContext(context, time.Duration(QueryDeployResultTimeoutMinutes)*time.Minute, func() *resource.RetryError {
 		response, err = meta.(wangsuCommon.ProviderMeta).GetAPIV3Conn().UseCdnClient().QueryDomainDeployStatus(requestId)
 		if err != nil {
 			return resource.NonRetryableError(err)
@@ -453,7 +455,7 @@ func resourceAppaDomainUpdate(context context.Context, data *schema.ResourceData
 	time.Sleep(3 * time.Second)
 	//query domain deployment status
 	var response *cdn.QueryDeployResultForTerraformResponse
-	err = resource.RetryContext(context, time.Duration(5)*time.Minute, func() *resource.RetryError {
+	err = resource.RetryContext(context, time.Duration(QueryDeployResultTimeoutMinutes)*time.Minute, func() *resource.RetryError {
 		response, err = meta.(wangsuCommon.ProviderMeta).GetAPIV3Conn().UseCdnClient().QueryDomainDeployStatus(requestId)
 		if err != nil {
 			return resource.NonRetryableError(err)
@@ -500,7 +502,7 @@ func resourceAppaDomainDelete(context context.Context, data *schema.ResourceData
 	time.Sleep(3 * time.Second)
 	//query domain deployment status
 	var deploymentResponse *cdn.QueryDeployResultForTerraformResponse
-	err = resource.RetryContext(context, time.Duration(5)*time.Minute, func() *resource.RetryError {
+	err = resource.RetryContext(context, time.Duration(QueryDeployResultTimeoutMinutes)*time.Minute, func() *resource.RetryError {
 		deploymentResponse, err = meta.(wangsuCommon.ProviderMeta).GetAPIV3Conn().UseCdnClient().QueryDomainDeployStatus(requestId)
 		if err != nil {
 			return resource.NonRetryableError(err)
