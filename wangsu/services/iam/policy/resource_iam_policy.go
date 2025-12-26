@@ -116,7 +116,10 @@ func resourceIamPolicyUpdate(context context.Context, data *schema.ResourceData,
 	log.Printf("resource.wangsu_iam_policy.update")
 	var diags diag.Diagnostics
 	request := &policy.EditPolicyRequest{}
-	policyId := data.Id()
+	policyId, err1 := strconv.ParseInt(data.Id(), 10, 64)
+	if err1 != nil {
+		return diag.FromErr(err1)
+	}
 	request.PolicyId = &policyId
 	if policyName, ok := data.Get("policy_name").(string); ok {
 		request.PolicyName = &policyName
@@ -156,7 +159,10 @@ func resourceIamPolicyDelete(context context.Context, data *schema.ResourceData,
 	log.Printf("resource.wangsu_iam_policy.delete")
 	var diags diag.Diagnostics
 	request := &policy.DeletePolicyRequest{}
-	policyId := data.Id()
+	policyId, err1 := strconv.ParseInt(data.Id(), 10, 64)
+	if err1 != nil {
+		return diag.FromErr(err1)
+	}
 	request.PolicyId = &policyId
 	var response *policy.DeletePolicyResponse
 	var requestId string
