@@ -64,6 +64,7 @@ resource "wangsu_waap_domain" "example" {
       act = "BLOCK"
     }
     absolute_bots_act = "BLOCK"
+    likely_bots_act   = "LOG"
   }
 
   rate_limit_config {
@@ -142,6 +143,15 @@ BLOCK: Deny<br/>
 LOG: Log<br/>
 ACCEPT: Skip<br/>
 - `web_risk_config` (Block List, Min: 1, Max: 1) Browser Bot defense. (see [below for nested schema](#nestedblock--bot_manage_config--web_risk_config))
+
+Optional:
+
+- `likely_bots_act` (String) Likely Bots action.<br/>
+NO_USE: Not Used<br/>
+LOG: Log<br/>
+BLOCK: Deny<br/>
+JS_CHALLENGE: JavaScript Challenge<br/>
+JSC: Interactive Challenge<br/>
 
 <a id="nestedblock--bot_manage_config--web_risk_config"></a>
 ### Nested Schema for `bot_manage_config.web_risk_config`

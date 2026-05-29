@@ -200,6 +200,12 @@ func ResourceWaapDomain() *schema.Resource {
 							Required:    true,
 							Description: "Definite Bots action.<br/>NO_USE: Not used<br/>BLOCK: Deny<br/>LOG: Log",
 						},
+						"likely_bots_act": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Computed:    true,
+							Description: "Likely Bots action.<br/>NO_USE: Not Used<br/>LOG: Log<br/>BLOCK: Deny<br/>JS_CHALLENGE: JavaScript Challenge<br/>JSC: Interactive Challenge",
+						},
 						"web_risk_config": {
 							Type:        schema.TypeList,
 							Required:    true,
@@ -781,6 +787,9 @@ func expandBotManageConfig(i interface{}) *waapDomain.BOTConfig {
 	}
 	if v, ok := m["ai_bots_act"]; ok {
 		config.AiBotsAct = tea.String(v.(string))
+	}
+	if v, ok := m["likely_bots_act"]; ok && v.(string) != "" {
+		config.LikelyBotsAct = tea.String(v.(string))
 	}
 	return config
 }

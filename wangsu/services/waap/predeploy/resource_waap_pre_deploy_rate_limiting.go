@@ -59,12 +59,12 @@ func ResourceWaapPreDeployRateLimiting() *schema.Resource {
 						"rule_name": {
 							Type:        schema.TypeString,
 							Required:    true,
-							Description: "Rule Name, maximum 50 characters.<br/>does not support # and & .",
+							Description: "Rule Name, maximum 100 characters.<br/>does not support # and & .",
 						},
 						"description": {
 							Type:        schema.TypeString,
 							Optional:    true,
-							Description: "Description, maximum 200 characters.",
+							Description: "Description, maximum 1000 characters.",
 						},
 						"scene": {
 							Type:        schema.TypeString,
@@ -143,7 +143,7 @@ func ResourceWaapPreDeployRateLimiting() *schema.Resource {
 						"action": {
 							Type:        schema.TypeString,
 							Required:    true,
-							Description: "Action.<br/>NO_USE:Not Used<br/>LOG:Log<br/>COOKIE:Cookie verification<br/>JS_CHECK:Javascript verification<br/>DELAY:Delay<br/>BLOCK:Deny<br/>RESET:Reset Connection<br/>Custom response ID:Custom response ID<br/>When there is a status code in the matching condition, the supported actions are Log, Deny, NO_USE, and Reset, Connection.",
+							Description: "Action.<br/>NO_USE:Not Used<br/>LOG:Log<br/>COOKIE:Cookie Verification<br/>JS_CHECK:JavaScript Verification<br/>JS_CHALLENGE:JavaScript Challenge<br/>DELAY:Delay<br/>BLOCK:Deny<br/>RESET:Reset Connection<br/>Custom response ID:Custom response ID<br/>When there is a status code in the matching condition, the supported actions are Log, Deny, NO_USE, and Reset, Connection.",
 						},
 						"rate_limit_rule_condition": {
 							Type:        schema.TypeList,
@@ -785,6 +785,7 @@ func resourceWaapPreDeployRateLimitingCreate(context context.Context, data *sche
 			break
 		} else if *getResponse.Data.DeployStatus == "FAIL" {
 			log.Println("Deployment failed!")
+			diags = append(diags, diag.Errorf("Pre-deployment failed. Please check your configuration or contact technical support.")...)
 			break
 		} else {
 			log.Println("Deployment in progress, retrying...")

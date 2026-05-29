@@ -10,6 +10,8 @@ description: |-
 
 Use this resource to pre-deploy rate limiting configurations.Only configurations with provided parameters will be pre-deployed; configurations without supplied parameters will take effect according to the existing production configuration.
 
+~> **NOTE:** This resource is deprecated. Please use wangsu_waap_pre_deploy_rate_limiting_v2 instead.
+
 ## Example Usage
 ```hcl
 resource "wangsu_waap_pre_deploy_rate_limiting" "demo" {
@@ -139,11 +141,11 @@ output "wangsu_waap_pre_deploy_result" {
 
 Required:
 
-- `action` (String) Action.<br/>NO_USE:Not Used<br/>LOG:Log<br/>COOKIE:Cookie verification<br/>JS_CHECK:Javascript verification<br/>DELAY:Delay<br/>BLOCK:Deny<br/>RESET:Reset Connection<br/>Custom response ID:Custom response ID<br/>When there is a status code in the matching condition, the supported actions are Log, Deny, NO_USE, and Reset, Connection.
+- `action` (String) Action.<br/>NO_USE:Not Used<br/>LOG:Log<br/>COOKIE:Cookie Verification<br/>JS_CHECK:JavaScript Verification<br/>JS_CHALLENGE:JavaScript Challenge<br/>DELAY:Delay<br/>BLOCK:Deny<br/>RESET:Reset Connection<br/>Custom response ID:Custom response ID<br/>When there is a status code in the matching condition, the supported actions are Log, Deny, NO_USE, and Reset, Connection.
 - `effective_status` (String) Cycle effective status.<br/>PERMANENT:All time<br/>WITHOUT:Excluded time<br/>WITHIN:Selected time
 - `intercept_time` (Number) Action duration, unit: seconds, the range is 10 - 604800.
 - `rate_limit_rule_condition` (Block List, Min: 1, Max: 1) Matching conditions. (see [below for nested schema](#nestedblock--rule_list--rate_limit_rule_condition))
-- `rule_name` (String) Rule Name, maximum 50 characters.<br/>does not support # and & .
+- `rule_name` (String) Rule Name, maximum 100 characters.<br/>does not support # and & .
 - `scene` (String) Protected target.<br/>WEB:Website<br/>API:API
 - `statistical_item` (String) Client identifier.<br/>IP:Client IP<br/>IP_UA:Client IP and User-Agent<br/>COOKIE:Cookie<br/>IP_COOKIE:Client IP and Cookie<br/>HEADER:Request Header<br/>When there is a status code in the matching condition,this client identifier is not supported.<br/>IP_HEADER:Client IP and Request Header<br/>When there is a status code in the matching condition,this client identifier is not supported .
 - `statistical_period` (Number) Statistics period, unit: seconds, the range is 1 - 3600.
@@ -152,7 +154,7 @@ Required:
 Optional:
 
 - `asset_api_id` (String) API ID under API business, multiple separated by ; sign.<br/>When the protected target is APIThis field is required.
-- `description` (String) Description, maximum 200 characters.
+- `description` (String) Description, maximum 1000 characters.
 - `rate_limit_effective` (Block List, Max: 1) Effective time period.<br/>When the effective status is effective within the cycle or not effective within the cycle, this field must have a value. (see [below for nested schema](#nestedblock--rule_list--rate_limit_effective))
 - `statistics_key` (String) Statistical key value.<br/>When the client identifier is cookie/header value, the corresponding key value needs to be entered.
 

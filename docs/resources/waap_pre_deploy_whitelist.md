@@ -71,11 +71,11 @@ output "wangsu_waap_pre_deploy_result" {
 Required:
 
 - `conditions` (Block List, Min: 1, Max: 1) Match conditions, at least one, at most five. (see [below for nested schema](#nestedblock--rule_list--conditions))
-- `rule_name` (String) Rule name, maximum 50 characters.<br/>does not support # and & .
+- `rule_name` (String) Rule name, maximum 100 characters.<br/>does not support # and & .
 
 Optional:
 
-- `description` (String) Description, maximum 200 characters.
+- `description` (String) Description, maximum 1000 characters.
 
 <a id="nestedblock--rule_list--conditions"></a>
 ### Nested Schema for `rule_list.conditions`

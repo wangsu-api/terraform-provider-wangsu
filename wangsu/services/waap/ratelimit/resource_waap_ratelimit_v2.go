@@ -1,0 +1,1138 @@
+package ratelimit
+
+import (
+	"context"
+	"errors"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	wangsuCommon "github.com/wangsu-api/terraform-provider-wangsu/wangsu/common"
+	waapRatelimitV2 "github.com/wangsu-api/wangsu-sdk-go/wangsu/waap/ratelimitv2"
+	"log"
+	"time"
+)
+
+func ResourceWaapRateLimitV2() *schema.Resource {
+	return &schema.Resource{
+		CreateContext: resourceWaapRateLimitV2Create,
+		ReadContext:   resourceWaapRateLimitV2Read,
+		UpdateContext: resourceWaapRateLimitV2Update,
+		DeleteContext: resourceWaapRateLimitV2Delete,
+
+		Schema: map[string]*schema.Schema{
+			"id": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Rule ID.",
+			},
+			"domain": {
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "Hostname.",
+			},
+			"rule_name": {
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "Rule Name, maximum 100 characters.<br/>does not support # and & .",
+			},
+			"description": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "Description, maximum 1000 characters.",
+			},
+			"scene": {
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "Protected target.<br/>WEB:Website<br/>API:API",
+			},
+			"statistical_items": {
+				Type:        schema.TypeList,
+				Required:    true,
+				Description: "Statistical granularity list.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"statistical_item": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: "Statistical item.<br/>IP:Client IP<br/>UA:User-Agent<br/>COOKIE:Cookie<br/>URL:URL<br/>HEADER:Request Header, not supported when there is a status code in the matching condition",
+						},
+						"statistics_keys": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Elem:        &schema.Schema{Type: schema.TypeString},
+							Description: "When the statistical item is Cookie/HEADER value, the corresponding key value list.",
+						},
+					},
+				},
+			},
+			"statistical_period": {
+				Type:        schema.TypeInt,
+				Required:    true,
+				Description: "Statistics period, unit: seconds.",
+			},
+			"trigger_threshold": {
+				Type:        schema.TypeInt,
+				Required:    true,
+				Description: "Trigger threshold, unit: times.",
+			},
+			"intercept_time": {
+				Type:        schema.TypeInt,
+				Required:    true,
+				Description: "Action duration, unit: seconds.",
+			},
+			"effective_status": {
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "Cycle effective status.<br/>PERMANENT:All time<br/>WITHOUT:Excluded time<br/>WITHIN:Selected time",
+			},
+			"rate_limit_effective": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: "Effective time period.When the effective status is effective within the cycle or not effective within the cycle, this field must have a value.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"effective": {
+							Type:        schema.TypeList,
+							Required:    true,
+							Description: "Effective.<br/>MON:Monday<br/>TUE:Tuesday<br/>WED:Wednesday<br/>THU:Thursday<br/>FRI:Friday<br/>SAT:Saturday<br/>SUN:Sunday",
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
+						"start": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: "Start time, format: HH:mm.",
+						},
+						"end": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: "End time, format: HH:mm.",
+						},
+						"timezone": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: "Timezone,default value: GTM+8.",
+						},
+					},
+				},
+			},
+			"asset_api_id": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "API ID under API business, multiple separated by ; sign.<br/>When the protected target is API, this field is required.",
+			},
+			"action": {
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "Action.<br/>NO_USE:Not Used<br/>LOG:Log<br/>COOKIE:Cookie Verification<br/>JS_CHECK:JavaScript Verification<br/>JS_CHALLENGE:JavaScript Challenge<br/>DELAY:Delay<br/>BLOCK:Deny<br/>RESET:Reset Connection<br/>JSC:Interactive Challenge<br/>IP_BLOCK:IP Blocking<br/>Custom response ID:Custom response ID<br/>When there is a status code in the matching condition, the supported actions are Log, Deny, Not Used, and Reset Connection.",
+			},
+			"rate_limit_rule_condition": {
+				Type:        schema.TypeList,
+				Required:    true,
+				Description: "Matching conditions.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"ip_or_ips_conditions": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: "IP/CIDR, match type cannot be repeated.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"match_type": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: "Match type.<br/>EQUAL:Equal<br/>NOT_EQUAL:Does not equal",
+									},
+									"ip_or_ips": {
+										Type:        schema.TypeList,
+										Required:    true,
+										Description: "IP/CIDR, maximum 300 IP/CIDR.",
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+								},
+							},
+						},
+						"path_conditions": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: "Path, match type cannot be repeated.<br/>When the business scenario is API, this matching condition is not supported.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"match_type": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: "Match type.<br/>EQUAL: Equals, user agent case sensitive<br/>NOT_EQUAL: Does not equal, user agent case sensitive<br/>CONTAIN: Contains, user agent case insensitive<br/>NOT_CONTAIN: Does not Contains, user agent case insensitive<br/>REGEX: Regex match, user agent case insensitive<br/>NOT_REGEX: Regular does not match, user agent case insensitive<br/>START_WITH: Starts with, user agent case insensitive<br/>END_WITH: Ends with, user agent case insensitive<br/>WILDCARD: Wildcard matches, user agent case insensitive, * represents zero or more arbitrary characters, ? represents any single character<br/>NOT_WILDCARD: Wildcard does not match, user agent case insensitive, * represents zero or more arbitrary characters, ? represents any single character",
+									},
+									"paths": {
+										Type:        schema.TypeList,
+										Required:    true,
+										Description: "Path.<br/>When match type is EQUAL/NOT_EQUAL/START_WITH/END_WITH, path needs to start with \"/\", and no parameters.<br/>When the match type is REGEX/NOT_REGEX, only one value is allowed. <br/>Example: /test.html.",
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+								},
+							},
+						},
+						"uri_conditions": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: "URI, match type cannot be repeated.<br/>When the business scenario is API, this matching condition is not supported.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"match_type": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: "Match type.<br/>EQUAL: Equals, user agent case sensitive<br/>NOT_EQUAL: Does not equal, user agent case sensitive<br/>CONTAIN: Contains, user agent case insensitive<br/>NOT_CONTAIN: Does not Contains, user agent case insensitive<br/>REGEX: Regex match, user agent case insensitive<br/>NOT_REGEX: Regular does not match, user agent case insensitive<br/>START_WITH: Starts with, user agent case insensitive<br/>END_WITH: Ends with, user agent case insensitive<br/>WILDCARD: Wildcard matches, user agent case insensitive, * represents zero or more arbitrary characters, ? represents any single character<br/>NOT_WILDCARD: Wildcard does not match, user agent case insensitive, * represents zero or more arbitrary characters, ? represents any single character",
+									},
+									"uri": {
+										Type:        schema.TypeList,
+										Required:    true,
+										Description: "URI.<br/>When match type is EQUAL/NOT_EQUAL/START_WITH/END_WITH, uri needs to start with \"/\", and includes parameters.<br/>When the match type is REGEX/NOT_REGEX, only one value is allowed. <br/>Example: /test.html?id=1.",
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+								},
+							},
+						},
+						"uri_param_conditions": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: "URI ParameterI, match type cannot be repeated.<br/>When the business scenario is API, this matching condition is not supported.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"match_type": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: "Match type.<br/>EQUAL:Equals,param value case sensitive<br/>NOT_EQUAL:Does not equal,param value case sensitive<br/>CONTAIN:Contains,param value case insensitive<br/>NOT_CONTAIN:Does not contains,param value case insensitive<br/>REGEX:Regex match,param value case insensitive<br/>NONE:Empty or non-existent",
+									},
+									"param_name": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: "Param name,case sensitive,maximum 100 characters.<br/>Example: id.",
+									},
+									"param_value": {
+										Type:        schema.TypeList,
+										Required:    true,
+										Description: "Param value.",
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+								},
+							},
+						},
+						"ua_conditions": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: "User Agent, match type cannot be repeated.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"match_type": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: "Match type.<br/>EQUAL: Equals, user agent case sensitive<br/>NOT_EQUAL: Does not equal, user agent case sensitive<br/>CONTAIN: Contains, user agent case insensitive<br/>NOT_CONTAIN: Does not Contains, user agent case insensitive<br/>NONE:Empty or non-existent<br/>REGEX: Regex match, user agent case insensitive<br/>NOT_REGEX: Regular does not match, user agent case insensitive<br/>START_WITH: Starts with, user agent case insensitive<br/>END_WITH: Ends with, user agent case insensitive<br/>WILDCARD: Wildcard matches, user agent case insensitive, * represents zero or more arbitrary characters, ? represents any single character<br/>NOT_WILDCARD: Wildcard does not match, user agent case insensitive, * represents zero or more arbitrary characters, ? represents any single character",
+									},
+									"ua": {
+										Type:        schema.TypeList,
+										Required:    true,
+										Description: "User agent.<br/>When the match type is REGEX/NOT_REGEX, only one value is allowed. <br/>Example: go-Http-client/1.1.",
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+								},
+							},
+						},
+						"referer_conditions": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: "Referer, match type cannot be repeated.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"match_type": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: "Match type.<br/>EQUAL: Equals, user agent case sensitive<br/>NOT_EQUAL: Does not equal, user agent case sensitive<br/>CONTAIN: Contains, user agent case insensitive<br/>NOT_CONTAIN: Does not Contains, user agent case insensitive<br/>NONE:Empty or non-existent<br/>REGEX: Regex match, user agent case insensitive<br/>NOT_REGEX: Regular does not match, user agent case insensitive<br/>START_WITH: Starts with, user agent case insensitive<br/>END_WITH: Ends with, user agent case insensitive<br/>WILDCARD: Wildcard matches, user agent case insensitive, * represents zero or more arbitrary characters, ? represents any single character<br/>NOT_WILDCARD: Wildcard does not match, user agent case insensitive, * represents zero or more arbitrary characters, ? represents any single character",
+									},
+									"referer": {
+										Type:        schema.TypeList,
+										Required:    true,
+										Description: "Referer.<br/>When the match type is REGEX/NOT_REGEX, only one value is allowed. <br/>Example: http://test.com.",
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+								},
+							},
+						},
+						"header_conditions": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: "Request Header, match type can be repeated.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"match_type": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: "Match type.<br/>EQUAL: Equals, user agent case sensitive<br/>NOT_EQUAL: Does not equal, user agent case sensitive<br/>CONTAIN: Contains, user agent case insensitive<br/>NOT_CONTAIN: Does not Contains, user agent case insensitive<br/>NONE:Empty or non-existent<br/>REGEX: Regex match, user agent case insensitive<br/>NOT_REGEX: Regular does not match, user agent case insensitive<br/>START_WITH: Starts with, user agent case insensitive<br/>END_WITH: Ends with, user agent case insensitive<br/>WILDCARD: Wildcard matches, user agent case insensitive, * represents zero or more arbitrary characters, ? represents any single character<br/>NOT_WILDCARD: Wildcard does not match, user agent case insensitive, * represents zero or more arbitrary characters, ? represents any single character",
+									},
+									"key": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: "Header name,case insensitive,up to 100 characters.<br/>Example: Accept.",
+									},
+									"value_list": {
+										Type:        schema.TypeList,
+										Required:    true,
+										Description: "Header value.<br/>When the match type is REGEX/NOT_REGEX, only one value is allowed.",
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+								},
+							},
+						},
+						"area_conditions": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: "Geo,match type cannot be repeated.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"match_type": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: "Match type.<br/>EQUAL:Equal<br/>NOT_EQUAL:Does not equal",
+									},
+									"areas": {
+										Type:        schema.TypeList,
+										Required:    true,
+										Description: "Geo.",
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+								},
+							},
+						},
+						"status_code_conditions": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: "Response Code, match type cannot be repeated.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"match_type": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: "Match type.<br/>EQUAL:Equal<br/>NOT_EQUAL:Does not equal",
+									},
+									"status_code": {
+										Type:        schema.TypeList,
+										Required:    true,
+										Description: "Response Code.",
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+								},
+							},
+						},
+						"method_conditions": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: "Request Method.<br/>When the business scenario is API,this matching condition is not supported.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"match_type": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: "Match type.<br/>EQUAL:Equal<br/>NOT_EQUAL:Does not equal",
+									},
+									"request_method": {
+										Type:        schema.TypeList,
+										Required:    true,
+										Description: "Request method.<br/>Supported values: GET/POST/DELETE/PUT/HEAD/OPTIONS/COPY.",
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+								},
+							},
+						},
+						"scheme_conditions": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: "HTTP/S, match type cannot be repeated.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"match_type": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: "Match type.<br/>EQUAL:Equal<br/>NOT_EQUAL:Does not equal",
+									},
+									"scheme": {
+										Type:        schema.TypeList,
+										Required:    true,
+										Description: "HTTP/S.<br/>Supported values: HTTP/HTTPS.",
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+								},
+							},
+						},
+						"ja3_conditions": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: "JA3 Fingerprint, match type cannot be repeated.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"match_type": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: "Match type.\nEQUAL: Equals\nNOT_EQUAL: Does not equal",
+									},
+									"ja3_list": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Elem:        &schema.Schema{Type: schema.TypeString},
+										Description: "JA3 Fingerprint List, maximum 300 JA3 Fingerprint.\nWhen the match type is EQUAL/NOT_EQUAL, each item's character length must be 32 and can only include numbers and lowercase letters.",
+									},
+								},
+							},
+						},
+						"ja4_conditions": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: "JA4 Fingerprint, match type cannot be repeated.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"match_type": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: "Match type. \nEQUAL: Equals\nNOT_EQUAL: Does not equal\nCONTAIN: Contains\nNOT_CONTAIN: Does not Contains\nSTART_WITH: Starts with\nEND_WITH: Ends with\nWILDCARD: Wildcard matches, ** represents zero or more arbitrary characters, ? represents any single character\nNOT_WILDCARD: Wildcard does not match, ** represents zero or more arbitrary characters, ? represents any single character",
+									},
+									"ja4_list": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Elem:        &schema.Schema{Type: schema.TypeString},
+										Description: "JA4 Fingerprint List, maximum 300 JA4 Fingerprint.\nWhen the match type is EQUAL/NOT_EQUAL, each item's format must be 10 characters + 12 characters + 12 characters, separated by underscores, and can only include underscores, numbers, and lowercase letters.\nWhen the match type is CONTAIN/NOT_CONTAIN/START_WITH/END_WITH, each item is only allowed to include underscores, numbers, and lowercase letters.\nWhen the match type is WILDCARD/NOT_WILDCARD, each item, aside from  ** and ?, is only allowed to include underscores, numbers, and lowercase letters.",
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
+func buildConditionsRequestV2(conditions []interface{}) *waapRatelimitV2.RateLimitRuleCondition {
+	conditionsRequest := &waapRatelimitV2.RateLimitRuleCondition{}
+	for _, v := range conditions {
+		conditionMap := v.(map[string]interface{})
+
+		// IpOrIps Conditions
+		if conditionMap["ip_or_ips_conditions"] != nil {
+			ipOrIpsConditions := make([]*waapRatelimitV2.IpOrIpsCondition, 0)
+			for _, ipOrIpsCondition := range conditionMap["ip_or_ips_conditions"].([]interface{}) {
+				ipOrIpsConditionMap := ipOrIpsCondition.(map[string]interface{})
+				matchType := ipOrIpsConditionMap["match_type"].(string)
+				ipOrIpsInterface := ipOrIpsConditionMap["ip_or_ips"].([]interface{})
+				ipOrIps := make([]*string, len(ipOrIpsInterface))
+				for i, v := range ipOrIpsInterface {
+					str := v.(string)
+					ipOrIps[i] = &str
+				}
+				ipOrIpsConditions = append(ipOrIpsConditions, &waapRatelimitV2.IpOrIpsCondition{
+					MatchType: &matchType,
+					IpOrIps:   ipOrIps,
+				})
+			}
+			conditionsRequest.IpOrIpsConditions = ipOrIpsConditions
+		}
+
+		// Path Conditions
+		if conditionMap["path_conditions"] != nil {
+			pathConditions := make([]*waapRatelimitV2.PathCondition, 0)
+			for _, pathCondition := range conditionMap["path_conditions"].([]interface{}) {
+				pathConditionMap := pathCondition.(map[string]interface{})
+				matchType := pathConditionMap["match_type"].(string)
+				pathsInterface := pathConditionMap["paths"].([]interface{})
+				paths := make([]*string, len(pathsInterface))
+				for i, v := range pathsInterface {
+					str := v.(string)
+					paths[i] = &str
+				}
+				pathConditions = append(pathConditions, &waapRatelimitV2.PathCondition{
+					MatchType: &matchType,
+					Paths:     paths,
+				})
+			}
+			conditionsRequest.PathConditions = pathConditions
+		}
+
+		// URI Conditions
+		if conditionMap["uri_conditions"] != nil {
+			uriConditions := make([]*waapRatelimitV2.UriCondition, 0)
+			for _, uriCondition := range conditionMap["uri_conditions"].([]interface{}) {
+				uriConditionMap := uriCondition.(map[string]interface{})
+				matchType := uriConditionMap["match_type"].(string)
+				uriInterface := uriConditionMap["uri"].([]interface{})
+				uri := make([]*string, len(uriInterface))
+				for i, v := range uriInterface {
+					str := v.(string)
+					uri[i] = &str
+				}
+				uriConditions = append(uriConditions, &waapRatelimitV2.UriCondition{
+					MatchType: &matchType,
+					Uri:       uri,
+				})
+			}
+			conditionsRequest.UriConditions = uriConditions
+		}
+
+		// URI Param Conditions
+		if conditionMap["uri_param_conditions"] != nil {
+			uriParamConditions := make([]*waapRatelimitV2.UriParamCondition, 0)
+			for _, uriParamCondition := range conditionMap["uri_param_conditions"].([]interface{}) {
+				uriParamConditionMap := uriParamCondition.(map[string]interface{})
+				matchType := uriParamConditionMap["match_type"].(string)
+				paramName := uriParamConditionMap["param_name"].(string)
+				paramValueInterface := uriParamConditionMap["param_value"].([]interface{})
+				paramValue := make([]*string, len(paramValueInterface))
+				for i, v := range paramValueInterface {
+					str := v.(string)
+					paramValue[i] = &str
+				}
+				uriParamConditions = append(uriParamConditions, &waapRatelimitV2.UriParamCondition{
+					MatchType:  &matchType,
+					ParamName:  &paramName,
+					ParamValue: paramValue,
+				})
+			}
+			conditionsRequest.UriParamConditions = uriParamConditions
+		}
+
+		// UA Conditions
+		if conditionMap["ua_conditions"] != nil {
+			uaConditions := make([]*waapRatelimitV2.UaCondition, 0)
+			for _, uaCondition := range conditionMap["ua_conditions"].([]interface{}) {
+				uaConditionMap := uaCondition.(map[string]interface{})
+				matchType := uaConditionMap["match_type"].(string)
+				uaInterface := uaConditionMap["ua"].([]interface{})
+				ua := make([]*string, len(uaInterface))
+				for i, v := range uaInterface {
+					str := v.(string)
+					ua[i] = &str
+				}
+				uaConditions = append(uaConditions, &waapRatelimitV2.UaCondition{
+					MatchType: &matchType,
+					Ua:        ua,
+				})
+			}
+			conditionsRequest.UaConditions = uaConditions
+		}
+
+		// Referer Conditions
+		if conditionMap["referer_conditions"] != nil {
+			refererConditions := make([]*waapRatelimitV2.RefererCondition, 0)
+			for _, refererCondition := range conditionMap["referer_conditions"].([]interface{}) {
+				refererConditionMap := refererCondition.(map[string]interface{})
+				matchType := refererConditionMap["match_type"].(string)
+				refererInterface := refererConditionMap["referer"].([]interface{})
+				referer := make([]*string, len(refererInterface))
+				for i, v := range refererInterface {
+					str := v.(string)
+					referer[i] = &str
+				}
+				refererConditions = append(refererConditions, &waapRatelimitV2.RefererCondition{
+					MatchType: &matchType,
+					Referer:   referer,
+				})
+			}
+			conditionsRequest.RefererConditions = refererConditions
+		}
+
+		// Header Conditions
+		if conditionMap["header_conditions"] != nil {
+			headerConditions := make([]*waapRatelimitV2.HeaderCondition, 0)
+			for _, headerCondition := range conditionMap["header_conditions"].([]interface{}) {
+				headerConditionMap := headerCondition.(map[string]interface{})
+				matchType := headerConditionMap["match_type"].(string)
+				key := headerConditionMap["key"].(string)
+				valueListInterface := headerConditionMap["value_list"].([]interface{})
+				valueList := make([]*string, len(valueListInterface))
+				for i, v := range valueListInterface {
+					str := v.(string)
+					valueList[i] = &str
+				}
+				headerConditions = append(headerConditions, &waapRatelimitV2.HeaderCondition{
+					MatchType: &matchType,
+					Key:       &key,
+					ValueList: valueList,
+				})
+			}
+			conditionsRequest.HeaderConditions = headerConditions
+		}
+
+		// Area Conditions
+		if conditionMap["area_conditions"] != nil {
+			areaConditions := make([]*waapRatelimitV2.AreaCondition, 0)
+			for _, areaCondition := range conditionMap["area_conditions"].([]interface{}) {
+				areaConditionMap := areaCondition.(map[string]interface{})
+				matchType := areaConditionMap["match_type"].(string)
+				areasInterface := areaConditionMap["areas"].([]interface{})
+				areas := make([]*string, len(areasInterface))
+				for i, v := range areasInterface {
+					str := v.(string)
+					areas[i] = &str
+				}
+				areaConditions = append(areaConditions, &waapRatelimitV2.AreaCondition{
+					MatchType: &matchType,
+					Areas:     areas,
+				})
+			}
+			conditionsRequest.AreaConditions = areaConditions
+		}
+
+		// Method Conditions
+		if conditionMap["method_conditions"] != nil {
+			methodConditions := make([]*waapRatelimitV2.RequestMethodCondition, 0)
+			for _, methodCondition := range conditionMap["method_conditions"].([]interface{}) {
+				methodConditionMap := methodCondition.(map[string]interface{})
+				matchType := methodConditionMap["match_type"].(string)
+				requestMethodInterface := methodConditionMap["request_method"].([]interface{})
+				requestMethod := make([]*string, len(requestMethodInterface))
+				for i, v := range requestMethodInterface {
+					str := v.(string)
+					requestMethod[i] = &str
+				}
+				methodConditions = append(methodConditions, &waapRatelimitV2.RequestMethodCondition{
+					MatchType:     &matchType,
+					RequestMethod: requestMethod,
+				})
+			}
+			conditionsRequest.MethodConditions = methodConditions
+		}
+
+		// Status Code Conditions
+		if conditionMap["status_code_conditions"] != nil {
+			statusCodeConditions := make([]*waapRatelimitV2.StatusCodeCondition, 0)
+			for _, statusCodeCondition := range conditionMap["status_code_conditions"].([]interface{}) {
+				statusCodeConditionMap := statusCodeCondition.(map[string]interface{})
+				matchType := statusCodeConditionMap["match_type"].(string)
+				statusCodeInterface := statusCodeConditionMap["status_code"].([]interface{})
+				statusCode := make([]*string, len(statusCodeInterface))
+				for i, v := range statusCodeInterface {
+					str := v.(string)
+					statusCode[i] = &str
+				}
+				statusCodeConditions = append(statusCodeConditions, &waapRatelimitV2.StatusCodeCondition{
+					MatchType:  &matchType,
+					StatusCode: statusCode,
+				})
+			}
+			conditionsRequest.StatusCodeConditions = statusCodeConditions
+		}
+
+		// Scheme Conditions
+		if conditionMap["scheme_conditions"] != nil {
+			schemeConditions := make([]*waapRatelimitV2.SchemeCondition, 0)
+			for _, schemeCondition := range conditionMap["scheme_conditions"].([]interface{}) {
+				schemeConditionMap := schemeCondition.(map[string]interface{})
+				matchType := schemeConditionMap["match_type"].(string)
+				schemes := make([]*string, len(schemeConditionMap["scheme"].([]interface{})))
+				for i, scheme := range schemeConditionMap["scheme"].([]interface{}) {
+					schemeStr := scheme.(string)
+					schemes[i] = &schemeStr
+				}
+				schemeConditions = append(schemeConditions, &waapRatelimitV2.SchemeCondition{
+					MatchType: &matchType,
+					Scheme:    schemes,
+				})
+			}
+			conditionsRequest.SchemeConditions = schemeConditions
+		}
+
+		// JA3 Conditions
+		if conditionMap["ja3_conditions"] != nil {
+			ja3Conditions := make([]*waapRatelimitV2.Ja3Condition, 0)
+			for _, ja3Condition := range conditionMap["ja3_conditions"].([]interface{}) {
+				ja3ConditionMap := ja3Condition.(map[string]interface{})
+				matchType := ja3ConditionMap["match_type"].(string)
+				ja3Interface := ja3ConditionMap["ja3_list"].([]interface{})
+				ja3 := make([]*string, len(ja3Interface))
+				for i, v := range ja3Interface {
+					str := v.(string)
+					ja3[i] = &str
+				}
+				ja3Conditions = append(ja3Conditions, &waapRatelimitV2.Ja3Condition{
+					MatchType: &matchType,
+					Ja3List:   ja3,
+				})
+			}
+			conditionsRequest.Ja3Conditions = ja3Conditions
+		}
+
+		// JA4 Conditions
+		if conditionMap["ja4_conditions"] != nil {
+			ja4Conditions := make([]*waapRatelimitV2.Ja4Condition, 0)
+			for _, ja4Condition := range conditionMap["ja4_conditions"].([]interface{}) {
+				ja4ConditionMap := ja4Condition.(map[string]interface{})
+				matchType := ja4ConditionMap["match_type"].(string)
+				ja4Interface := ja4ConditionMap["ja4_list"].([]interface{})
+				ja4 := make([]*string, len(ja4Interface))
+				for i, v := range ja4Interface {
+					str := v.(string)
+					ja4[i] = &str
+				}
+				ja4Conditions = append(ja4Conditions, &waapRatelimitV2.Ja4Condition{
+					MatchType: &matchType,
+					Ja4List:   ja4,
+				})
+			}
+			conditionsRequest.Ja4Conditions = ja4Conditions
+		}
+	}
+	return conditionsRequest
+}
+
+func buildStatisticalItemsV2(items []interface{}) []*waapRatelimitV2.StatisticalItem {
+	result := make([]*waapRatelimitV2.StatisticalItem, 0, len(items))
+	for _, item := range items {
+		itemMap := item.(map[string]interface{})
+		statisticalItem := waapRatelimitV2.StatisticalBaseEnum(itemMap["statistical_item"].(string))
+		si := &waapRatelimitV2.StatisticalItem{
+			StatisticalItem: statisticalItem,
+		}
+		if keysInterface, ok := itemMap["statistics_keys"]; ok {
+			keysList := keysInterface.([]interface{})
+			keys := make([]*string, len(keysList))
+			for i, k := range keysList {
+				str := k.(string)
+				keys[i] = &str
+			}
+			si.StatisticsKeys = keys
+		}
+		result = append(result, si)
+	}
+	return result
+}
+
+func resourceWaapRateLimitV2Create(context context.Context, data *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	log.Printf("resource.wangsu_waap_ratelimit_v2.create")
+
+	var diags diag.Diagnostics
+	request := &waapRatelimitV2.CreatRateLimitingRuleRequest{}
+	if v, ok := data.GetOk("domain"); ok {
+		request.SetDomain(v.(string))
+	}
+	if v, ok := data.GetOk("rule_name"); ok {
+		request.SetRuleName(v.(string))
+	}
+	if v, ok := data.GetOk("description"); ok {
+		request.SetDescription(v.(string))
+	}
+	if v, ok := data.GetOk("scene"); ok {
+		request.SetScene(v.(string))
+	}
+	if v, ok := data.GetOk("statistical_items"); ok {
+		request.SetStatisticalItems(buildStatisticalItemsV2(v.([]interface{})))
+	}
+	if v, ok := data.GetOk("statistical_period"); ok {
+		request.SetStatisticalPeriod(v.(int))
+	}
+	if v, ok := data.GetOk("trigger_threshold"); ok {
+		request.SetTriggerThreshold(v.(int))
+	}
+	if v, ok := data.GetOk("intercept_time"); ok {
+		request.SetInterceptTime(v.(int))
+	}
+	if v, ok := data.GetOk("effective_status"); ok {
+		request.SetEffectiveStatus(v.(string))
+	}
+	if v, ok := data.GetOk("rate_limit_effective"); ok {
+		rateLimitEffectiveV := v.([]interface{})
+		for _, v := range rateLimitEffectiveV {
+			rateLimitEffectiveD := v.(map[string]interface{})
+			effective := rateLimitEffectiveD["effective"].([]interface{})
+			start := rateLimitEffectiveD["start"].(string)
+			end := rateLimitEffectiveD["end"].(string)
+			timezone := rateLimitEffectiveD["timezone"].(string)
+			ratelimitEffective := &waapRatelimitV2.RateLimitEffective{}
+			effectives := make([]*string, len(effective))
+			for i, v := range effective {
+				str := v.(string)
+				effectives[i] = &str
+			}
+			ratelimitEffective.SetEffective(effectives)
+			ratelimitEffective.SetStart(start)
+			ratelimitEffective.SetEnd(end)
+			ratelimitEffective.SetTimezone(timezone)
+			request.SetRateLimitEffective(ratelimitEffective)
+		}
+	}
+	if v, ok := data.GetOk("asset_api_id"); ok {
+		request.SetAssetApiId(v.(string))
+	}
+	if v, ok := data.GetOk("action"); ok {
+		request.SetAction(v.(string))
+	}
+	conditions := data.Get("rate_limit_rule_condition").([]interface{})
+	request.RateLimitRuleCondition = buildConditionsRequestV2(conditions)
+
+	var response *waapRatelimitV2.CreatRateLimitingRuleResponse
+	var err error
+	err = resource.RetryContext(context, time.Duration(2)*time.Minute, func() *resource.RetryError {
+		_, response, err = meta.(wangsuCommon.ProviderMeta).GetAPIV3Conn().UseWaapRatelimitV2Client().AddRateLimit(request)
+		if err != nil {
+			return resource.NonRetryableError(err)
+		}
+		return nil
+	})
+
+	if err != nil {
+		diags = append(diags, diag.FromErr(err)...)
+		return diags
+	}
+	if response == nil || response.Data == nil {
+		data.SetId("")
+		return nil
+	}
+	_ = data.Set("id", *response.Data)
+	data.SetId(*response.Data)
+	return resourceWaapRateLimitV2Read(context, data, meta)
+}
+
+func resourceWaapRateLimitV2Read(context context.Context, data *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	log.Printf("resource.wangsu_waap_ratelimit_v2.read")
+	var response *waapRatelimitV2.ListRateLimitingRulesResponse
+	var err error
+	var diags diag.Diagnostics
+	err = resource.RetryContext(context, time.Duration(2)*time.Minute, func() *resource.RetryError {
+		domain := data.Get("domain").(string)
+		request := &waapRatelimitV2.ListRateLimitingRulesRequest{
+			DomainList: []*string{&domain},
+		}
+		_, response, err = meta.(wangsuCommon.ProviderMeta).GetAPIV3Conn().UseWaapRatelimitV2Client().GetRateLimitList(request)
+		if err != nil {
+			return resource.NonRetryableError(err)
+		}
+		return nil
+	})
+
+	if err != nil {
+		diags = append(diags, diag.FromErr(err)...)
+		return diags
+	}
+
+	if response == nil {
+		return nil
+	}
+	if len(response.Data) == 0 {
+		data.SetId("")
+		return nil
+	}
+	if response.Data != nil {
+		for _, item := range response.Data {
+			if *item.Id != data.Id() {
+				continue
+			}
+			_ = data.Set("domain", item.Domain)
+			_ = data.Set("rule_name", item.RuleName)
+			_ = data.Set("description", item.Description)
+			_ = data.Set("scene", item.Scene)
+			_ = data.Set("statistical_items", flattenStatisticalItemsV2(item.StatisticalItems))
+			_ = data.Set("statistical_period", item.StatisticalPeriod)
+			_ = data.Set("trigger_threshold", item.TriggerThreshold)
+			_ = data.Set("intercept_time", item.InterceptTime)
+			_ = data.Set("effective_status", item.EffectiveStatus)
+			_ = data.Set("asset_api_id", item.AssetApiId)
+			_ = data.Set("action", item.Action)
+
+			if item.RateLimitEffective != nil {
+				rateLimitEffective := map[string]interface{}{
+					"effective": item.RateLimitEffective.Effective,
+					"start":     item.RateLimitEffective.Start,
+					"end":       item.RateLimitEffective.End,
+					"timezone":  item.RateLimitEffective.Timezone,
+				}
+				_ = data.Set("rate_limit_effective", []interface{}{rateLimitEffective})
+			}
+
+			rateLimitRuleCondition := make([]interface{}, 0)
+			if item.RateLimitRuleCondition != nil {
+				condition := make(map[string]interface{})
+
+				if item.RateLimitRuleCondition.IpOrIpsConditions != nil {
+					ipOrIpsConditions := make([]interface{}, 0)
+					for _, v := range item.RateLimitRuleCondition.IpOrIpsConditions {
+						ipOrIpsConditions = append(ipOrIpsConditions, map[string]interface{}{
+							"match_type": v.MatchType,
+							"ip_or_ips":  v.IpOrIps,
+						})
+					}
+					condition["ip_or_ips_conditions"] = ipOrIpsConditions
+				}
+
+				if item.RateLimitRuleCondition.PathConditions != nil {
+					pathConditions := make([]interface{}, 0)
+					for _, v := range item.RateLimitRuleCondition.PathConditions {
+						pathConditions = append(pathConditions, map[string]interface{}{
+							"match_type": v.MatchType,
+							"paths":      v.Paths,
+						})
+					}
+					condition["path_conditions"] = pathConditions
+				}
+
+				if item.RateLimitRuleCondition.UriConditions != nil {
+					uriConditions := make([]interface{}, 0)
+					for _, v := range item.RateLimitRuleCondition.UriConditions {
+						uriConditions = append(uriConditions, map[string]interface{}{
+							"match_type": v.MatchType,
+							"uri":        v.Uri,
+						})
+					}
+					condition["uri_conditions"] = uriConditions
+				}
+
+				if item.RateLimitRuleCondition.UriParamConditions != nil {
+					uriParamConditions := make([]interface{}, 0)
+					for _, v := range item.RateLimitRuleCondition.UriParamConditions {
+						uriParamConditions = append(uriParamConditions, map[string]interface{}{
+							"match_type":  v.MatchType,
+							"param_name":  v.ParamName,
+							"param_value": v.ParamValue,
+						})
+					}
+					condition["uri_param_conditions"] = uriParamConditions
+				}
+
+				if item.RateLimitRuleCondition.UaConditions != nil {
+					uaConditions := make([]interface{}, 0)
+					for _, v := range item.RateLimitRuleCondition.UaConditions {
+						uaConditions = append(uaConditions, map[string]interface{}{
+							"match_type": v.MatchType,
+							"ua":         v.Ua,
+						})
+					}
+					condition["ua_conditions"] = uaConditions
+				}
+
+				if item.RateLimitRuleCondition.RefererConditions != nil {
+					refererConditions := make([]interface{}, 0)
+					for _, v := range item.RateLimitRuleCondition.RefererConditions {
+						refererConditions = append(refererConditions, map[string]interface{}{
+							"match_type": v.MatchType,
+							"referer":    v.Referer,
+						})
+					}
+					condition["referer_conditions"] = refererConditions
+				}
+
+				if item.RateLimitRuleCondition.HeaderConditions != nil {
+					headerConditions := make([]interface{}, 0)
+					for _, v := range item.RateLimitRuleCondition.HeaderConditions {
+						headerConditions = append(headerConditions, map[string]interface{}{
+							"match_type": v.MatchType,
+							"key":        v.Key,
+							"value_list": v.ValueList,
+						})
+					}
+					condition["header_conditions"] = headerConditions
+				}
+
+				if item.RateLimitRuleCondition.AreaConditions != nil {
+					areaConditions := make([]interface{}, 0)
+					for _, v := range item.RateLimitRuleCondition.AreaConditions {
+						areaConditions = append(areaConditions, map[string]interface{}{
+							"match_type": v.MatchType,
+							"areas":      v.Areas,
+						})
+					}
+					condition["area_conditions"] = areaConditions
+				}
+
+				if item.RateLimitRuleCondition.StatusCodeConditions != nil {
+					statusCodeConditions := make([]interface{}, 0)
+					for _, v := range item.RateLimitRuleCondition.StatusCodeConditions {
+						statusCodeConditions = append(statusCodeConditions, map[string]interface{}{
+							"match_type":  v.MatchType,
+							"status_code": v.StatusCode,
+						})
+					}
+					condition["status_code_conditions"] = statusCodeConditions
+				}
+
+				if item.RateLimitRuleCondition.MethodConditions != nil {
+					methodConditions := make([]interface{}, 0)
+					for _, v := range item.RateLimitRuleCondition.MethodConditions {
+						methodConditions = append(methodConditions, map[string]interface{}{
+							"match_type":     v.MatchType,
+							"request_method": v.RequestMethod,
+						})
+					}
+					condition["method_conditions"] = methodConditions
+				}
+
+				if item.RateLimitRuleCondition.SchemeConditions != nil {
+					schemeConditions := make([]interface{}, 0)
+					for _, v := range item.RateLimitRuleCondition.SchemeConditions {
+						schemeConditions = append(schemeConditions, map[string]interface{}{
+							"match_type": v.MatchType,
+							"scheme":     v.Scheme,
+						})
+					}
+					condition["scheme_conditions"] = schemeConditions
+				}
+
+				if item.RateLimitRuleCondition.Ja3Conditions != nil {
+					ja3Conditions := make([]interface{}, 0)
+					for _, v := range item.RateLimitRuleCondition.Ja3Conditions {
+						ja3Conditions = append(ja3Conditions, map[string]interface{}{
+							"match_type": v.MatchType,
+							"ja3_list":   v.Ja3List,
+						})
+					}
+					condition["ja3_conditions"] = ja3Conditions
+				}
+
+				if item.RateLimitRuleCondition.Ja4Conditions != nil {
+					ja4Conditions := make([]interface{}, 0)
+					for _, v := range item.RateLimitRuleCondition.Ja4Conditions {
+						ja4Conditions = append(ja4Conditions, map[string]interface{}{
+							"match_type": v.MatchType,
+							"ja4_list":   v.Ja4List,
+						})
+					}
+					condition["ja4_conditions"] = ja4Conditions
+				}
+
+				rateLimitRuleCondition = append(rateLimitRuleCondition, condition)
+			}
+			_ = data.Set("rate_limit_rule_condition", rateLimitRuleCondition)
+		}
+	}
+	return nil
+}
+
+func resourceWaapRateLimitV2Update(context context.Context, data *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	log.Printf("resource.wangsu_waap_ratelimit_v2.update")
+	var diags diag.Diagnostics
+	if data.HasChange("domain") {
+		oldDomain, _ := data.GetChange("domain")
+		_ = data.Set("domain", oldDomain)
+		err := errors.New("Hostname cannot be changed.")
+		diags = append(diags, diag.FromErr(err)...)
+		return diags
+	}
+	request := &waapRatelimitV2.UpdateRateLimitingRuleRequest{}
+	if v, ok := data.GetOk("id"); ok {
+		request.SetId(v.(string))
+	}
+	if v, ok := data.GetOk("rule_name"); ok {
+		request.SetRuleName(v.(string))
+	}
+	if v, ok := data.GetOk("description"); ok {
+		request.SetDescription(v.(string))
+	}
+	if v, ok := data.GetOk("scene"); ok {
+		request.SetScene(v.(string))
+	}
+	if v, ok := data.GetOk("statistical_items"); ok {
+		request.SetStatisticalItems(buildStatisticalItemsV2(v.([]interface{})))
+	}
+	if v, ok := data.GetOk("statistical_period"); ok {
+		request.SetStatisticalPeriod(v.(int))
+	}
+	if v, ok := data.GetOk("trigger_threshold"); ok {
+		request.SetTriggerThreshold(v.(int))
+	}
+	if v, ok := data.GetOk("intercept_time"); ok {
+		request.SetInterceptTime(v.(int))
+	}
+	if v, ok := data.GetOk("effective_status"); ok {
+		request.SetEffectiveStatus(v.(string))
+	}
+	if v, ok := data.GetOk("rate_limit_effective"); ok {
+		rateLimitEffectiveV := v.([]interface{})
+		for _, v := range rateLimitEffectiveV {
+			rateLimitEffectiveD := v.(map[string]interface{})
+			effective := rateLimitEffectiveD["effective"].([]interface{})
+			start := rateLimitEffectiveD["start"].(string)
+			end := rateLimitEffectiveD["end"].(string)
+			timezone := rateLimitEffectiveD["timezone"].(string)
+			ratelimitEffective := &waapRatelimitV2.RateLimitEffective{}
+			effectives := make([]*string, len(effective))
+			for i, v := range effective {
+				str := v.(string)
+				effectives[i] = &str
+			}
+			ratelimitEffective.SetEffective(effectives)
+			ratelimitEffective.SetStart(start)
+			ratelimitEffective.SetEnd(end)
+			ratelimitEffective.SetTimezone(timezone)
+			request.SetRateLimitEffective(ratelimitEffective)
+		}
+	}
+	if v, ok := data.GetOk("asset_api_id"); ok {
+		request.SetAssetApiId(v.(string))
+	}
+	if v, ok := data.GetOk("action"); ok {
+		request.SetAction(v.(string))
+	}
+	conditions := data.Get("rate_limit_rule_condition").([]interface{})
+	request.RateLimitRuleCondition = buildConditionsRequestV2(conditions)
+
+	var response *waapRatelimitV2.UpdateRateLimitingRuleResponse
+	var err error
+	err = resource.RetryContext(context, time.Duration(2)*time.Minute, func() *resource.RetryError {
+		_, response, err = meta.(wangsuCommon.ProviderMeta).GetAPIV3Conn().UseWaapRatelimitV2Client().UpdateRateLimit(request)
+		if err != nil {
+			return resource.NonRetryableError(err)
+		}
+		return nil
+	})
+	if err != nil {
+		diags = append(diags, diag.FromErr(err)...)
+		return diags
+	}
+	if response == nil {
+		return nil
+	}
+	log.Printf("resource.wangsu_waap_ratelimit_v2.update success")
+	return nil
+}
+
+func resourceWaapRateLimitV2Delete(context context.Context, data *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	log.Printf("resource.wangsu_waap_ratelimit_v2.delete")
+	var response *waapRatelimitV2.DeleteRateLimitingRulesResponse
+	var err error
+	var diags diag.Diagnostics
+	err = resource.RetryContext(context, time.Duration(2)*time.Minute, func() *resource.RetryError {
+		id := data.Id()
+		request := &waapRatelimitV2.DeleteRateLimitingRulesRequest{
+			Ids: []*string{&id},
+		}
+		_, response, err = meta.(wangsuCommon.ProviderMeta).GetAPIV3Conn().UseWaapRatelimitV2Client().DeleteRateLimit(request)
+		if err != nil {
+			return resource.NonRetryableError(err)
+		}
+		return nil
+	})
+	if err != nil {
+		diags = append(diags, diag.FromErr(err)...)
+		return diags
+	}
+	if response == nil {
+		return nil
+	}
+	return nil
+}

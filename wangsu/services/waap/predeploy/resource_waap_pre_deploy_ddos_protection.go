@@ -2,14 +2,15 @@ package pre_deploy
 
 import (
 	"context"
+	"log"
+	"time"
+
 	"github.com/alibabacloud-go/tea/tea"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	wangsuCommon "github.com/wangsu-api/terraform-provider-wangsu/wangsu/common"
 	preDeploy "github.com/wangsu-api/wangsu-sdk-go/wangsu/waap/predeploy"
-	"log"
-	"time"
 )
 
 func ResourceWaapPreDeployDDoSProtection() *schema.Resource {
@@ -189,6 +190,7 @@ func resourceWaapPreDeployDDoSProtectionCreate(context context.Context, data *sc
 			break
 		} else if *getResponse.Data.DeployStatus == "FAIL" {
 			log.Println("Deployment failed!")
+			diags = append(diags, diag.Errorf("Pre-deployment failed. Please check your configuration or contact technical support.")...)
 			break
 		} else {
 			log.Println("Deployment in progress, retrying...")

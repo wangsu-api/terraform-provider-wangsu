@@ -77,7 +77,7 @@ func DataSourceWaapDDoSProtection() *schema.Resource {
 												"ai_action": {
 													Type:        schema.TypeString,
 													Required:    true,
-													Description: "AI rule action.<br/>BLOCK: BLOCK.<br/>LOG: Monitor.<br/>RR: DDoS managed challenge.",
+													Description: "AI rule action.<br/>BLOCK: BLOCK.<br/>LOG: Monitor.<br/>RR: DDoS Managed Verification.",
 												},
 											},
 										},

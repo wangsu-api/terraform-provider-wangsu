@@ -1,0 +1,106 @@
+terraform {
+  required_providers {
+    wangsu = {
+      source = "registry.terraform.io/wangsu-api/wangsu"
+    }
+  }
+}
+
+provider "wangsu" {
+  secret_id    = "my-secret-id"
+  secret_key   = "my-secret-key"
+  service_type = "waap"
+}
+
+resource "wangsu_waap_ratelimit_v2" "demo" {
+  domain      = "waap.test30.com"
+  rule_name   = "web_ip_cookie_v2"
+  description = "your_description"
+  #   scene = "WEB" // or "API"
+  scene = "WEB"
+  #   asset_api_id = "1800805524845170689"
+
+  # 支持多个统计粒度（v2 新特性）
+  statistical_items {
+    statistical_item = "IP"
+  }
+  statistical_items {
+    statistical_item = "COOKIE"
+    statistics_keys  = ["session_id"]
+  }
+
+  statistical_period = 600
+  trigger_threshold  = 1000
+  intercept_time     = 600
+  #   effective_status = "PERMANENT" // or other options
+  effective_status = "WITHOUT"
+  rate_limit_effective {
+    effective = ["MON", "FRI"]
+    start     = "07:00"
+    end       = "18:00"
+    timezone  = "17"
+  }
+  #   action = "BLOCK" // or other options
+  action = "IP_BLOCK" // IP_BLOCK 为 v2 新增动作
+
+  rate_limit_rule_condition {
+    ip_or_ips_conditions {
+      match_type = "NOT_EQUAL"
+      ip_or_ips  = ["192.168.1.11", "192.168.1.1/22"]
+    }
+    # WEB 维度才可配置
+    /*path_conditions {
+      match_type = "EQUAL"
+      paths      = ["/p111", "/p211"]
+    }*/
+    # WEB 维度才可配置
+    /*uri_conditions {
+      match_type = "EQUAL"
+      uri        = ["/uri11", "/uri21"]
+    }*/
+    # API 维度才可配置
+    /*uri_param_conditions {
+      match_type  = "EQUAL"
+      param_name  = "param11"
+      param_value = ["value11", "value21"]
+    }*/
+    ua_conditions {
+      match_type = "EQUAL"
+      ua         = ["ua11", "ua21"]
+    }
+    referer_conditions {
+      match_type = "EQUAL"
+      referer    = ["referer11", "referer21"]
+    }
+    header_conditions {
+      match_type = "EQUAL"
+      key        = "header_key"
+      value_list = ["value11", "value21"]
+    }
+    area_conditions {
+      match_type = "EQUAL"
+      areas      = ["AI", "AU"]
+    }
+    # WEB 维度才可配置
+    /*method_conditions {
+      match_type     = "EQUAL"
+      request_method = ["GET", "DELETE"]
+    }*/
+    ja3_conditions {
+      match_type = "NOT_EQUAL"
+      ja3_list   = ["ja312345678901234567890123456788"]
+    }
+    ja4_conditions {
+      match_type = "NOT_EQUAL"
+      ja4_list   = ["ja41740600_c43983326036_1b2d6ce873a3", "ja42740600_c43983326036_1b2d6ce873a3"]
+    }
+  }
+}
+
+data "wangsu_waap_ratelimits_v2" "demo" {
+  domain_list = [wangsu_waap_ratelimit_v2.demo.domain]
+}
+
+output "waap_ratelimit_v2" {
+  value = data.wangsu_waap_ratelimits_v2.demo
+}

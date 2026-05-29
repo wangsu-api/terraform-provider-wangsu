@@ -37,6 +37,12 @@ resource "wangsu_waap_share_customizerule" "demo" {
       key        = "hk"
       value_list = ["h1", "h2"]
     }
+    response_header_conditions {
+      match_type = "NOT_EQUAL"
+      key        = "hk"
+      value_list = ["h3", "h4"]
+      key_match_wildcard = "FALSE"
+    }
     ua_conditions {
       match_type = "NOT_EQUAL"
       ua         = ["ua1", "ua2"]
@@ -52,6 +58,12 @@ resource "wangsu_waap_share_customizerule" "demo" {
     ja4_conditions {
       match_type = "NOT_EQUAL"
       ja4_list   = ["ja41740600_c43983326036_1b2d6ce873a3", "ja42740600_c43983326036_1b2d6ce873a3"]
+    }
+    query_string_conditions {
+      match_type       = "NOT_EQUAL"
+      key              = "token"
+      value_list       = ["invalid_token"]
+      key_match_wildcard = "FALSE"
     }
   }
 }
@@ -69,11 +81,11 @@ data "wangsu_waap_share_customizerules" "demo" {
 
 - `act` (String) Action.<br/>NO_USE:Not Used<br/>LOG:Log<br/>DELAY:Delay<br/>BLOCK:Deny<br/>RESET:Reset Connection
 - `condition` (Block List, Min: 1) Match Conditions. (see [below for nested schema](#nestedblock--condition))
-- `rule_name` (String) Rule Name, maximum 50 characters.<br/>does not support # and & .
+- `rule_name` (String) Rule Name, maximum 100 characters.<br/>does not support # and & .
 
 ### Optional
 
-- `description` (String) Description, maximum 200 characters.
+- `description` (String) Description, maximum 1000 characters.
 - `relation_domain_list` (List of String) Associated hostname.
 
 ### Read-Only
@@ -90,6 +102,7 @@ Optional:
 - `ip_or_ips_conditions` (Block List) IP/CIDR, match type cannot be repeated. (see [below for nested schema](#nestedblock--condition--ip_or_ips_conditions))
 - `ja3_conditions` (Block List) JA3 Fingerprint, match type cannot be repeated. (see [below for nested schema](#nestedblock--condition--ja3_conditions))
 - `ja4_conditions` (Block List) JA4 Fingerprint, match type cannot be repeated. (see [below for nested schema](#nestedblock--condition--ja4_conditions))
+- `query_string_conditions` (Block List) Query String, match type can be repeated. (see [below for nested schema](#nestedblock--condition--query_string_conditions))
 - `method_conditions` (Block List) Request Method.<br/>When the business scenario is API,this matching condition is not supported. (see [below for nested schema](#nestedblock--condition--method_conditions))
 - `path_conditions` (Block List) Path, match type cannot be repeated.<br/>When the business scenario is API, this matching condition is not supported. (see [below for nested schema](#nestedblock--condition--path_conditions))
 - `referer_conditions` (Block List) Referer, match type cannot be repeated. (see [below for nested schema](#nestedblock--condition--referer_conditions))
@@ -155,6 +168,17 @@ START_WITH: Starts with<br/>
 END_WITH: Ends with<br/>
 WILDCARD: Wildcard matches, ** represents zero or more arbitrary characters, ? represents any single character<br/>
 NOT_WILDCARD: Wildcard does not match, ** represents zero or more arbitrary characters, ? represents any single character
+
+
+<a id="nestedblock--condition--query_string_conditions"></a>
+### Nested Schema for `condition.query_string_conditions`
+
+Required:
+
+- `key` (String) Query name,up to 100 characters.<br/>Example: id.
+- `key_match_wildcard` (String) Check whether the Query name matches a wildcard. When the match type is NONE, wildcard matching is not supported.
+- `match_type` (String) Match type.<br/>EQUAL: Equals<br/>NOT_EQUAL: Does not equal<br/>CONTAIN: Contains<br/>NOT_CONTAIN: Does not Contains<br/>NONE: Empty or non-existent<br/>REGEX: Regex match<br/>NOT_REGEX: Regular does not match<br/>START_WITH: Starts with<br/>END_WITH: Ends with<br/>WILDCARD: Wildcard matches,* represents zero or more arbitrary characters, ? represents any single character<br/>NOT_WILDCARD: Wildcard does not match,* represents zero or more arbitrary characters, ? represents any single character
+- `value_list` (List of String) Query value,case sensitive.When the match type is REGEX/NOT_REGEX, only one value is allowed.
 
 
 <a id="nestedblock--condition--method_conditions"></a>

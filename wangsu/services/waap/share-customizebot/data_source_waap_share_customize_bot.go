@@ -56,7 +56,7 @@ func DataSourceShareCustomizeBot() *schema.Resource {
 									"condition_name": {
 										Type:        schema.TypeString,
 										Computed:    true,
-										Description: "Matching condition name. <br/>IP_IPS: IP/IP segment <br/>JA3: JA3 Fingerprint<br/>JA4: JA4 Fingerprint<br/>UA: User-agent <br/>HEADER: Request Header <br/>ASN: AS Number <br/>CLIENT_GROUP: Client Group <br/>PUBLIC_BOT: Public Bots",
+										Description: "Matching condition name. <br/>IP_IPS: IP/IP segment <br/>JA3: JA3 Fingerprint<br/>JA4: JA4 Fingerprint<br/>UA: User-agent <br/>HEADER: Request Header <br/>ASN: AS Number <br/>CLIENT_GROUP: Client Group <br/>PUBLIC_BOT: Public Bots <br/>PATH: Path",
 									},
 									"condition_value_list": {
 										Type:        schema.TypeList,

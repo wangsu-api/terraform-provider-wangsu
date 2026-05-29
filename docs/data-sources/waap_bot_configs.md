@@ -88,6 +88,7 @@ Read-Only:
 - `absolute_bots_act` (String)
 - `ai_bots` (List of Object) (see [below for nested schema](#nestedobjatt--data--config_list--general_strategy--ai_bots))
 - `bot_tagging` (List of Object) (see [below for nested schema](#nestedobjatt--data--config_list--general_strategy--bot_tagging))
+- `likely_bots` (List of Object) (see [below for nested schema](#nestedobjatt--data--config_list--general_strategy--likely_bots))
 - `public_bots` (List of Object) (see [below for nested schema](#nestedobjatt--data--config_list--general_strategy--public_bots))
 
 <a id="nestedobjatt--data--config_list--general_strategy--ai_bots"></a>
@@ -106,6 +107,14 @@ Read-Only:
 
 - `request_header_key` (String)
 - `traffic_characteristics` (String)
+
+
+<a id="nestedobjatt--data--config_list--general_strategy--likely_bots"></a>
+### Nested Schema for `data.config_list.general_strategy.likely_bots`
+
+Read-Only:
+
+- `action` (String)
 
 
 <a id="nestedobjatt--data--config_list--general_strategy--public_bots"></a>

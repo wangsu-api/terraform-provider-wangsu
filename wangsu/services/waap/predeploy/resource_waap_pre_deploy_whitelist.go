@@ -2,14 +2,15 @@ package pre_deploy
 
 import (
 	"context"
+	"log"
+	"time"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	wangsuCommon "github.com/wangsu-api/terraform-provider-wangsu/wangsu/common"
 	"github.com/wangsu-api/terraform-provider-wangsu/wangsu/services/waap"
 	preDeploy "github.com/wangsu-api/wangsu-sdk-go/wangsu/waap/predeploy"
-	"log"
-	"time"
 )
 
 func ResourceWaapPreDeployWhitelist() *schema.Resource {
@@ -59,12 +60,12 @@ func ResourceWaapPreDeployWhitelist() *schema.Resource {
 						"rule_name": {
 							Type:        schema.TypeString,
 							Required:    true,
-							Description: "Rule name, maximum 50 characters.<br/>does not support # and & .",
+							Description: "Rule name, maximum 100 characters.<br/>does not support # and & .",
 						},
 						"description": {
 							Type:        schema.TypeString,
 							Optional:    true,
-							Description: "Description, maximum 200 characters.",
+							Description: "Description, maximum 1000 characters.",
 						},
 						"conditions": {
 							Type:        schema.TypeList,
@@ -412,6 +413,7 @@ func resourceWaapPreDeployWhitelistCreate(context context.Context, data *schema.
 			break
 		} else if *getResponse.Data.DeployStatus == "FAIL" {
 			log.Println("Deployment failed!")
+			diags = append(diags, diag.Errorf("Pre-deployment failed. Please check your configuration or contact technical support.")...)
 			break
 		} else {
 			log.Println("Deployment in progress, retrying...")

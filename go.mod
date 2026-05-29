@@ -7,7 +7,7 @@ toolchain go1.22.5
 require (
 	github.com/alibabacloud-go/tea v1.2.0
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.20.0
-	github.com/wangsu-api/wangsu-sdk-go v1.2.13
+	github.com/wangsu-api/wangsu-sdk-go v1.2.17
 	golang.org/x/net v0.23.0
 )
 
@@ -69,3 +69,5 @@ require (
 	google.golang.org/grpc v1.48.0 // indirect
 	google.golang.org/protobuf v1.28.0 // indirect
 )
+
+replace github.com/wangsu-api/wangsu-sdk-go => ../wangsu-sdk-go

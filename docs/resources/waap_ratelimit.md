@@ -12,6 +12,8 @@ description: |-
 Use this resource to create a WAAP rate limit rule.
 This resource allows you to create a WAAP rate limit rule.
 
+~> **NOTE:** This resource is deprecated. Please use wangsu_waap_ratelimit_v2 instead.
+
 ## Example Usage
 
 ```hcl
@@ -114,8 +116,9 @@ output "waap_ratelimit" {
 - `action` (String) Action.<br/>
 NO_USE:Not Used<br/>
 LOG:Log<br/>
-COOKIE:Cookie verification<br/>
-JS_CHECK:Javascript verification<br/>
+COOKIE:Cookie Verification<br/>
+JS_CHECK:JavaScript Verification<br/>
+JS_CHALLENGE:JavaScript Challenge<br/>
 DELAY:Delay<br/>
 BLOCK:Deny<br/>
 RESET:Reset Connection<br/>
@@ -128,7 +131,7 @@ WITHOUT:Excluded time<br/>
 WITHIN:Selected time
 - `intercept_time` (Number) Action duration, unit: seconds.
 - `rate_limit_rule_condition` (Block List, Min: 1) Matching conditions. (see [below for nested schema](#nestedblock--rate_limit_rule_condition))
-- `rule_name` (String) Rule Name, maximum 50 characters.<br/>
+- `rule_name` (String) Rule Name, maximum 100 characters.<br/>
 does not support # and & .
 - `scene` (String) Protected target.<br/>
 WEB:Website<br/>
@@ -149,7 +152,7 @@ When there is a status code in the matching condition,this client identifier is 
 
 - `asset_api_id` (String) API ID under API business, multiple separated by ; sign.<br/>
 When the protected target is APIThis field is required.
-- `description` (String) Description, maximum 200 characters.
+- `description` (String) Description, maximum 1000 characters.
 - `rate_limit_effective` (Block List) Effective time period.When the effective status is effective within the cycle or not effective within the cycle, this field must have a value. (see [below for nested schema](#nestedblock--rate_limit_effective))
 - `statistics_key` (String) Statistical key value.<br/>
 When the client identifier is cookie/header value, the corresponding key value needs to be entered.

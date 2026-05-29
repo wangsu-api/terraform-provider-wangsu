@@ -44,6 +44,12 @@ resource "wangsu_waap_customizerule" "demo" {
       key        = "hk1"
       value_list = ["h1", "h2"]
     }
+    response_header_conditions {
+      match_type = "NOT_EQUAL"
+      key        = "Content-Type"
+      value_list = ["application/json"]
+      key_match_wildcard = "FALSE"
+    }
     ja3_conditions {
       match_type = "EQUAL"
       ja3_list   = ["ja332345678901234567890123456788", "ja342345678901234567890123456788"]
@@ -51,6 +57,12 @@ resource "wangsu_waap_customizerule" "demo" {
     ja4_conditions {
       match_type = "EQUAL"
       ja4_list   = ["ja43740600_c43983326036_1b2d6ce873a3", "ja44740600_c43983326036_1b2d6ce873a3"]
+    }
+    query_string_conditions {
+      match_type        = "CONTAIN"
+      key               = "search"
+      value_list        = ["keyword1", "keyword2"]
+      key_match_wildcard = "FALSE"
     }
   }
 }

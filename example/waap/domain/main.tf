@@ -59,6 +59,7 @@ resource "wangsu_waap_domain" "example" {
       act = "BLOCK"
     }
     absolute_bots_act = "BLOCK"
+    likely_bots_act   = "NO_USE"
   }
 
   rate_limit_config {

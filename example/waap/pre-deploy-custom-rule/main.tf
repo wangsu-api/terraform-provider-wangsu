@@ -83,6 +83,20 @@ resource "wangsu_waap_pre_deploy_custom_rule" "demo" {
         match_type = "EQUAL"
         ja4_list   = ["ja43740600_c43983326036_1b2d6ce873a3"]
       }
+
+      query_string_conditions {
+        match_type       = "EQUAL"
+        key              = "id"
+        value_list       = ["123", "456"]
+        key_match_wildcard = "FALSE"
+      }
+
+      response_header_conditions {
+        match_type = "NOT_EQUAL"
+        key        = "Content-Type"
+        value_list = ["application/json"]
+        key_match_wildcard = "FALSE"
+      }
     }
   }
 }

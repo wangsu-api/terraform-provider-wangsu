@@ -19,6 +19,7 @@ import (
 	waapDomain "github.com/wangsu-api/wangsu-sdk-go/wangsu/waap/domain"
 	waapPreDeploy "github.com/wangsu-api/wangsu-sdk-go/wangsu/waap/predeploy"
 	waapRatelimit "github.com/wangsu-api/wangsu-sdk-go/wangsu/waap/ratelimit"
+	waapRatelimitV2 "github.com/wangsu-api/wangsu-sdk-go/wangsu/waap/ratelimitv2"
 	waapShareCustomizeBot "github.com/wangsu-api/wangsu-sdk-go/wangsu/waap/share-customizebot"
 	waapShareCustomizerule "github.com/wangsu-api/wangsu-sdk-go/wangsu/waap/share-customizerule"
 	waapShareWhitelist "github.com/wangsu-api/wangsu-sdk-go/wangsu/waap/share-whitelist"
@@ -37,6 +38,7 @@ type WangSuClient struct {
 	waapWhitelistConn             *waapWhitelist.Client
 	waapCustomizeruleConn         *waapCustomizerule.Client
 	waapRatelimitConn             *waapRatelimit.Client
+	waapRatelimitV2Conn           *waapRatelimitV2.Client
 	waapDomainConn                *waapDomain.Client
 	waapShareWhitelistConn        *waapShareWhitelist.Client
 	waapShareCustomizeruleConn    *waapShareCustomizerule.Client
@@ -102,6 +104,16 @@ func (me *WangSuClient) UseWaapRatelimitClient() *waapRatelimit.Client {
 	me.waapRatelimitConn, _ = waapRatelimit.NewClient(me.Credential, me.HttpProfile)
 
 	return me.waapRatelimitConn
+}
+
+func (me *WangSuClient) UseWaapRatelimitV2Client() *waapRatelimitV2.Client {
+	if me.waapRatelimitV2Conn != nil {
+		return me.waapRatelimitV2Conn
+	}
+
+	me.waapRatelimitV2Conn, _ = waapRatelimitV2.NewClient(me.Credential, me.HttpProfile)
+
+	return me.waapRatelimitV2Conn
 }
 
 func (me *WangSuClient) UseWaapDomainClient() *waapDomain.Client {

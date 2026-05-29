@@ -3,13 +3,14 @@ package share_customizerule
 import (
 	"context"
 	"fmt"
+	"log"
+	"time"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	wangsuCommon "github.com/wangsu-api/terraform-provider-wangsu/wangsu/common"
 	waapShareCustomizerule "github.com/wangsu-api/wangsu-sdk-go/wangsu/waap/share-customizerule"
-	"log"
-	"time"
 )
 
 func DataSourceCustomizeRules() *schema.Resource {
@@ -178,6 +179,35 @@ func DataSourceCustomizeRules() *schema.Resource {
 											},
 										},
 									},
+									"response_header_conditions": {
+										Type:     schema.TypeList,
+										Computed: true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"match_type": {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "Match type.<br/>EQUAL: Equals, response header values case sensitive<br/>NOT_EQUAL: Does not equal, response header values case sensitive<br/>CONTAIN: Contains, response header values case insensitive<br/>NOT_CONTAIN: Does not Contains, response header values case insensitive<br/>NONE: Empty or non-existent<br/>REGEX: Regex match, response header values case insensitive<br/>NOT_REGEX: Regular does not match, response header values case insensitive<br/>START_WITH: Starts with, response header values case insensitive<br/>END_WITH: Ends with, response header values case insensitive<br/>WILDCARD: Wildcard matches, response header values case insensitive,* represents zero or more arbitrary characters, ? represents any single character<br/>NOT_WILDCARD: Wildcard does not match, response header values case insensitive,* represents zero or more arbitrary characters, ? represents any single character ",
+												},
+												"key": {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "Header name,case insensitive,up to 100 characters.Example: Accept.",
+												},
+												"value_list": {
+													Type:        schema.TypeList,
+													Computed:    true,
+													Elem:        &schema.Schema{Type: schema.TypeString},
+													Description: "Header value.When the match type is REGEX/NOT_REGEX, only one value is allowed.",
+												},
+												"key_match_wildcard": {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "Whether the response header key matches the wildcard character. TRUE indicates a match, while FALSE indicates a mismatch.",
+												},
+											},
+										},
+									},
 									"area_conditions": {
 										Type:     schema.TypeList,
 										Computed: true,
@@ -254,6 +284,64 @@ func DataSourceCustomizeRules() *schema.Resource {
 											},
 										},
 									},
+									"query_string_conditions": {
+										Type:     schema.TypeList,
+										Computed: true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"match_type": {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "Match type.<br/>EQUAL: Equals<br/>NOT_EQUAL: Does not equal<br/>CONTAIN: Contains<br/>NOT_CONTAIN: Does not Contains<br/>NONE: Empty or non-existent<br/>REGEX: Regex match<br/>NOT_REGEX: Regular does not match<br/>START_WITH: Starts with<br/>END_WITH: Ends with<br/>WILDCARD: Wildcard matches<br/>NOT_WILDCARD: Wildcard does not match",
+												},
+												"key": {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "Query name.",
+												},
+												"value_list": {
+													Type:        schema.TypeList,
+													Computed:    true,
+													Elem:        &schema.Schema{Type: schema.TypeString},
+													Description: "Query value.",
+												},
+												"key_match_wildcard": {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "Check whether the Query name matches a wildcard.",
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+						"query_string_conditions": {
+							Type:     schema.TypeList,
+							Computed: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"match_type": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "Match type.<br/>EQUAL: Equals<br/>NOT_EQUAL: Does not equal<br/>CONTAIN: Contains<br/>NOT_CONTAIN: Does not Contains<br/>NONE: Empty or non-existent<br/>REGEX: Regex match<br/>NOT_REGEX: Regular does not match<br/>START_WITH: Starts with<br/>END_WITH: Ends with<br/>WILDCARD: Wildcard matches<br/>NOT_WILDCARD: Wildcard does not match",
+									},
+									"key": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "Query name.",
+									},
+									"value_list": {
+										Type:        schema.TypeList,
+										Computed:    true,
+										Elem:        &schema.Schema{Type: schema.TypeString},
+										Description: "Query value.",
+									},
+									"key_match_wildcard": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "Check whether the Query name matches a wildcard.",
+									},
 								},
 							},
 						},
@@ -311,6 +399,8 @@ func dataSourceCustomizeRulesRead(context context.Context, data *schema.Resource
 				condition["method_conditions"] = flattenMethodConditions(item.Condition.MethodConditions)
 				condition["ja3_conditions"] = flattenJa3Conditions(item.Condition.Ja3Conditions)
 				condition["ja4_conditions"] = flattenJa4Conditions(item.Condition.Ja4Conditions)
+				condition["query_string_conditions"] = flattenQueryStringConditions(item.Condition.QueryStringConditions)
+				condition["response_header_conditions"] = flattenResponseHeaderConditions(item.Condition.ResponseHeaderConditions)
 			}
 			conditionList[0] = condition
 			itemList = append(itemList, map[string]interface{}{
@@ -438,6 +528,35 @@ func flattenJa4Conditions(conditions []*waapShareCustomizerule.Ja4Condition) []i
 			"match_type": condition.MatchType,
 			"ja4_list":   condition.Ja4List,
 		})
+	}
+	return result
+}
+
+func flattenQueryStringConditions(conditions []*waapShareCustomizerule.QueryStringCondition) []interface{} {
+	result := make([]interface{}, 0)
+	for _, condition := range conditions {
+		result = append(result, map[string]interface{}{
+			"match_type":         condition.MatchType,
+			"key":                condition.Key,
+			"value_list":         condition.ValueList,
+			"key_match_wildcard": condition.KeyMatchWildcard,
+		})
+	}
+	return result
+}
+
+func flattenResponseHeaderConditions(conditions []*waapShareCustomizerule.ResponseHeaderCondition) []interface{} {
+	result := make([]interface{}, 0)
+	for _, condition := range conditions {
+		item := map[string]interface{}{
+			"match_type": condition.MatchType,
+			"key":        condition.Key,
+			"value_list": condition.ValueList,
+		}
+		if condition.KeyMatchWildcard != nil {
+			item["key_match_wildcard"] = condition.KeyMatchWildcard
+		}
+		result = append(result, item)
 	}
 	return result
 }

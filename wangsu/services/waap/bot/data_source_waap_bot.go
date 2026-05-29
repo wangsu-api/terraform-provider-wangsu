@@ -117,6 +117,21 @@ func DataSourceWaapBot() *schema.Resource {
 														},
 													},
 												},
+												"likely_bots": {
+													Type:        schema.TypeList,
+													Required:    true,
+													MaxItems:    1,
+													Description: "Likely Bots configuration.",
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"action": {
+																Type:        schema.TypeString,
+																Required:    true,
+																Description: "Action.<br/>NO_USE: Not Used.<br/>LOG: Log.<br/>BLOCK: Deny.<br/>JS_CHALLENGE: JavaScript Challenge.<br/>JSC: Interactive Challenge.",
+															},
+														},
+													},
+												},
 											},
 										},
 									},
@@ -495,6 +510,16 @@ func parseResponseData(configList []*waapBot.GetBotManagementConfigResponseDataC
 					}
 				}
 				generalStrategy["bot_tagging"] = botTagging
+			}
+
+			// Likely Bots
+			if config.GeneralStrategy.LikelyBots != nil {
+				likelyBots := []interface{}{
+					map[string]interface{}{
+						"action": tea.StringValue(config.GeneralStrategy.LikelyBots.Action),
+					},
+				}
+				generalStrategy["likely_bots"] = likelyBots
 			}
 
 			configMap["general_strategy"] = []interface{}{generalStrategy}

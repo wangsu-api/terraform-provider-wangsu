@@ -104,6 +104,22 @@ func ResourceWaapBot() *schema.Resource {
 								},
 							},
 						},
+						"likely_bots": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Computed:    true,
+							MaxItems:    1,
+							Description: "Likely Bots configuration.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"action": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: "Action.<br/>NO_USE: Not Used.<br/>LOG: Log.<br/>BLOCK: Deny.<br/>JS_CHALLENGE: JavaScript Challenge.<br/>JSC: Interactive Challenge.",
+									},
+								},
+							},
+						},
 					},
 				},
 			},
@@ -382,6 +398,15 @@ func readWaapBotResponseData(data *schema.ResourceData, response *waapBot.GetBot
 			strategy["bot_tagging"] = botTagging
 		}
 
+		// Likely Bots
+		if botData.GeneralStrategy.LikelyBots != nil {
+			likelyBots := make([]interface{}, 1)
+			likelyBots[0] = map[string]interface{}{
+				"action": tea.StringValue(botData.GeneralStrategy.LikelyBots.Action),
+			}
+			strategy["likely_bots"] = likelyBots
+		}
+
 		generalStrategy[0] = strategy
 		_ = data.Set("general_strategy", generalStrategy)
 	}
@@ -477,6 +502,16 @@ func parseWaapBotRequestData(data *schema.ResourceData) *waapBot.UpdateBotManage
 							}
 						}
 						generalStrategy.BotTagging = botTaggingConfig
+					}
+				}
+
+				// Likely Bots
+				if data.HasChange("general_strategy.0.likely_bots") {
+					if likelyBots, ok := generalStrategyMap["likely_bots"].([]interface{}); ok && len(likelyBots) > 0 {
+						likelyBotsMap := likelyBots[0].(map[string]interface{})
+						generalStrategy.LikelyBots = &waapBot.UpdateBotManagementConfigRequestGeneralStrategyLikelyBots{
+							Action: tea.String(likelyBotsMap["action"].(string)),
+						}
 					}
 				}
 

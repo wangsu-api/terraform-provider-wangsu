@@ -2,6 +2,9 @@ package pre_deploy
 
 import (
 	"context"
+	"log"
+	"time"
+
 	"github.com/alibabacloud-go/tea/tea"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -9,8 +12,6 @@ import (
 	wangsuCommon "github.com/wangsu-api/terraform-provider-wangsu/wangsu/common"
 	"github.com/wangsu-api/terraform-provider-wangsu/wangsu/services/waap"
 	preDeploy "github.com/wangsu-api/wangsu-sdk-go/wangsu/waap/predeploy"
-	"log"
-	"time"
 )
 
 func ResourceWaapPreDeployWAF() *schema.Resource {
@@ -234,6 +235,7 @@ func resourceWaapPreDeployWAFCreate(context context.Context, data *schema.Resour
 			break
 		} else if *getResponse.Data.DeployStatus == "FAIL" {
 			log.Println("Deployment failed!")
+			diags = append(diags, diag.Errorf("Pre-deployment failed. Please check your configuration or contact technical support.")...)
 			break
 		} else {
 			log.Println("Deployment in progress, retrying...")

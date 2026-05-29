@@ -2,14 +2,15 @@ package pre_deploy
 
 import (
 	"context"
+	"log"
+	"time"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	wangsuCommon "github.com/wangsu-api/terraform-provider-wangsu/wangsu/common"
 	"github.com/wangsu-api/terraform-provider-wangsu/wangsu/services/waap"
 	preDeploy "github.com/wangsu-api/wangsu-sdk-go/wangsu/waap/predeploy"
-	"log"
-	"time"
 )
 
 func ResourceWaapPreDeployCustomRule() *schema.Resource {
@@ -59,12 +60,12 @@ func ResourceWaapPreDeployCustomRule() *schema.Resource {
 						"rule_name": {
 							Type:        schema.TypeString,
 							Required:    true,
-							Description: "Rule Name, maximum 50 characters.<br/>does not support # and & .",
+							Description: "Rule Name, maximum 100 characters.<br/>does not support # and & .",
 						},
 						"description": {
 							Type:        schema.TypeString,
 							Optional:    true,
-							Description: "Description, maximum 200 characters.",
+							Description: "Description, maximum 1000 characters.",
 						},
 						"scene": {
 							Type:        schema.TypeString,
@@ -350,6 +351,71 @@ func ResourceWaapPreDeployCustomRule() *schema.Resource {
 											},
 										},
 									},
+									"query_string_conditions": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: "Query String, match type can be repeated.",
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"match_type": {
+													Type:        schema.TypeString,
+													Required:    true,
+													Description: "Match type.<br/>EQUAL: Equals<br/>NOT_EQUAL: Does not equal<br/>CONTAIN: Contains<br/>NOT_CONTAIN: Does not Contains<br/>NONE: Empty or non-existent<br/>REGEX: Regex match<br/>NOT_REGEX: Regular does not match<br/>START_WITH: Starts with<br/>END_WITH: Ends with<br/>WILDCARD: Wildcard matches,* represents zero or more arbitrary characters, ? represents any single character<br/>NOT_WILDCARD: Wildcard does not match,* represents zero or more arbitrary characters, ? represents any single character",
+												},
+												"key": {
+													Type:        schema.TypeString,
+													Required:    true,
+													Description: "Query name,up to 100 characters.<br/>Example: id.",
+												},
+												"value_list": {
+													Type:        schema.TypeList,
+													Required:    true,
+													Description: "Query value,case sensitive.When the match type is REGEX/NOT_REGEX, only one value is allowed.",
+													Elem: &schema.Schema{
+														Type:        schema.TypeString,
+														Description: "Query value.",
+													},
+												},
+												"key_match_wildcard": {
+													Type:        schema.TypeString,
+													Required:    true,
+													Description: "Check whether the Query name matches a wildcard. When the match type is NONE, wildcard matching is not supported.",
+												},
+											},
+										},
+									},
+									"response_header_conditions": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: "Response Header, match type can be repeated.",
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"match_type": {
+													Type:        schema.TypeString,
+													Required:    true,
+													Description: "Match type.<br/>EQUAL: Equals<br/>NOT_EQUAL: Does not equal<br/>CONTAIN: Contains<br/>NOT_CONTAIN: Does not Contains<br/>NONE: Empty or non-existent<br/>REGEX: Regex match<br/>NOT_REGEX: Regular does not match<br/>START_WITH: Starts with<br/>END_WITH: Ends with<br/>WILDCARD: Wildcard matches, * represents zero or more arbitrary characters, ? represents any single character<br/>NOT_WILDCARD: Wildcard does not match, * represents zero or more arbitrary characters, ? represents any single character",
+												},
+												"key": {
+													Type:        schema.TypeString,
+													Required:    true,
+													Description: "Response header name, case insensitive, up to 100 characters.<br/>Example: Content-Type.",
+												},
+												"value_list": {
+													Type:        schema.TypeList,
+													Required:    true,
+													Description: "Response header value.<br/>When the match type is REGEX/NOT_REGEX, only one value is allowed.",
+													Elem: &schema.Schema{
+														Type: schema.TypeString,
+													},
+												},
+												"key_match_wildcard": {
+													Type:        schema.TypeString,
+													Optional:    true,
+													Description: "Whether the response header name matches wildcard.<br/>When match type is NONE, wildcard matching is not supported.<br/>Optional values: TRUE, FALSE.",
+												},
+											},
+										},
+									},
 								},
 							},
 						},
@@ -570,6 +636,46 @@ func resourceWaapPreDeployCustomRuleCreate(context context.Context, data *schema
 					}
 					conditionsRequest.Ja4Conditions = ja4Conditions
 				}
+
+				// Query String conditions
+				if conditionMap["query_string_conditions"] != nil {
+					queryStringConditions := make([]*preDeploy.QueryStringConditions, 0)
+					for _, queryStringCondition := range conditionMap["query_string_conditions"].([]interface{}) {
+						queryStringConditionMap := queryStringCondition.(map[string]interface{})
+						matchType := queryStringConditionMap["match_type"].(string)
+						key := queryStringConditionMap["key"].(string)
+						valueList := waap.ConvertToStringSlice(queryStringConditionMap["value_list"].([]interface{}))
+						keyMatchWildcard := queryStringConditionMap["key_match_wildcard"].(string)
+						queryStringConditions = append(queryStringConditions, &preDeploy.QueryStringConditions{
+							MatchType:        &matchType,
+							Key:              &key,
+							ValueList:        valueList,
+							KeyMatchWildcard: &keyMatchWildcard,
+						})
+					}
+					conditionsRequest.QueryStringConditions = queryStringConditions
+				}
+
+				// Response Header conditions
+				if conditionMap["response_header_conditions"] != nil {
+					responseHeaderConditions := make([]*preDeploy.ResponseHeaderConditions, 0)
+					for _, responseHeaderCondition := range conditionMap["response_header_conditions"].([]interface{}) {
+						responseHeaderConditionMap := responseHeaderCondition.(map[string]interface{})
+						matchType := responseHeaderConditionMap["match_type"].(string)
+						key := responseHeaderConditionMap["key"].(string)
+						valueList := waap.ConvertToStringSlice(responseHeaderConditionMap["value_list"].([]interface{}))
+						cond := &preDeploy.ResponseHeaderConditions{
+							MatchType: &matchType,
+							Key:       &key,
+							ValueList: valueList,
+						}
+						if keyMatchWildcard, ok := responseHeaderConditionMap["key_match_wildcard"].(string); ok && keyMatchWildcard != "" {
+							cond.KeyMatchWildcard = &keyMatchWildcard
+						}
+						responseHeaderConditions = append(responseHeaderConditions, cond)
+					}
+					conditionsRequest.ResponseHeaderConditions = responseHeaderConditions
+				}
 			}
 			ruleRequest.Condition = conditionsRequest
 		}
@@ -632,6 +738,7 @@ func resourceWaapPreDeployCustomRuleCreate(context context.Context, data *schema
 			break
 		} else if *getResponse.Data.DeployStatus == "FAIL" {
 			log.Println("Deployment failed!")
+			diags = append(diags, diag.Errorf("Pre-deployment failed. Please check your configuration or contact technical support.")...)
 			break
 		} else {
 			log.Println("Deployment in progress, retrying...")

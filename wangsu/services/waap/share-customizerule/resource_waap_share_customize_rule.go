@@ -35,12 +35,12 @@ func ResourceWaapShareCustomizeRule() *schema.Resource {
 			"rule_name": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: "Rule Name, maximum 50 characters.<br/>does not support # and & .",
+				Description: "Rule Name, maximum 100 characters.<br/>does not support # and & .",
 			},
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: "Description, maximum 200 characters.",
+				Description: "Description, maximum 1000 characters.",
 			},
 			"act": {
 				Type:        schema.TypeString,
@@ -217,6 +217,38 @@ func ResourceWaapShareCustomizeRule() *schema.Resource {
 								},
 							},
 						},
+						"response_header_conditions": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: "Response Header, match type can be repeated.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"match_type": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: "Match type.<br/>EQUAL: Equals, Response header values case sensitive<br/>NOT_EQUAL: Does not equal, request header values case sensitive<br/>CONTAIN: Contains, request header values case insensitive<br/>NOT_CONTAIN: Does not Contains, request header values case insensitive<br/>NONE: Empty or non-existent<br/>REGEX: Regex match, request header values case insensitive<br/>NOT_REGEX: Regular does not match, request header values case insensitive<br/>START_WITH: Starts with, request header values case insensitive<br/>END_WITH: Ends with, request header values case insensitive<br/>WILDCARD: Wildcard matches, request header values case insensitive, * represents zero or more arbitrary characters, ? represents any single character<br/>NOT_WILDCARD: Wildcard does not match, request header values case insensitive, * represents zero or more arbitrary characters, ? represents any single character",
+									},
+									"key": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: "Header name,case insensitive,up to 100 characters.<br/>Example: Content-Type.",
+									},
+									"value_list": {
+										Type:        schema.TypeList,
+										Required:    true,
+										Description: "Header value.<br/>When the match type is REGEX/NOT_REGEX, only one value is allowed.",
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+									"key_match_wildcard": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: "Whether to enable wildcard match for the key.<br/>TRUE: match<br/>FALSE: not match",
+									},
+								},
+							},
+						},
 						"area_conditions": {
 							Type:        schema.TypeList,
 							Optional:    true,
@@ -297,6 +329,39 @@ func ResourceWaapShareCustomizeRule() *schema.Resource {
 										Optional:    true,
 										Elem:        &schema.Schema{Type: schema.TypeString},
 										Description: "JA4 Fingerprint List, maximum 300 JA4 Fingerprint.\nWhen the match type is EQUAL/NOT_EQUAL, each item's format must be 10 characters + 12 characters + 12 characters, separated by underscores, and can only include underscores, numbers, and lowercase letters.\nWhen the match type is CONTAIN/NOT_CONTAIN/START_WITH/END_WITH, each item is only allowed to include underscores, numbers, and lowercase letters.\nWhen the match type is WILDCARD/NOT_WILDCARD, each item, aside from  ** and ?, is only allowed to include underscores, numbers, and lowercase letters.",
+									},
+								},
+							},
+						},
+						"query_string_conditions": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: "Query String, match type can be repeated.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"match_type": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: "Match type.<br/>EQUAL: Equals<br/>NOT_EQUAL: Does not equal<br/>CONTAIN: Contains<br/>NOT_CONTAIN: Does not Contains<br/>NONE: Empty or non-existent<br/>REGEX: Regex match<br/>NOT_REGEX: Regular does not match<br/>START_WITH: Starts with<br/>END_WITH: Ends with<br/>WILDCARD: Wildcard matches,* represents zero or more arbitrary characters, ? represents any single character<br/>NOT_WILDCARD: Wildcard does not match,* represents zero or more arbitrary characters, ? represents any single character",
+									},
+									"key": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: "Query name,up to 100 characters.<br/>Example: id.",
+									},
+									"value_list": {
+										Type:        schema.TypeList,
+										Required:    true,
+										Description: "Query value,case sensitive.When the match type is REGEX/NOT_REGEX, only one value is allowed.",
+										Elem: &schema.Schema{
+											Type:        schema.TypeString,
+											Description: "Query value.",
+										},
+									},
+									"key_match_wildcard": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: "Check whether the Query name matches a wildcard. When the match type is NONE, wildcard matching is not supported.",
 									},
 								},
 							},
@@ -463,6 +528,32 @@ func resourceWaapShareCustomizeRuleCreate(context context.Context, data *schema.
 			conditionsRequest.HeaderConditions = headerConditions
 		}
 
+		// Response Header Conditions
+		if conditionMap["response_header_conditions"] != nil {
+			responseHeaderConditions := make([]*waapShareCustomizerule.ResponseHeaderCondition, 0)
+			for _, responseHeaderCondition := range conditionMap["response_header_conditions"].([]interface{}) {
+				responseHeaderConditionMap := responseHeaderCondition.(map[string]interface{})
+				matchType := responseHeaderConditionMap["match_type"].(string)
+				key := responseHeaderConditionMap["key"].(string)
+				valueListInterface := responseHeaderConditionMap["value_list"].([]interface{})
+				valueList := make([]*string, len(valueListInterface))
+				for i, v := range valueListInterface {
+					str := v.(string)
+					valueList[i] = &str
+				}
+				condition := &waapShareCustomizerule.ResponseHeaderCondition{
+					MatchType: &matchType,
+					Key:       &key,
+					ValueList: valueList,
+				}
+				if keyMatchWildcard, ok := responseHeaderConditionMap["key_match_wildcard"].(string); ok && keyMatchWildcard != "" {
+					condition.KeyMatchWildcard = &keyMatchWildcard
+				}
+				responseHeaderConditions = append(responseHeaderConditions, condition)
+			}
+			conditionsRequest.ResponseHeaderConditions = responseHeaderConditions
+		}
+
 		// Area Conditions
 		if conditionMap["area_conditions"] != nil {
 			areaConditions := make([]*waapShareCustomizerule.AreaCondition, 0)
@@ -545,6 +636,31 @@ func resourceWaapShareCustomizeRuleCreate(context context.Context, data *schema.
 				ja4Conditions = append(ja4Conditions, ja4Condition)
 			}
 			conditionsRequest.Ja4Conditions = ja4Conditions
+		}
+
+		// Query String Conditions
+		if conditionMap["query_string_conditions"] != nil {
+			queryStringConditions := make([]*waapShareCustomizerule.QueryStringCondition, 0)
+			for _, queryStringCondition := range conditionMap["query_string_conditions"].([]interface{}) {
+				queryStringConditionMap := queryStringCondition.(map[string]interface{})
+				matchType := queryStringConditionMap["match_type"].(string)
+				key := queryStringConditionMap["key"].(string)
+				valueListInterface := queryStringConditionMap["value_list"].([]interface{})
+				valueList := make([]*string, len(valueListInterface))
+				for i, v := range valueListInterface {
+					str := v.(string)
+					valueList[i] = &str
+				}
+				keyMatchWildcard := queryStringConditionMap["key_match_wildcard"].(string)
+				queryStringCondition := &waapShareCustomizerule.QueryStringCondition{
+					MatchType:        &matchType,
+					Key:              &key,
+					ValueList:        valueList,
+					KeyMatchWildcard: &keyMatchWildcard,
+				}
+				queryStringConditions = append(queryStringConditions, queryStringCondition)
+			}
+			conditionsRequest.QueryStringConditions = queryStringConditions
 		}
 	}
 	request.Condition = conditionsRequest
@@ -679,6 +795,21 @@ func resourceWaapShareCustomizeRuleRead(context context.Context, data *schema.Re
 					}
 					condition["header_conditions"] = headerConditions
 				}
+				if item.Condition.ResponseHeaderConditions != nil {
+					responseHeaderConditions := make([]interface{}, 0)
+					for _, c := range item.Condition.ResponseHeaderConditions {
+						responseHeaderCondition := map[string]interface{}{
+							"match_type": c.MatchType,
+							"key":        c.Key,
+							"value_list": c.ValueList,
+						}
+						if c.KeyMatchWildcard != nil {
+							responseHeaderCondition["key_match_wildcard"] = c.KeyMatchWildcard
+						}
+						responseHeaderConditions = append(responseHeaderConditions, responseHeaderCondition)
+					}
+					condition["response_header_conditions"] = responseHeaderConditions
+				}
 				if item.Condition.AreaConditions != nil {
 					areaConditions := make([]interface{}, 0)
 					for _, condition := range item.Condition.AreaConditions {
@@ -722,6 +853,19 @@ func resourceWaapShareCustomizeRuleRead(context context.Context, data *schema.Re
 						ja4Conditions = append(ja4Conditions, ja4Condition)
 					}
 					condition["ja4_conditions"] = ja4Conditions
+				}
+				if item.Condition.QueryStringConditions != nil {
+					queryStringConditions := make([]interface{}, 0)
+					for _, condition := range item.Condition.QueryStringConditions {
+						queryStringCondition := map[string]interface{}{
+							"match_type":         condition.MatchType,
+							"key":                condition.Key,
+							"value_list":         condition.ValueList,
+							"key_match_wildcard": condition.KeyMatchWildcard,
+						}
+						queryStringConditions = append(queryStringConditions, queryStringCondition)
+					}
+					condition["query_string_conditions"] = queryStringConditions
 				}
 			}
 			_ = data.Set("condition", condition)
@@ -887,6 +1031,32 @@ func resourceWaapShareCustomizeRuleUpdate(context context.Context, data *schema.
 			conditionsRequest.HeaderConditions = headerConditions
 		}
 
+		// Response Header Conditions
+		if conditionMap["response_header_conditions"] != nil {
+			responseHeaderConditions := make([]*waapShareCustomizerule.ResponseHeaderCondition, 0)
+			for _, responseHeaderCondition := range conditionMap["response_header_conditions"].([]interface{}) {
+				responseHeaderConditionMap := responseHeaderCondition.(map[string]interface{})
+				matchType := responseHeaderConditionMap["match_type"].(string)
+				key := responseHeaderConditionMap["key"].(string)
+				valueListInterface := responseHeaderConditionMap["value_list"].([]interface{})
+				valueList := make([]*string, len(valueListInterface))
+				for i, v := range valueListInterface {
+					str := v.(string)
+					valueList[i] = &str
+				}
+				condition := &waapShareCustomizerule.ResponseHeaderCondition{
+					MatchType: &matchType,
+					Key:       &key,
+					ValueList: valueList,
+				}
+				if keyMatchWildcard, ok := responseHeaderConditionMap["key_match_wildcard"].(string); ok && keyMatchWildcard != "" {
+					condition.KeyMatchWildcard = &keyMatchWildcard
+				}
+				responseHeaderConditions = append(responseHeaderConditions, condition)
+			}
+			conditionsRequest.ResponseHeaderConditions = responseHeaderConditions
+		}
+
 		// Area Conditions
 		if conditionMap["area_conditions"] != nil {
 			areaConditions := make([]*waapShareCustomizerule.AreaCondition, 0)
@@ -969,6 +1139,31 @@ func resourceWaapShareCustomizeRuleUpdate(context context.Context, data *schema.
 				ja4Conditions = append(ja4Conditions, ja4Condition)
 			}
 			conditionsRequest.Ja4Conditions = ja4Conditions
+		}
+
+		// Query String Conditions
+		if conditionMap["query_string_conditions"] != nil {
+			queryStringConditions := make([]*waapShareCustomizerule.QueryStringCondition, 0)
+			for _, queryStringCondition := range conditionMap["query_string_conditions"].([]interface{}) {
+				queryStringConditionMap := queryStringCondition.(map[string]interface{})
+				matchType := queryStringConditionMap["match_type"].(string)
+				key := queryStringConditionMap["key"].(string)
+				valueListInterface := queryStringConditionMap["value_list"].([]interface{})
+				valueList := make([]*string, len(valueListInterface))
+				for i, v := range valueListInterface {
+					str := v.(string)
+					valueList[i] = &str
+				}
+				keyMatchWildcard := queryStringConditionMap["key_match_wildcard"].(string)
+				queryStringCondition := &waapShareCustomizerule.QueryStringCondition{
+					MatchType:        &matchType,
+					Key:              &key,
+					ValueList:        valueList,
+					KeyMatchWildcard: &keyMatchWildcard,
+				}
+				queryStringConditions = append(queryStringConditions, queryStringCondition)
+			}
+			conditionsRequest.QueryStringConditions = queryStringConditions
 		}
 	}
 	request.Condition = conditionsRequest

@@ -72,6 +72,10 @@ resource "wangsu_waap_bot_config" "demo" {
       request_header_key      = "b"
       traffic_characteristics = "PUBLIC_BOT"
     }
+
+    likely_bots {
+      action = "LOG"
+    }
   }
 
   web_config {
@@ -119,6 +123,7 @@ Optional:
 - `absolute_bots_act` (String) Definite Bots actions. NO_USE: Not Used.<br/>LOG: Log.<br/>BLOCK: Deny.
 - `ai_bots` (Block List) AI Bots configuration. (see [below for nested schema](#nestedblock--general_strategy--ai_bots))
 - `bot_tagging` (Block List) Bot Tagging.Header keys are case-insensitive and must be unique. (see [below for nested schema](#nestedblock--general_strategy--bot_tagging))
+- `likely_bots` (Block List, Max: 1) Likely Bots configuration. (see [below for nested schema](#nestedblock--general_strategy--likely_bots))
 - `public_bots` (Block List) Public Bots configuration. (see [below for nested schema](#nestedblock--general_strategy--public_bots))
 
 <a id="nestedblock--general_strategy--ai_bots"></a>
@@ -137,6 +142,14 @@ Required:
 
 - `request_header_key` (String) Customizing HTTP request headers.Length must be ≤128 characters, using only ASCII characters with no colons or spaces permitted.
 - `traffic_characteristics` (String) Tagging bot traffic characteristics.<br/>AI_BOT: AI Bots.<br/>PUBLIC_BOT: Public Bots.<br/>CUSTOMIZE_BOT: Custom Bots.
+
+
+<a id="nestedblock--general_strategy--likely_bots"></a>
+### Nested Schema for `general_strategy.likely_bots`
+
+Required:
+
+- `action` (String) Action.<br/>NO_USE: Not Used.<br/>LOG: Log.<br/>BLOCK: Deny.<br/>JS_CHALLENGE: JavaScript Challenge.<br/>JSC: Interactive Challenge.
 
 
 <a id="nestedblock--general_strategy--public_bots"></a>

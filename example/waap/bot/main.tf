@@ -67,6 +67,10 @@ resource "wangsu_waap_bot_config" "demo" {
       request_header_key      = "b"
       traffic_characteristics = "PUBLIC_BOT"
     }
+
+    likely_bots {
+      action = "JS_CHALLENGE"
+    }
   }
 
   web_config {

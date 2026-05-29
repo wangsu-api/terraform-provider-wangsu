@@ -84,6 +84,20 @@ resource "wangsu_waap_pre_deploy_custom_rule" "demo" {
         match_type = "EQUAL"
         ja4_list   = ["ja43740600_c43983326036_1b2d6ce873a3"]
       }
+
+      query_string_conditions {
+        match_type       = "EQUAL"
+        key              = "id"
+        value_list       = ["123", "456"]
+        key_match_wildcard = "FALSE"
+      }
+
+      response_header_conditions {
+        match_type = "NOT_EQUAL"
+        key        = "Content-Type"
+        value_list = ["application/json"]
+        key_match_wildcard = "FALSE"
+      }
     }
   }
 }
@@ -114,13 +128,13 @@ Required:
 
 - `act` (String) Action.<br/>NO_USE:Not Used<br/>LOG:Log<br/>DELAY:Delay<br/>BLOCK:Deny<br/>RESET:Reset Connection
 - `condition` (Block List, Min: 1) Match Conditions. (see [below for nested schema](#nestedblock--rule_list--condition))
-- `rule_name` (String) Rule Name, maximum 50 characters.<br/>does not support # and & .
+- `rule_name` (String) Rule Name, maximum 100 characters.<br/>does not support # and & .
 - `scene` (String) Protected target.<br/>WEB:Website<br/>API:API
 
 Optional:
 
 - `api_id` (String) API ID under API business, multiple separated by ; sign.<br/>When the protected target is APIThis field is required.
-- `description` (String) Description, maximum 200 characters.
+- `description` (String) Description, maximum 1000 characters.
 
 <a id="nestedblock--rule_list--condition"></a>
 ### Nested Schema for `rule_list.condition`
@@ -132,6 +146,8 @@ Optional:
 - `ip_or_ips_conditions` (Block List) IP/CIDR, match type cannot be repeated. (see [below for nested schema](#nestedblock--rule_list--condition--ip_or_ips_conditions))
 - `ja3_conditions` (Block List) JA3 Fingerprint, match type cannot be repeated. (see [below for nested schema](#nestedblock--rule_list--condition--ja3_conditions))
 - `ja4_conditions` (Block List) JA4 Fingerprint, match type cannot be repeated. (see [below for nested schema](#nestedblock--rule_list--condition--ja4_conditions))
+- `query_string_conditions` (Block List) Query String, match type can be repeated. (see [below for nested schema](#nestedblock--rule_list--condition--query_string_conditions))
+- `response_header_conditions` (Block List) Response Header, match type can be repeated. (see [below for nested schema](#nestedblock--rule_list--condition--response_header_conditions))
 - `method_conditions` (Block List) Request Method.<br/>When the business scenario is API,this matching condition is not supported. (see [below for nested schema](#nestedblock--rule_list--condition--method_conditions))
 - `path_conditions` (Block List) Path, match type cannot be repeated.<br/>When the business scenario is API, this matching condition is not supported. (see [below for nested schema](#nestedblock--rule_list--condition--path_conditions))
 - `referer_conditions` (Block List) Referer, match type cannot be repeated. (see [below for nested schema](#nestedblock--rule_list--condition--referer_conditions))
@@ -183,6 +199,35 @@ Required:
 
 - `ja4_list` (List of String) JA4 Fingerprint List, maximum 300 JA4 Fingerprint.<br/>When the match type is EQUAL/NOT_EQUAL, each item's format must be 10 characters + 12 characters + 12 characters, separated by underscores, and can only include underscores, numbers, and lowercase letters.<br/>When the match type is CONTAIN/NOT_CONTAIN/START_WITH/END_WITH, each item is only allowed to include underscores, numbers, and lowercase letters.<br/>When the match type is WILDCARD/NOT_WILDCARD, each item, aside from  ** and ?, is only allowed to include underscores, numbers, and lowercase letters.
 - `match_type` (String) Match type. <br/>EQUAL: Equals<br/>NOT_EQUAL: Does not equal<br/>CONTAIN: Contains<br/>NOT_CONTAIN: Does not Contains<br/>START_WITH: Starts with<br/>END_WITH: Ends with<br/>WILDCARD: Wildcard matches, ** represents zero or more arbitrary characters, ? represents any single character<br/>NOT_WILDCARD: Wildcard does not match, ** represents zero or more arbitrary characters, ? represents any single character
+
+
+<a id="nestedblock--rule_list--condition--query_string_conditions"></a>
+### Nested Schema for `rule_list.condition.query_string_conditions`
+
+Required:
+
+- `key` (String) Query name,up to 100 characters.<br/>Example: id.
+- `key_match_wildcard` (String) Check whether the Query name matches a wildcard. When the match type is NONE, wildcard matching is not supported.
+- `match_type` (String) Match type.<br/>EQUAL: Equals<br/>NOT_EQUAL: Does not equal<br/>CONTAIN: Contains<br/>NOT_CONTAIN: Does not Contains<br/>NONE: Empty or non-existent<br/>REGEX: Regex match<br/>NOT_REGEX: Regular does not match<br/>START_WITH: Starts with<br/>END_WITH: Ends with<br/>WILDCARD: Wildcard matches,* represents zero or more arbitrary characters, ? represents any single character<br/>NOT_WILDCARD: Wildcard does not match,* represents zero or more arbitrary characters, ? represents any single character
+- `value_list` (List of String) Query value,case sensitive.When the match type is REGEX/NOT_REGEX, only one value is allowed.
+
+
+
+
+<a id="nestedblock--rule_list--condition--response_header_conditions"></a>
+### Nested Schema for `rule_list.condition.response_header_conditions`
+
+Required:
+
+- `key` (String) Response header name,case insensitive,up to 100 characters.<br/>Example: Content-Type.
+- `match_type` (String) Match type.<br/>EQUAL: Equals, response header values case sensitive.<br/>NOT_EQUAL: Does not equal, response header values case sensitive.<br/>CONTAIN: Contains, response header values case insensitive.<br/>NOT_CONTAIN: Does not Contains, response header values case insensitive.<br/>NONE: Empty or non-existent.<br/>REGEX: Regex match, response header values case insensitive.<br/>NOT_REGEX: Regular does not match, response header values case insensitive.<br/>START_WITH: Starts with, response header values case insensitive.<br/>END_WITH: Ends with, response header values case insensitive.<br/>WILDCARD: Wildcard matches, response header values case insensitive,* represents zero or more arbitrary characters, ? represents any single character.<br/>NOT_WILDCARD: Wildcard does not match, response header values case insensitive,* represents zero or more arbitrary characters, ? represents any single character.
+- `value_list` (List of String) Response header value.<br/>When the match type is REGEX/NOT_REGEX, only one value is allowed.
+
+Optional:
+
+- `key_match_wildcard` (String) Check whether the response header name matches a wildcard. When the match type is NONE, wildcard matching is not supported.
+
+
 
 
 <a id="nestedblock--rule_list--condition--method_conditions"></a>

@@ -129,7 +129,7 @@ func DataSourceRateLimits() *schema.Resource {
 						"action": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: "Action.<br/>NO_USE:Not Used<br/>LOG:Log<br/>COOKIE:Cookie verification<br/>JS_CHECK:Javascript verification<br/>DELAY:Delay<br/>BLOCK:Deny<br/>RESET:Reset Connection<br/>JSC:Interactive Captcha<br/>Custom response ID:Custom response ID",
+							Description: "Action.<br/>NO_USE:Not Used<br/>LOG:Log<br/>COOKIE:Cookie Verification<br/>JS_CHECK:JavaScript Verification<br/>JS_CHALLENGE:JavaScript Challenge<br/>DELAY:Delay<br/>BLOCK:Deny<br/>RESET:Reset Connection<br/>JSC:Interactive Challenge<br/>Custom response ID:Custom response ID",
 						},
 						"rate_limit_rule_condition": {
 							Type:        schema.TypeList,

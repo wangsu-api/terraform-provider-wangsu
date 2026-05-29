@@ -59,12 +59,12 @@ data "wangsu_waap_whitelist" "demo" {
 
 - `conditions` (Block List, Min: 1) Match conditions, at least one, at most five. (see [below for nested schema](#nestedblock--conditions))
 - `domain` (String) Hostname.
-- `rule_name` (String) Rule name, maximum 50 characters.<br/>
+- `rule_name` (String) Rule name, maximum 100 characters.<br/>
  does not support # and & .
 
 ### Optional
 
-- `description` (String) Description, maximum 200 characters.
+- `description` (String) Description, maximum 1000 characters.
 
 ### Read-Only
 
