@@ -69,5 +69,3 @@ require (
 	google.golang.org/grpc v1.48.0 // indirect
 	google.golang.org/protobuf v1.28.0 // indirect
 )
-
-replace github.com/wangsu-api/wangsu-sdk-go => ../wangsu-sdk-go
