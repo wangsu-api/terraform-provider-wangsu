@@ -56,7 +56,7 @@ ACCEPT: release
 Required:
 
 - `condition_func` (String) Matching condition function.<br/>EQUAL: Equals<br/>NOT_EQUAL: Does not equal<br/>CONTAIN: Contains<br/>NOT_CONTAIN: Does not contain<br/>NONE: Empty or non-existent<br/>REGEX: Regex match<br/>NOT_REGEX: Does not match regex<br/>START_WITH: Starts with<br/>END_WITH: Ends with<br/>WILDCARD: Wildcard matches, * represents zero or more arbitrary characters, ? represents any single character<br/>NOT_WILDCARD: Wildcard does not match, * represents zero or more arbitrary characters, ? represents any single character
-- `condition_name` (String) Matching condition name. <br/>IP_IPS: IP/IP segment <br/>JA3: JA3 Fingerprint<br/>JA4: JA4 Fingerprint<br/>UA: User-agent <br/>HEADER: Request Header <br/>ASN: AS Number <br/>CLIENT_GROUP: Client Group <br/>PUBLIC_BOT: Public Bots
+- `condition_name` (String) Matching condition name. <br/>IP_IPS: IP/IP segment <br/>JA3: JA3 Fingerprint<br/>JA4: JA4 Fingerprint<br/>UA: User-agent <br/>HEADER: Request Header <br/>ASN: AS Number <br/>CLIENT_GROUP: Client Group <br/>PUBLIC_BOT: Public Bots <br/>PATH: Path
 - `condition_value_list` (List of String) Condition value list.
 
 Optional:
